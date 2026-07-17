@@ -106,9 +106,26 @@
   .bm-status button{border:none;background:transparent;cursor:pointer;font-size:12px;color:inherit;text-decoration:underline;padding:0}
   .quickstart{margin-top:14px;padding:14px;border-radius:10px;background:#f7f8fa;border:1px solid var(--line)}
   .quickstart h3{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-  .quickstart .steps{display:flex;gap:10px;flex-wrap:wrap}
-  .quickstart .step{flex:1;min-width:220px;display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--text);line-height:1.5}
-  .quickstart .step b{width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--line2);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+  .qs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  .qs-card{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--text);line-height:1.6}
+  .qs-card .qs-num{display:inline-block;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--line2);color:var(--sub);text-align:center;line-height:20px;font-size:12px;margin-right:8px;vertical-align:top}
+  .qs-card .qs-txt{display:inline-block;vertical-align:top;max-width:calc(100% - 34px)}
+  .qs-card .qs-txt b{display:block;font-weight:600;color:var(--text);margin-bottom:2px}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+  .modal.open{display:flex}
+  .modal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:520px;max-height:90vh;overflow:auto}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .modal-head h3{font-size:16px;font-weight:600}
+  .modal-close{background:none;border:none;font-size:18px;color:var(--sub);cursor:pointer}
+  .modal-body{padding:18px}
+  .bm-way{margin-bottom:18px}
+  .bm-way:last-child{margin-bottom:0}
+  .bm-way-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;padding:8px 12px;background:#f7f8fa;border-radius:8px}
+  .bm-hint{font-size:12px;color:var(--sub);margin-bottom:10px}
+  .bm-drag-wrap{text-align:center;margin:12px 0}
+  .bm-drag{display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;cursor:move;border:2px dashed #fff7f3;box-shadow:0 4px 14px rgba(255,80,0,.25)}
+  .bm-code-box{background:#fafbfc;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-family:Consolas,Monaco,monospace;font-size:11px;word-break:break-all;color:var(--sub);max-height:120px;overflow:auto}
   .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
   .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
   .panel h2 .ic{width:24px;height:24px;border-radius:7px;background:#fff2ec;color:#ff5000;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-right:2px}
@@ -144,10 +161,10 @@
 
     <div class="quickstart">
       <h3>📋 快速开始</h3>
-      <div class="steps">
-        <div class="step"><b>1</b><span>双击「运行工具.bat」→ 点 <b>① 启动并打开工具页</b></span></div>
-        <div class="step"><b>2</b><span>点击顶部「安装」把「导入推广参谋」书签写入浏览器书签栏</span></div>
-        <div class="step"><b>3</b><span>打开淘宝/天猫商品页，点书签栏「导入推广参谋」自动导入商品信息</span></div>
+      <div class="qs-grid">
+        <div class="qs-card"><span class="qs-num">1</span><div class="qs-txt"><b>启动工具</b>双击「运行工具.bat」→ 点 ① 启动并打开工具页。</div></div>
+        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>安装书签</b>点击顶部「安装」，把「导入推广参谋」写入浏览器书签栏。</div></div>
+        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>导入商品</b>打开淘宝/天猫商品页，点书签栏「导入推广参谋」自动导入。</div></div>
       </div>
     </div>
   </div>
@@ -291,6 +308,30 @@
         </div>
 
         <div class="note" id="disclaimer"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="bmModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>安装「导入推广参谋」书签</h3>
+      <button type="button" id="bmModalClose" class="modal-close" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bm-way">
+        <div class="bm-way-title">方式一：手动拖拽（推荐，无需关闭浏览器）</div>
+        <p class="bm-hint">按住鼠标左键，把下面橙色按钮拖到浏览器书签栏，松开后即可安装。</p>
+        <p class="bm-drag-wrap"><a id="bmDrag" class="bm-drag" href="#">导入推广参谋</a></p>
+        <p class="bm-hint">如果拖不动，可复制下面代码，手动新建书签（名称随便填，网址粘贴代码）：</p>
+        <div class="bm-code-box"><code id="bmCode"></code></div>
+        <button type="button" class="btn2" id="bmCopyBtn" style="margin-top:10px;width:100%">复制书签代码</button>
+      </div>
+      <div class="bm-way">
+        <div class="bm-way-title">方式二：自动安装（需要关闭浏览器）</div>
+        <p class="bm-hint">如果你不想拖拽，可以让工具自动关闭浏览器、写入书签，再重新打开。期间请保存好未关闭的标签页。</p>
+        <button class="btn" id="bmAutoInstallBtn" type="button" style="margin-top:4px;">关闭浏览器并自动安装</button>
       </div>
     </div>
   </div>
@@ -597,6 +638,8 @@ function parseLink(){
 document.getElementById("genBtn").addEventListener("click",gen);
 
 /* 书签安装状态检测与安装 */
+let BM_CODE = "";
+
 async function updateBmStatus(){
   const box = document.getElementById("bmStatus");
   const txt = document.getElementById("bmStatusText");
@@ -623,32 +666,86 @@ async function updateBmStatus(){
   }
 }
 
-async function installBookmark(){
-  if(!confirm("安装「导入推广参谋」书签需要先关闭浏览器，是否继续？\n\n安装完成后重新打开浏览器，书签栏就会出现。")) return;
+async function fetchBmCode(){
+  try{
+    const res = await fetch("/api/bookmarklet-code");
+    const d = await res.json();
+    if(d.ok && d.code){
+      BM_CODE = d.code;
+      document.getElementById("bmDrag").href = BM_CODE;
+      document.getElementById("bmCode").textContent = BM_CODE;
+    }
+  } catch(e){
+    // 离线时无法获取，保持默认值
+  }
+}
+
+function openBmModal(){
+  const m = document.getElementById("bmModal");
+  if(m) m.classList.add("open");
+}
+
+function closeBmModal(){
+  const m = document.getElementById("bmModal");
+  if(m) m.classList.remove("open");
+}
+
+async function autoInstallBookmark(){
+  if(!confirm("方式二会自动关闭浏览器、写入书签后再重新打开。\n\n请确认已保存好未关闭的重要标签页，是否继续？")) return;
   const txt = document.getElementById("bmStatusText");
-  const btn = document.getElementById("bmInstallBtn");
+  const btn = document.getElementById("bmAutoInstallBtn");
   txt.textContent = "导入书签：安装中…";
-  btn.style.display = "none";
+  btn.textContent = "安装程序已启动…";
+  btn.disabled = true;
   try{
     const res = await fetch("/api/install-bookmark", {method:"POST"});
     const d = await res.json();
     if(d.ok){
-      alert(d.msg || "安装程序已启动，请稍候。");
+      alert(d.msg || "安装程序已启动，浏览器关闭后会自动重新打开。");
     } else {
       alert("启动安装失败：" + (d.msg || "未知错误"));
-      updateBmStatus();
     }
   } catch(e){
     alert("启动安装失败，请手动运行「运行工具.bat」→「② 安装导入书签」。\n" + e);
+  } finally {
+    btn.textContent = "关闭浏览器并自动安装";
+    btn.disabled = false;
     updateBmStatus();
   }
 }
 
-document.getElementById("bmInstallBtn").addEventListener("click", installBookmark);
+async function copyBmCode(){
+  if(!BM_CODE) return alert("书签代码尚未加载，请稍候再试。");
+  try{
+    await navigator.clipboard.writeText(BM_CODE);
+    alert("书签代码已复制，请新建书签并粘贴到网址栏。");
+  } catch(e){
+    // 降级
+    const ta = document.createElement("textarea");
+    ta.value = BM_CODE;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    alert("书签代码已复制，请新建书签并粘贴到网址栏。");
+  }
+}
+
+document.getElementById("bmInstallBtn").addEventListener("click", openBmModal);
+document.getElementById("bmModalClose").addEventListener("click", closeBmModal);
+document.getElementById("bmAutoInstallBtn").addEventListener("click", autoInstallBookmark);
+document.getElementById("bmCopyBtn").addEventListener("click", copyBmCode);
+
+// 点击遮罩层关闭弹窗
+document.getElementById("bmModal").addEventListener("click", function(e){
+  if(e.target === this) closeBmModal();
+});
 
 /* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入（来自浏览器书签） */
 window.addEventListener("load",()=>{
   updateBmStatus();
+  fetchBmCode();
+  setInterval(updateBmStatus, 3000); // 定时检测书签是否写入
   // 浏览器检测：360或IE旧内核显示提示
   const ua=navigator.userAgent.toLowerCase();
   const badUA=/360se|360ee|qihu|theworld|lbbrowser|msie|trident/.test(ua);
