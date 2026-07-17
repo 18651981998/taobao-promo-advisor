@@ -41,10 +41,21 @@ INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 PORT = 8123
 
 # Tampermonkey 官方商店地址（正版，推荐）
-TM_CHROME = "https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo"
+TM_CHROME = "https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojimpmpbldmpobfkfo"
 TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaofnihnnoafoofjgjencj"
+# Tampermonkey 扩展 ID（用于直接打开其详情页）
+TM_CHROME_ID = "dhdgffkkebhmkfjojimpmpbldmpobfkfo"
+TM_EDGE_ID = "iikmkjmpaadaofnihnnoafoofjgjencj"
 # 本地用户脚本安装页（Tampermonkey 会自动接管并弹出安装）
 USERSCRIPT_URL = f"http://127.0.0.1:{PORT}/taobao-promo.user.js"
+
+
+def tm_settings_url(browser):
+    """根据所选浏览器，返回 Tampermonkey 详情页地址（带 ID 直达，省去手动查找）。"""
+    name = browser.get("name", "") if isinstance(browser, dict) else str(browser)
+    if "Edge" in name:
+        return f"edge://extensions/?id={TM_EDGE_ID}"
+    return f"chrome://extensions/?id={TM_CHROME_ID}"
 
 
 def server_up():
@@ -220,6 +231,8 @@ class Launcher(tk.Tk):
                     start_server()
                 time.sleep(0.6)
                 self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开安装页..."))
+                # 先打开 Tampermonkey 设置页（直达开关），再打开商店页与脚本页
+                open_url(tm_settings_url(browser), browser)
                 open_url(TM_CHROME, browser)
                 open_url(USERSCRIPT_URL, browser)
                 self.after(0, lambda: messagebox.showinfo(
@@ -265,7 +278,7 @@ class Launcher(tk.Tk):
 
         if kind == "script":
             self._set_running(True)
-            self._log("请选择浏览器，随后打开悬浮按钮脚本安装页...")
+            self._log("请选择浏览器，随后将打开 Tampermonkey 设置页（开用户脚本开关）...")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -276,16 +289,11 @@ class Launcher(tk.Tk):
                 if not server_up():
                     start_server()
                 time.sleep(0.6)
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开脚本页..."))
-                open_url(USERSCRIPT_URL, browser)
-                self.after(0, lambda: messagebox.showinfo(
-                    "安装悬浮按钮脚本",
-                    f"已选择浏览器：{browser['name']}\n\n"
-                    "已打开用户脚本安装页。\n\n"
-                    "若 Tampermonkey 已装，会自动弹出安装确认，点「安装」即可；\n"
-                    "若浏览器直接显示了代码文字，说明还没装 Tampermonkey，请先装扩展。"))
-                self.after(0, lambda: self._log("OK 已打开脚本页。若已装 Tampermonkey，点「安装」即可。"))
-                self.after(0, lambda: self._set_running(False))
+                # 第一步：先打开 Tampermonkey 详情页（带 ID 直达，省去手动查找）
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 设置页..."))
+                open_url(tm_settings_url(browser), browser)
+                # 第二步：弹窗提示用户打开「允许用户脚本」开关，确定后再打开脚本页
+                self.after(0, lambda: self._prompt_tm_switch(browser))
             threading.Thread(target=w, daemon=True).start()
             return
 
@@ -304,6 +312,29 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._log("OK 完成：" + label))
                 self.after(0, lambda: self._set_running(False))
         threading.Thread(target=w, daemon=True).start()
+
+    def _prompt_tm_switch(self, browser):
+        """引导用户打开 Tampermonkey 的「允许用户脚本」开关（主线程模态弹窗）。"""
+        messagebox.showinfo(
+            "重要：开启「允许用户脚本」开关",
+            f"已用 {browser['name']} 打开 Tampermonkey 详情页。\n\n"
+            "请在该页面找到「允许用户脚本」开关并打开（拨到蓝色 / 开启）。\n\n"
+            "如果页面里没有这个开关（Chrome 较旧版本），说明已默认开启，直接点「确定」即可。\n\n"
+            "点本窗口「确定」后，将自动打开脚本安装页。"
+        )
+        self._log("已确认，正在打开脚本安装页...")
+        open_url(USERSCRIPT_URL, browser)
+        self.after(0, lambda: self._finish_script_prompt(browser))
+
+    def _finish_script_prompt(self, browser):
+        messagebox.showinfo(
+            "安装悬浮按钮脚本",
+            f"已打开用户脚本安装页。\n\n"
+            "现在 Tampermonkey 应该会弹出安装确认框，点「安装」即可。\n\n"
+            "若浏览器直接显示了代码文字（未弹确认框），请确认上一步「允许用户脚本」开关已打开，并刷新本页。"
+        )
+        self._log("OK 已打开脚本页。若已开用户脚本开关，点「安装」即可。")
+        self._set_running(False)
 
 
 def main():
