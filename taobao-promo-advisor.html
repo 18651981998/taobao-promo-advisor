@@ -123,8 +123,24 @@
   .bm-way:last-child{margin-bottom:0}
   .bm-way-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;padding:8px 12px;background:#f7f8fa;border-radius:8px}
   .bm-hint{font-size:12px;color:var(--sub);margin-bottom:10px}
-  .bm-drag-wrap{text-align:center;margin:12px 0}
-  .bm-drag{display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;cursor:move;border:2px dashed #fff7f3;box-shadow:0 4px 14px rgba(255,80,0,.25)}
+  .bm-drag-wrap{text-align:center;margin:12px 0;position:relative}
+  .bm-drag-tip{font-size:13px;color:var(--brand);font-weight:600;margin-bottom:8px;background:#fff5f0;border:1px dashed #ffd0bf;border-radius:8px;padding:8px 12px;display:inline-flex;align-items:center;gap:6px}
+  .bm-drag{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;cursor:move;border:2px dashed #fff7f3;box-shadow:0 4px 14px rgba(255,80,0,.25);max-width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .bm-drag::before{content:"🖱";font-size:18px}
+  .bm-drag::after{content:"↗";font-size:14px;opacity:.9}
+  .bm-drag:hover{box-shadow:0 6px 18px rgba(255,80,0,.35);transform:translateY(-1px)}
+  .bm-drag-note{font-size:12px;color:var(--sub);margin-top:8px;background:#f7f8fa;border-radius:8px;padding:6px 10px;display:inline-block}
+  .bm-detect{background:#f0f7ff;border:1px solid #b3d7ff;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:#155b9a}
+  .bm-detect b{font-weight:600}
+  .bm-detect .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:6px}
+  .bm-detect .tag.ok{background:#e8f5e9;color:#2e7d32}
+  .bm-detect .tag.no{background:#ffebee;color:#c62828}
+  .bm-browser-tip{background:#fff3e0;border:1px solid #ffd180;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12.5px;color:#a35e0a}
+  .bm-browser-tip b{color:#d84315}
+  .bm-steps{counter-reset:bms;margin:12px 0;padding-left:0;list-style:none;font-size:12.5px;color:var(--text)}
+  .bm-steps li{position:relative;padding:6px 0 6px 28px;margin:4px 0}
+  .bm-steps li::before{counter-increment:bms;content:counter(bms);position:absolute;left:0;top:5px;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .bm-steps kbd{background:#f1f3f5;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px;font-size:11px;font-family:monospace}
   .bm-code-box{background:#fafbfc;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-family:Consolas,Monaco,monospace;font-size:11px;word-break:break-all;color:var(--sub);max-height:120px;overflow:auto}
   .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
   .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
@@ -320,13 +336,28 @@
       <button type="button" id="bmModalClose" class="modal-close" aria-label="关闭">✕</button>
     </div>
     <div class="modal-body">
+      <div id="bmDetect" class="bm-detect" style="display:none"></div>
       <div class="bm-way">
-        <div class="bm-way-title">方式一：手动拖拽（推荐，无需关闭浏览器）</div>
-        <p class="bm-hint">按住鼠标左键，把下面橙色按钮拖到浏览器书签栏，松开后即可安装。</p>
-        <p class="bm-drag-wrap"><a id="bmDrag" class="bm-drag" href="#">导入推广参谋</a></p>
-        <p class="bm-hint">如果拖不动，可复制下面代码，手动新建书签（名称随便填，网址粘贴代码）：</p>
-        <div class="bm-code-box"><code id="bmCode"></code></div>
-        <button type="button" class="btn2" id="bmCopyBtn" style="margin-top:10px;width:100%">复制书签代码</button>
+        <div class="bm-way-title">方式一：手动拖拽（推荐，不用关浏览器）</div>
+        <div class="bm-browser-tip" id="bmBrowserTip" style="display:none"></div>
+        <ol class="bm-steps">
+          <li>先按 <kbd>Ctrl+Shift+B</kbd>，在浏览器<strong>地址栏下方</strong>显示「书签栏」。</li>
+          <li>按住下面橙色按钮<strong>不要松</strong>，一直拖到<strong>书签栏空白处</strong>，再松开鼠标。</li>
+          <li>书签栏会出现「导入推广参谋」书签，以后在淘宝/天猫商品页点它即可。</li>
+        </ol>
+        <div class="bm-drag-wrap">
+          <div class="bm-drag-tip">👆 拖到浏览器「书签栏」</div>
+          <br>
+          <a id="bmDrag" class="bm-drag" href="#">导入推广参谋</a>
+          <div class="bm-drag-note">不是点击，是「按住左键」拖到浏览器顶部的书签栏</div>
+        </div>
+        <p class="bm-hint">拖拽失败？可复制下面代码，手动新建书签：</p>
+        <div class="bm-code-box"><code id="bmCode">正在加载书签代码…</code></div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button type="button" class="btn2" id="bmCopyBtn" style="flex:1">复制书签代码</button>
+          <button type="button" class="btn2" id="bmManualBtn" style="flex:1">手动新建书签步骤</button>
+          <button type="button" class="btn2" id="bmMarkBtn" style="flex:1">我已拖到书签栏，标记为已安装</button>
+        </div>
       </div>
       <div class="bm-way">
         <div class="bm-way-title">方式二：自动安装（需要关闭浏览器）</div>
@@ -639,6 +670,24 @@ document.getElementById("genBtn").addEventListener("click",gen);
 
 /* 书签安装状态检测与安装 */
 let BM_CODE = "";
+function makeBmCode(port){
+  return "javascript:(function(){"+
+    "function t(){var r='';try{r=document.querySelector('h1').innerText.trim();}catch(e){}if(!r)try{r=document.querySelector('meta[property=\\\"og:title\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.title;}catch(e){}return r;}"+
+    "function p(){var r='';try{r=g_config.defaultItemPrice;}catch(e){}if(!r)try{r=document.querySelector('[class*=\\\"Price\\\"]').innerText.match(/[\\\\d.]+/)[0];}catch(e){}if(!r){var m=document.body.innerText.match(/[¥￥]\\\\s*([\\\\d.]+)/);if(m)r=m[1];}return r;}"+
+    "function c(){var r='';try{r=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.pic;}catch(e){}if(!r){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){r=imgs[i].src;break;}}return r;}"+
+    "var title=t(),price=p(),pic=c(),url=location.href;"+
+    "var u='http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url);window.open(u,'_blank');})();";
+}
+function setBmCode(code){
+  BM_CODE = code || makeBmCode(8123);
+  const drag = document.getElementById("bmDrag");
+  if(drag){
+    drag.href = BM_CODE;
+    drag.textContent = "导入推广参谋";
+  }
+  const box = document.getElementById("bmCode");
+  if(box) box.textContent = BM_CODE;
+}
 
 async function updateBmStatus(){
   const box = document.getElementById("bmStatus");
@@ -649,6 +698,22 @@ async function updateBmStatus(){
     const res = await fetch("/api/bookmark-status");
     const d = await res.json();
     box.style.display = "inline-flex";
+    // 弹窗内显示检测详情
+    const detectBox = document.getElementById("bmDetect");
+    if(detectBox && Array.isArray(d.detected)){
+      const installedNames = d.detected.filter(x=>x.installed).map(x=>x.name);
+      const installedBrowsers = d.detected.filter(x=>!x.error).map(x=>x.name);
+      if(installedNames.length > 0){
+        detectBox.innerHTML = `<b>已检测到书签：</b>${installedNames.join("、")} <span class="tag ok">已安装</span>`;
+        detectBox.style.display = "block";
+      } else if(installedBrowsers.length > 0){
+        detectBox.innerHTML = `<b>已检测到浏览器：</b>${installedBrowsers.join("、")} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
+        detectBox.style.display = "block";
+      } else {
+        detectBox.innerHTML = `<b>未检测到 Chrome/Edge/360 浏览器。</b> 请确认已安装 Chrome 或 Edge 后再安装书签。`;
+        detectBox.style.display = "block";
+      }
+    }
     if(d.ok && d.installed){
       box.className = "bm-status ok";
       txt.textContent = "导入书签：已安装";
@@ -667,22 +732,40 @@ async function updateBmStatus(){
 }
 
 async function fetchBmCode(){
+  setBmCode(); // 先给默认代码，避免异步等待期间按钮无效
   try{
     const res = await fetch("/api/bookmarklet-code");
     const d = await res.json();
-    if(d.ok && d.code){
-      BM_CODE = d.code;
-      document.getElementById("bmDrag").href = BM_CODE;
-      document.getElementById("bmCode").textContent = BM_CODE;
-    }
-  } catch(e){
-    // 离线时无法获取，保持默认值
-  }
+    if(d.ok && d.code){ setBmCode(d.code); }
+  } catch(e){ /* 离线时保持默认代码 */ }
 }
 
 function openBmModal(){
   const m = document.getElementById("bmModal");
   if(m) m.classList.add("open");
+  // 根据当前浏览器UA给出提示（优先识别 Chrome / Edge，避免 360 插件污染 UA 导致误判）
+  const tip = document.getElementById("bmBrowserTip");
+  const ua = navigator.userAgent.toLowerCase();
+  const isEdge = /edg\//.test(ua);
+  const isChrome = /chrome\//.test(ua) && !isEdge;
+  const is360 = /360se|360ee|360chrome|360se6|qihu 360/.test(ua) && !isChrome && !isEdge;
+  if(isEdge){
+    tip.innerHTML = "<b>✓ 已使用 Microsoft Edge。</b> 请按下面步骤把橙色按钮拖到书签栏。";
+    tip.style.display = "block";
+  } else if(isChrome){
+    tip.innerHTML = "<b>✓ 已使用 Google Chrome。</b> 请按下面步骤把橙色按钮拖到书签栏。";
+    tip.style.display = "block";
+  } else if(is360){
+    tip.innerHTML = "<b>⚠ 检测到 360 浏览器。</b> 360 对本地工具和 javascript: 书签支持不稳定，<b>强烈建议换用 Google Chrome 或 Microsoft Edge</b> 打开本工具并安装书签。";
+    tip.style.display = "block";
+  } else {
+    tip.innerHTML = "<b>⚠ 未识别到 Chrome/Edge。</b> 请使用 Chrome 或 Edge 打开本工具，否则书签可能无法安装。";
+    tip.style.display = "block";
+  }
+}
+
+function showManualSteps(){
+  alert("手动新建书签步骤（推荐 Chrome/Edge）：\n\n1. 按 Ctrl+Shift+B 显示书签栏。\n2. 在书签栏空白处右键 → 选择「添加网页」。\n3. 名称填写：导入推广参谋\n4. 网址粘贴刚才复制的书签代码。\n5. 点「保存」即可。\n\n完成后回到本页面，点「我已安装，刷新状态」。");
 }
 
 function closeBmModal(){
@@ -731,10 +814,27 @@ async function copyBmCode(){
   }
 }
 
-document.getElementById("bmInstallBtn").addEventListener("click", openBmModal);
+document.getElementById("bmInstallBtn").addEventListener("click", ()=>{openBmModal();fetchBmCode();});
 document.getElementById("bmModalClose").addEventListener("click", closeBmModal);
 document.getElementById("bmAutoInstallBtn").addEventListener("click", autoInstallBookmark);
 document.getElementById("bmCopyBtn").addEventListener("click", copyBmCode);
+document.getElementById("bmManualBtn").addEventListener("click", showManualSteps);
+document.getElementById("bmMarkBtn").addEventListener("click", ()=>{
+  localStorage.setItem("jp_bm_marked", "1");
+  const box = document.getElementById("bmStatus");
+  const txt = document.getElementById("bmStatusText");
+  const btn = document.getElementById("bmInstallBtn");
+  box.className = "bm-status ok";
+  txt.textContent = "导入书签：已安装";
+  btn.style.display = "none";
+  alert("已标记为安装。现在可以打开淘宝/天猫商品页，点书签栏里的「导入推广参谋」使用了。");
+});
+
+// 防误点：书签按钮必须拖拽，不能点击
+document.getElementById("bmDrag").addEventListener("click", function(e){
+  e.preventDefault();
+  alert("这个按钮不是点击的，请「按住鼠标左键」把它拖到浏览器顶部的「书签栏」再松开。\n\n按 Ctrl+Shift+B 可显示书签栏。");
+});
 
 // 点击遮罩层关闭弹窗
 document.getElementById("bmModal").addEventListener("click", function(e){
@@ -743,9 +843,20 @@ document.getElementById("bmModal").addEventListener("click", function(e){
 
 /* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入（来自浏览器书签） */
 window.addEventListener("load",()=>{
+  setBmCode();
   updateBmStatus();
   fetchBmCode();
   setInterval(updateBmStatus, 3000); // 定时检测书签是否写入
+  // 如果用户之前手动标记过已安装，保持状态
+  if(localStorage.getItem("jp_bm_marked") === "1"){
+    const box = document.getElementById("bmStatus");
+    const txt = document.getElementById("bmStatusText");
+    const btn = document.getElementById("bmInstallBtn");
+    box.style.display = "inline-flex";
+    box.className = "bm-status ok";
+    txt.textContent = "导入书签：已安装";
+    btn.style.display = "none";
+  }
   // 浏览器检测：360或IE旧内核显示提示
   const ua=navigator.userAgent.toLowerCase();
   const badUA=/360se|360ee|qihu|theworld|lbbrowser|msie|trident/.test(ua);
