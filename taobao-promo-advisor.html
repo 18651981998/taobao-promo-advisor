@@ -210,12 +210,13 @@
           </div>
           <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
             <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>（Chrome 网上应用店搜“Tampermonkey”安装，或去 tampermonkey.net）。</li>
-            <li>点下面「一键安装脚本」，油猴会自动弹出安装页 → 点「安装」。</li>
+            <li>先点「一键安装脚本」，油猴会自动弹出安装页 → 点「安装」。</li>
+            <li>如果页面没有弹出安装框（部分 Chrome 版本限制），点「复制脚本代码」→ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</li>
             <li>打开任意淘宝/天猫商品页，点右下角悬浮按钮即可导入。</li>
           </ol>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" class="btn2" id="installUserscriptBtn">一键安装脚本</button>
-            <button type="button" class="btn2" id="copyUserscriptBtn">复制脚本代码</button>
+            <button type="button" class="btn2" id="copyUserscriptBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制脚本代码（手动安装）</button>
           </div>
           <div class="hint" id="usStatus" style="margin-top:8px;"></div>
         </div>
@@ -678,7 +679,7 @@ document.getElementById("installUserscriptBtn").addEventListener("click", functi
   window.open("http://127.0.0.1:8123/taobao-promo.user.js", "_blank");
   const st=document.getElementById("usStatus");
   st.style.color="var(--info)";
-  st.textContent="已在新标签打开脚本安装页。若油猴已安装，会自动弹出安装确认；若没有，请先装 Tampermonkey 扩展。";
+  st.innerHTML="已在新标签打开脚本安装页。若油猴已安装，会自动弹出安装确认；<b>如果页面只显示文字没有安装按钮，请点上面的「复制脚本代码（手动安装）」按钮，复制后打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</b>";
 });
 document.getElementById("copyUserscriptBtn").addEventListener("click", function(){
   fetch("/taobao-promo.user.js").then(r=>r.text()).then(txt=>{
