@@ -92,16 +92,23 @@
   .note{font-size:12px;color:var(--hint);background:#fafbfc;border:1px dashed var(--line2);border-radius:8px;padding:10px 12px;margin-top:4px}
   .empty{text-align:center;color:var(--hint);padding:40px 10px;border:1px dashed var(--line2);border-radius:12px}
   @media print{body{background:#fff}.panel:first-child,.toolbar,.sub{display:none}.grid{grid-template-columns:1fr}.card,.panel{break-inside:avoid}}
-  /* ===== 美化新增 ===== */
-  .hero{background:linear-gradient(135deg,#ff5000,#ff7a00);color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:16px;box-shadow:0 8px 24px rgba(255,80,0,.18)}
-  .hero .h-top{display:flex;align-items:center;gap:12px}
-  .hero .h-logo{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0}
-  .hero h1{font-size:20px;font-weight:700;color:#fff;line-height:1.2}
-  .hero .h-sub{font-size:13px;opacity:.92;margin-top:3px}
-  .hero .h-meta{font-size:12px;opacity:.82;margin-top:3px}
-  .guide{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-  .guide .g{flex:1;min-width:200px;background:rgba(255,255,255,.14);border-radius:10px;padding:9px 12px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
-  .guide .g b{background:#fff;color:#ff5000;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
+  /* ===== 新版清爽顶部 ===== */
+  .topbar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
+  .topbar .head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}
+  .topbar .head .left{display:flex;align-items:flex-start;gap:12px}
+  .topbar .head .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;flex-shrink:0}
+  .topbar h1{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
+  .topbar .sub{color:var(--sub);font-size:13px;margin-top:2px}
+  .topbar .meta{color:var(--sub);font-size:12px;margin-top:4px}
+  .bm-status{align-self:center;display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:6px 12px;border-radius:20px;background:#fff;border:1px solid var(--line);white-space:nowrap;flex-shrink:0}
+  .bm-status.ok{color:#2e7d32;background:#e8f5e9;border-color:#a5d6a7}
+  .bm-status.no{color:#c62828;background:#ffebee;border-color:#ef9a9a}
+  .bm-status button{border:none;background:transparent;cursor:pointer;font-size:12px;color:inherit;text-decoration:underline;padding:0}
+  .quickstart{margin-top:14px;padding:14px;border-radius:10px;background:#f7f8fa;border:1px solid var(--line)}
+  .quickstart h3{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .quickstart .steps{display:flex;gap:10px;flex-wrap:wrap}
+  .quickstart .step{flex:1;min-width:220px;display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--text);line-height:1.5}
+  .quickstart .step b{width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--line2);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
   .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
   .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
   .panel h2 .ic{width:24px;height:24px;border-radius:7px;background:#fff2ec;color:#ff5000;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-right:2px}
@@ -110,7 +117,6 @@
   .btn:active{transform:translateY(1px)}
   .chip{transition:transform .08s}
   .chip:hover{transform:translateY(-1px)}
-  .ext-status{transition:all .2s;margin-bottom:16px}
   .card{transition:box-shadow .2s}
   .card:hover{box-shadow:0 4px 14px rgba(20,30,50,.06)}
 </style>
@@ -120,25 +126,30 @@
   ⚠ 检测到非 Chrome/Edge 浏览器，可能导致页面卡加载。请使用 <b>Google Chrome</b> 或 <b>Microsoft Edge</b> 打开本工具（双击「运行工具.bat」）。
 </div>
 <div class="wrap">
-  <div class="hero">
-    <div class="h-top">
-      <div class="h-logo">淘</div>
-      <div>
-        <h1>淘系推广参谋</h1>
-        <div class="h-sub">基于万相台无界最新推广逻辑 · 输入商品与账户状态，生成可照搬的后台配置单</div>
-        <div class="h-meta">作者：A0_0🇨🇳 涛声依旧 ｜ 版本 V26.0717</div>
+  <div class="topbar">
+    <div class="head">
+      <div class="left">
+        <div class="logo">淘</div>
+        <div>
+          <h1>淘系推广参谋</h1>
+          <div class="sub">基于万相台无界最新推广逻辑 · 输入商品与账户状态，生成可照搬的后台配置单</div>
+          <div class="meta">作者：A0_0🇨🇳 涛声依旧 ｜ 版本 V26.0717</div>
+        </div>
+      </div>
+      <div id="bmStatus" class="bm-status no" style="display:none;">
+        <span id="bmStatusText">导入书签：未安装</span>
+        <button id="bmInstallBtn" type="button">安装</button>
       </div>
     </div>
-    <div class="guide">
-      <div class="g"><b>1</b><span>双击「运行工具.bat」→ 点 <b>① 启动并打开工具页</b>（自动装书签 + 扩展）</span></div>
-      <div class="g"><b>2</b><span>打开淘宝/天猫商品页，点书签栏「导入推广参谋」或扩展图标，自动带入</span></div>
-      <div class="g"><b>3</b><span>填账户状态 → 点「生成推广配置单」拿投放方案</span></div>
-    </div>
-  </div>
 
-  <div id="extStatus" class="ext-status ext-missing" style="display:none;">
-    <span id="extStatusText">扩展状态：检测中…</span>
-    <button id="extInstallBtn" type="button">点击安装</button>
+    <div class="quickstart">
+      <h3>📋 快速开始</h3>
+      <div class="steps">
+        <div class="step"><b>1</b><span>双击「运行工具.bat」→ 点 <b>① 启动并打开工具页</b></span></div>
+        <div class="step"><b>2</b><span>点击顶部「安装」把「导入推广参谋」书签写入浏览器书签栏</span></div>
+        <div class="step"><b>3</b><span>打开淘宝/天猫商品页，点书签栏「导入推广参谋」自动导入商品信息</span></div>
+      </div>
+    </div>
   </div>
 
   <div class="grid">
@@ -159,7 +170,7 @@
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
         </div>
         <div class="hint" id="parseStatus"></div>
-        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">提示：淘宝/天猫商品页需要登录态，自动解析可能失败；失败时请直接手动填写，或<a href="bookmarklet.html" target="_blank" style="color:#ff5000; text-decoration:underline;">用浏览器书签抓取</a>。</div>
+        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">提示：淘宝/天猫商品页需要登录态，自动解析可能失败；推荐安装顶部「导入书签」，在商品页点书签栏一键导入。</div>
       </div>
 
       <div class="field">
@@ -578,56 +589,66 @@ function parseLink(){
       }
     })
     .catch(e=>{
-      st.textContent="解析需通过本地服务器运行（推荐双击 运行工具.bat，选 1 启动服务）。当前为离线模式，可手动填写。";
+      st.textContent="解析需通过本地服务器运行（双击「运行工具.bat」→ 点 ①）。当前为离线模式，可手动填写。";
       st.style.color="var(--warn)";
     });
 }
 
 document.getElementById("genBtn").addEventListener("click",gen);
 
-/* 扩展状态检测与安装 */
-function updateExtStatus(){
-  const installed = window.__TAOBAO_PROMO_EXTENSION_INSTALLED__ === true;
-  const box = document.getElementById("extStatus");
-  const txt = document.getElementById("extStatusText");
-  const btn = document.getElementById("extInstallBtn");
+/* 书签安装状态检测与安装 */
+async function updateBmStatus(){
+  const box = document.getElementById("bmStatus");
+  const txt = document.getElementById("bmStatusText");
+  const btn = document.getElementById("bmInstallBtn");
   if(!box) return;
-  box.style.display = "inline-flex";
-  if(installed){
-    box.className = "ext-status ext-installed";
-    txt.textContent = "扩展状态：已安装";
-    btn.style.display = "none";
-  } else {
-    box.className = "ext-status ext-missing";
-    txt.textContent = "扩展状态：未安装";
+  try{
+    const res = await fetch("/api/bookmark-status");
+    const d = await res.json();
+    box.style.display = "inline-flex";
+    if(d.ok && d.installed){
+      box.className = "bm-status ok";
+      txt.textContent = "导入书签：已安装";
+      btn.style.display = "none";
+    } else {
+      box.className = "bm-status no";
+      txt.textContent = "导入书签：未安装";
+      btn.style.display = "inline";
+    }
+  } catch(e){
+    box.style.display = "inline-flex";
+    box.className = "bm-status no";
+    txt.textContent = "导入书签：未检测";
     btn.style.display = "inline";
   }
 }
 
-async function installExtension(){
-  if(!confirm("安装扩展需要先关闭浏览器再重新打开，是否继续？")) return;
-  const txt = document.getElementById("extStatusText");
-  txt.textContent = "扩展状态：安装中…";
+async function installBookmark(){
+  if(!confirm("安装「导入推广参谋」书签需要先关闭浏览器，是否继续？\n\n安装完成后重新打开浏览器，书签栏就会出现。")) return;
+  const txt = document.getElementById("bmStatusText");
+  const btn = document.getElementById("bmInstallBtn");
+  txt.textContent = "导入书签：安装中…";
+  btn.style.display = "none";
   try{
-    const res = await fetch("/api/install-extension", {method:"POST"});
+    const res = await fetch("/api/install-bookmark", {method:"POST"});
     const d = await res.json();
     if(d.ok){
-      alert(d.msg || "安装程序已启动");
+      alert(d.msg || "安装程序已启动，请稍候。");
     } else {
       alert("启动安装失败：" + (d.msg || "未知错误"));
-      updateExtStatus();
+      updateBmStatus();
     }
   } catch(e){
-    alert("启动安装失败，请手动运行「运行工具.bat」选择「① 启动并打开工具页」。\n" + e);
-    updateExtStatus();
+    alert("启动安装失败，请手动运行「运行工具.bat」→「② 安装导入书签」。\n" + e);
+    updateBmStatus();
   }
 }
 
-document.getElementById("extInstallBtn").addEventListener("click", installExtension);
+document.getElementById("bmInstallBtn").addEventListener("click", installBookmark);
 
 /* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入（来自浏览器书签） */
 window.addEventListener("load",()=>{
-  updateExtStatus();
+  updateBmStatus();
   // 浏览器检测：360或IE旧内核显示提示
   const ua=navigator.userAgent.toLowerCase();
   const badUA=/360se|360ee|qihu|theworld|lbbrowser|msie|trident/.test(ua);
@@ -651,7 +672,7 @@ window.addEventListener("load",()=>{
   }
   if(title || price || pic){
     const st=document.getElementById("parseStatus");
-    st.textContent="已从浏览器抓取的商品页导入（通过书签）。可补全其他信息后生成配置单。";
+    st.textContent="已从商品页导入。可补全其他信息后生成配置单。";
     st.style.color="var(--ok)";
     const c=guessCat(title||"");
     if(c) document.getElementById("cat").value=c;
