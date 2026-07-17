@@ -296,67 +296,81 @@ def inject_bookmark(browser, code):
     return done
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--extension-only", action="store_true",
-                        help="仅加载扩展，不安装书签")
-    parser.add_argument("--open-only", action="store_true",
-                        help="仅启动服务并打开工具页")
-    args = parser.parse_args()
+MANUAL_STEPS = (
+    "请手动执行以下操作后重试：\n"
+    "1) 关闭所有浏览器窗口；\n"
+    "2) 右键系统托盘（右下角）的浏览器图标，选择「退出」；\n"
+    "3) 浏览器设置 → 系统 → 关闭「关闭浏览器后继续运行后台应用」；\n"
+    "4) 重新运行本工具。"
+)
 
-    # 1. 启动服务
-    if not start_server():
-        messagebox.showerror("启动失败",
-            "本地服务未能启动，请确认 Python 环境存在：\n" + PY)
-        return
+LAST_BROWSER_FILE = os.path.join(HERE, "last_browser.txt")
 
-    # 2. 选择浏览器
-    browser = choose_browser()
-    if not browser:
-        return
 
+def save_browser(name):
+    try:
+        with open(LAST_BROWSER_FILE, "w", encoding="utf-8") as f:
+            f.write(name)
+    except Exception:
+        pass
+
+
+def load_browser():
+    try:
+        with open(LAST_BROWSER_FILE, encoding="utf-8") as f:
+            n = f.read().strip()
+        return next((x for x in BROWSERS if x["name"] == n and is_installed(x)), None)
+    except Exception:
+        return None
+
+
+def pick_browser():
+    """优先使用上次选择且仍安装的浏览器（免弹窗）；否则弹窗选择"""
+    saved = load_browser()
+    if saved:
+        return saved
+    return choose_browser()
+
+
+def open_tool_page(browser):
+    """启动服务后：关掉浏览器 → 装书签 → 带扩展重启并打开工具页。
+
+    Chrome / Edge 的 --load-extension 只对“全新进程”生效，因此必须先把
+    浏览器完全关掉再带参数启动。若用户拒绝关闭，则退而求其次只打开页面。
+    """
     exe = resolve_exe(browser)
     if not exe or not os.path.isfile(exe):
         messagebox.showwarning("浏览器未安装",
-            f"「{browser['name']}」未安装。\n请先安装该浏览器，或选择其他浏览器。")
+            f"「{browser['name']}」未安装。\n请先安装该浏览器，或选择其他已安装的浏览器。")
         return
 
-    # 仅打开工具页：不关闭浏览器、不装书签、不加载扩展
-    if args.open_only:
-        try:
-            subprocess.Popen([exe, f"http://127.0.0.1:{PORT}/"],
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except Exception as e:
-            messagebox.showerror("启动浏览器失败",
-                f"无法启动 {browser['name']}：\n{str(e)}")
-        return
-
-    # 3. 若浏览器在运行，需先完全关闭才能加载扩展 + 写书签
     if is_running(exe):
         ok = messagebox.askyesno("需要关闭浏览器",
-            f"要把扩展和书签装入「{browser['name']}」，需要先完全关闭它\n"
-            "（包括所有窗口和系统托盘里的后台应用）。\n\n"
-            "现在关闭并继续吗？")
-        if not ok:
-            messagebox.showinfo("已取消", "未做任何改动。")
-            return
-        kill_browser(exe)
-        if not wait_browser_dead(exe, timeout=15):
-            messagebox.showerror("浏览器未能完全关闭",
-                f"「{browser['name']}」仍有残留进程，扩展无法加载。\n\n"
-                "请手动执行以下操作后再重试：\n"
-                "1) 关闭所有 Chrome/Edge 窗口；\n"
-                "2) 点击系统托盘（右下角）的 Chrome 图标，选择「退出」；\n"
-                "3) 在 Chrome 设置 → 系统 里关闭「关闭 Google Chrome 后继续运行后台应用」；\n"
-                "4) 重新运行本工具。")
+            f"要加载扩展，需先完全关闭「{browser['name']}」\n"
+            "（包括所有窗口和系统托盘里的后台应用）。\n\n现在关闭并继续吗？")
+        if ok:
+            kill_browser(exe)
+            if not wait_browser_dead(exe, timeout=20):
+                messagebox.showerror("浏览器未能完全关闭",
+                    f"「{browser['name']}」仍有残留进程，扩展无法加载。\n\n" + MANUAL_STEPS)
+                # 退而求其次：直接打开页面（无扩展）
+                subprocess.Popen([exe, f"http://127.0.0.1:{PORT}/"],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return
+        else:
+            # 用户不想关：直接打开页面，并提示扩展需经本工具加载
+            subprocess.Popen([exe, f"http://127.0.0.1:{PORT}/"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            messagebox.showinfo("已打开（未加载扩展）",
+                "本次未关闭浏览器，扩展未加载。\n"
+                "如需使用扩展/书签，请通过本工具「启动并打开工具页」，并确保浏览器已完全关闭。")
             return
 
-    # 4. 注入书签（浏览器关闭态，安全）
-    if not args.extension_only:
-        inject_bookmark(browser, bookmarklet_code(PORT))
+    # 到此处浏览器已关闭（或本来就没开）：写书签安全
+    inject_bookmark(browser, bookmarklet_code(PORT))
 
-    # 5. 带扩展启动浏览器 + 打开工具页
-    ext = EXT_DIR.replace("\\", "/")
+    # 用原生路径（反斜杠）加载扩展并打开工具页
+    ext = EXT_DIR
     try:
         subprocess.Popen([exe, f"--load-extension={ext}",
                          f"http://127.0.0.1:{PORT}/"],
@@ -366,23 +380,63 @@ def main():
             f"无法启动 {browser['name']}：\n{str(e)}\n\n请检查浏览器是否损坏。")
         return
 
-    # 6. 完成提示
-    if args.extension_only:
-        messagebox.showinfo("扩展加载完成",
-            f"已尝试在 {browser['name']} 中加载「淘系推广参谋」扩展。\n\n"
-            "用法：打开淘宝/天猫商品页 → 点击工具栏扩展图标 → 自动导入到工具。\n\n"
-            "提示：开发者模式扩展在浏览器完全关闭后需重新运行本工具加载。")
+    messagebox.showinfo("已打开工具页",
+        f"已用 {browser['name']} 打开工具页并加载扩展（本次会话有效）。\n\n"
+        "导入商品：打开淘宝/天猫商品页 → 点书签栏「导入推广参谋」或工具栏扩展图标。\n\n"
+        "提示：扩展为开发者模式，下次需通过本工具「启动并打开工具页」重新加载；"
+        "书签为永久方式，两种都可导入。")
+
+
+def install_bookmark_only(browser):
+    """仅把书签写入浏览器书签栏（需关闭浏览器才能写入）"""
+    exe = resolve_exe(browser)
+    if not exe or not os.path.isfile(exe):
+        messagebox.showwarning("浏览器未安装",
+            f"「{browser['name']}」未安装。\n请先安装该浏览器，或选择其他已安装的浏览器。")
+        return
+    if is_running(exe):
+        ok = messagebox.askyesno("需要关闭浏览器",
+            f"把书签写入「{browser['name']}」需要先完全关闭它。\n现在关闭并继续吗？")
+        if not ok:
+            messagebox.showinfo("已取消", "未做任何改动。")
+            return
+        kill_browser(exe)
+        wait_browser_dead(exe, timeout=15)
+    inject_bookmark(browser, bookmarklet_code(PORT))
+    try:
+        subprocess.Popen([exe, f"http://127.0.0.1:{PORT}/"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+    messagebox.showinfo("书签已安装",
+        f"已将「{BOOKMARK_NAME}」写入 {browser['name']} 书签栏（永久有效）。\n"
+        "打开淘宝/天猫商品页，点书签栏「导入推广参谋」即可把商品导入工具。")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--open", action="store_true",
+                        help="启动服务 + 装书签 + 带扩展打开工具页")
+    parser.add_argument("--install-bookmark", action="store_true",
+                        help="仅安装书签到浏览器")
+    args = parser.parse_args()
+
+    # 1. 启动服务
+    if not start_server():
+        messagebox.showerror("启动失败",
+            "本地服务未能启动，请确认 Python 环境存在：\n" + PY)
         return
 
-    ext_tip = ""
-    if browser["name"].startswith("360"):
-        ext_tip = "\n\n注意：360 浏览器对 MV3 扩展支持有限，若未自动加载，请换 Chrome 或 Edge 重试。"
-    messagebox.showinfo("安装完成",
-        f"已同时为 {browser['name']} 安装好两种方式：\n\n"
-        f"1) 书签栏「{BOOKMARK_NAME}」—— 永久有效，重启浏览器仍在。\n"
-        f"2) 工具栏「淘系推广参谋」扩展图标 —— 开发者模式，需通过本工具启动才加载。\n\n"
-        "用法：打开淘宝/天猫商品页 → 点书签栏「导入推广参谋」或点扩展图标 → 自动导入到工具。"
-        + ext_tip)
+    mode = "bookmark" if args.install_bookmark else "open"
+    browser = pick_browser()
+    if not browser:
+        return
+    save_browser(browser["name"])
+
+    if mode == "bookmark":
+        install_bookmark_only(browser)
+    else:
+        open_tool_page(browser)
 
 
 if __name__ == "__main__":
