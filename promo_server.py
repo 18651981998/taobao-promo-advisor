@@ -29,6 +29,9 @@ PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python
 PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 
+# 浏览器书签抓取后 POST 回来的数据临时存放（按 IP 隔离，避免多用户串数据）
+_last_parse = {"title": "", "price": "", "pic": "", "url": "", "ts": 0, "ip": ""}
+
 # 复用安装助手里生成的书签代码与浏览器数据路径，确保检测与写入使用同一串代码
 from install_helper import bookmarklet_code, BROWSERS, resolve_user_data, is_installed
 
@@ -473,12 +476,20 @@ def check_bookmark_status():
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    def _send(self, code, body, ctype="application/json; charset=utf-8"):
+    def _send(self, code, body, ctype="application/json; charset=utf-8", extra_headers=None):
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With")
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
         self.end_headers()
         self.wfile.write(body.encode("utf-8") if isinstance(body, str) else body)
+
+    def do_OPTIONS(self):
+        self._send(204, "")
 
     def do_GET(self):
         path = self.path
@@ -491,6 +502,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         if path == "/api/bookmark-status":
             self._send(200, json.dumps(check_bookmark_status(), ensure_ascii=False))
+            return
+        if path == "/api/last-parse":
+            # 返回最近一次浏览器抓取的数据（如果 30 秒内有）
+            global _last_parse
+            age = time.time() - _last_parse["ts"]
+            data = {"ok": _last_parse["ts"] > 0 and age < 30, "data": _last_parse}
+            if not data["ok"]:
+                data["data"] = {}
+            self._send(200, json.dumps(data, ensure_ascii=False))
             return
         if path in ("/", "/index.html"):
             path = "/taobao-promo-advisor.html"
@@ -521,6 +541,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 url = payload.get("url", "")
                 result = parse_url(url)
                 self._send(200, json.dumps(result, ensure_ascii=False))
+            except Exception as e:
+                self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
+        elif self.path == "/api/browser-parse":
+            # 浏览器书签/控制台脚本在淘宝页面抓取后 POST 数据回来
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                raw = self.rfile.read(length).decode("utf-8", "ignore")
+                payload = json.loads(raw) if raw else {}
+                global _last_parse
+                _last_parse = {
+                    "title": payload.get("title", ""),
+                    "price": payload.get("price", ""),
+                    "pic": payload.get("pic", ""),
+                    "url": payload.get("url", ""),
+                    "ts": time.time(),
+                    "ip": self.client_address[0],
+                }
+                self._send(200, json.dumps({"ok": True, "msg": "已接收"}, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         elif self.path in ("/api/install-bookmark", "/api/install-extension"):
