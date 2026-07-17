@@ -31,6 +31,8 @@ import subprocess
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 
+import install_helper as ih
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python.exe"
 PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
@@ -54,7 +56,15 @@ def server_up():
         return False
 
 
-def open_url(url):
+def open_url(url, browser=None):
+    """用指定浏览器打开 URL；未指定或浏览器不存在时回退到系统默认浏览器。"""
+    if browser and ih.is_installed(browser):
+        exe = ih.resolve_exe(browser)
+        try:
+            subprocess.Popen([exe, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return
+        except Exception:
+            pass
     try:
         webbrowser.open(url, new=2)
     except Exception:
@@ -196,17 +206,25 @@ class Launcher(tk.Tk):
             return
 
         if kind == "guide":
-            # 一键引导：先确保服务在跑，再自动弹出 Tampermonkey 商店页 + 本地脚本安装页
+            # 一键引导：先选择浏览器，再自动弹出 Tampermonkey 商店页 + 本地脚本安装页
             self._set_running(True)
-            self._log("正在打开 Tampermonkey 安装页与悬浮按钮脚本页...")
+            self._log("请选择浏览器，随后将打开 Tampermonkey 安装页与脚本页...")
             def w():
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
                 if not server_up():
                     start_server()
                 time.sleep(0.6)
-                open_url(TM_CHROME)
-                open_url(USERSCRIPT_URL)
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开安装页..."))
+                open_url(TM_CHROME, browser)
+                open_url(USERSCRIPT_URL, browser)
                 self.after(0, lambda: messagebox.showinfo(
                     "安装引导",
+                    f"已选择浏览器：{browser['name']}\n\n"
                     "已自动为你打开两个页面：\n\n"
                     "1) Tampermonkey 商店页\n"
                     "   → 点「添加」把扩展装进浏览器（只需这一次）。\n\n"
@@ -223,11 +241,19 @@ class Launcher(tk.Tk):
 
         if kind == "tm":
             self._set_running(True)
-            self._log("正在打开 Tampermonkey 商店页...")
+            self._log("请选择浏览器，随后打开 Tampermonkey 商店页...")
             def w():
-                open_url(TM_CHROME)
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 商店页..."))
+                open_url(TM_CHROME, browser)
                 self.after(0, lambda: messagebox.showinfo(
                     "安装 Tampermonkey",
+                    f"已选择浏览器：{browser['name']}\n\n"
                     "已打开 Tampermonkey（正版）商店页。\n\n"
                     "点「添加」安装扩展。安装完后，回到本工具点「安装悬浮按钮脚本」即可。\n\n"
                     "「篡改猴」是第三方修改版，来源不可靠，建议使用上面的正版。\n"
@@ -239,14 +265,22 @@ class Launcher(tk.Tk):
 
         if kind == "script":
             self._set_running(True)
-            self._log("正在打开悬浮按钮脚本安装页...")
+            self._log("请选择浏览器，随后打开悬浮按钮脚本安装页...")
             def w():
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
                 if not server_up():
                     start_server()
                 time.sleep(0.6)
-                open_url(USERSCRIPT_URL)
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开脚本页..."))
+                open_url(USERSCRIPT_URL, browser)
                 self.after(0, lambda: messagebox.showinfo(
                     "安装悬浮按钮脚本",
+                    f"已选择浏览器：{browser['name']}\n\n"
                     "已打开用户脚本安装页。\n\n"
                     "若 Tampermonkey 已装，会自动弹出安装确认，点「安装」即可；\n"
                     "若浏览器直接显示了代码文字，说明还没装 Tampermonkey，请先装扩展。"))
