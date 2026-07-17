@@ -2,19 +2,30 @@
 # -*- coding: utf-8 -*-
 """淘系推广参谋 · 图形化启动菜单（无控制台黑窗口）
 
-现在只负责：
-  1. 启动本地服务并用浏览器打开工具页
-  2. 安装「导入推广参谋」书签到浏览器书签栏
-  3. 停止本地服务
-  4. 退出
+功能菜单：
+  使用
+    ① 启动并打开工具页
+    ② 安装悬浮按钮（一键引导）—— 自动弹出 Tampermonkey 商店页 + 本地脚本安装页
+  导入
+    安装 Tampermonkey 扩展         —— 打开正版 Tampermonkey 商店页
+    安装悬浮按钮脚本               —— 打开本地用户脚本安装页（需先装 Tampermonkey）
+    安装导入书签（备选）           —— 旧方案，浏览器书签导入
+  管理
+    ③ 停止本地服务
+    ④ 退出
 
-商品导入统一使用浏览器书签（Bookmarklet）：
-  在商品页点一下书签栏「导入推广参谋」，即可把标题/价格/主图导入本地工具。
-  不再依赖 Chrome 扩展或 Tampermonkey，安装更稳。
+说明：
+  浏览器（Chrome/Edge）出于安全策略，禁止任何程序自动把扩展静默装进浏览器，
+  必须用户在弹出的商店页点一次「添加」。因此「一键引导」= 自动帮你把安装页弹出来，
+  你只需点确认。这是目前最接近「启动后自动安装」的做法。
+
+  商品导入主方案 = Tampermonkey 用户脚本（悬浮按钮）：在商品页点一下「🛒 导入推广参谋」，
+  即把标题/价格/主图自动传入本地工具。无需 F12、无需复制代码。
 """
 import os
 import sys
 import time
+import webbrowser
 import threading
 import subprocess
 import tkinter as tk
@@ -27,6 +38,12 @@ SERVER = os.path.join(HERE, "promo_server.py")
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 PORT = 8123
 
+# Tampermonkey 官方商店地址（正版，推荐）
+TM_CHROME = "https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo"
+TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaofnihnnoafoofjgjencj"
+# 本地用户脚本安装页（Tampermonkey 会自动接管并弹出安装）
+USERSCRIPT_URL = f"http://127.0.0.1:{PORT}/taobao-promo.user.js"
+
 
 def server_up():
     try:
@@ -35,6 +52,13 @@ def server_up():
         return True
     except Exception:
         return False
+
+
+def open_url(url):
+    try:
+        webbrowser.open(url, new=2)
+    except Exception:
+        pass
 
 
 def stop_server():
@@ -81,7 +105,7 @@ class Launcher(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("淘系推广参谋 · 启动菜单   |   A0_0 涛声依旧  V26.0717")
-        self.geometry("520x420")
+        self.geometry("540x470")
         self.resizable(False, False)
         try:
             self.tk.call("tk", "scaling", 1.0)
@@ -114,8 +138,11 @@ class Launcher(tk.Tk):
 
         group("使用")
         add_btn("①   启动并打开工具页", lambda: self.do_action("open"), primary=True)
+        add_btn("②   安装悬浮按钮（一键引导）", lambda: self.do_action("guide"), primary=True)
         group("导入")
-        add_btn("②   安装导入书签", lambda: self.do_action("bookmark"))
+        add_btn("   安装 Tampermonkey 扩展（正版）", lambda: self.do_action("tm"))
+        add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
+        add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
         group("管理")
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
@@ -167,6 +194,68 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
+
+        if kind == "guide":
+            # 一键引导：先确保服务在跑，再自动弹出 Tampermonkey 商店页 + 本地脚本安装页
+            self._set_running(True)
+            self._log("正在打开 Tampermonkey 安装页与悬浮按钮脚本页...")
+            def w():
+                if not server_up():
+                    start_server()
+                time.sleep(0.6)
+                open_url(TM_CHROME)
+                open_url(USERSCRIPT_URL)
+                self.after(0, lambda: messagebox.showinfo(
+                    "安装引导",
+                    "已自动为你打开两个页面：\n\n"
+                    "1) Tampermonkey 商店页\n"
+                    "   → 点「添加」把扩展装进浏览器（只需这一次）。\n\n"
+                    "2) 悬浮按钮脚本页\n"
+                    "   → 若 Tampermonkey 已装，会自动弹出安装确认，点「安装」即可；\n"
+                    "     若还没装扩展，请先关掉它，装好扩展后重新点本按钮。\n\n"
+                    "装完后打开任意淘宝/天猫商品页，右下角会出现「🛒 导入推广参谋」按钮。\n\n"
+                    "注：浏览器出于安全策略禁止程序静默安装扩展，必须你点一次确认。\n"
+                    "Edge 用户商店链接：\n" + TM_EDGE))
+                self.after(0, lambda: self._log("OK 已打开安装引导页面，按提示点确认即可。"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
+        if kind == "tm":
+            self._set_running(True)
+            self._log("正在打开 Tampermonkey 商店页...")
+            def w():
+                open_url(TM_CHROME)
+                self.after(0, lambda: messagebox.showinfo(
+                    "安装 Tampermonkey",
+                    "已打开 Tampermonkey（正版）商店页。\n\n"
+                    "点「添加」安装扩展。安装完后，回到本工具点「安装悬浮按钮脚本」即可。\n\n"
+                    "「篡改猴」是第三方修改版，来源不可靠，建议使用上面的正版。\n"
+                    "Edge 用户请访问：\n" + TM_EDGE))
+                self.after(0, lambda: self._log("OK 已打开 Tampermonkey 商店页。"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
+        if kind == "script":
+            self._set_running(True)
+            self._log("正在打开悬浮按钮脚本安装页...")
+            def w():
+                if not server_up():
+                    start_server()
+                time.sleep(0.6)
+                open_url(USERSCRIPT_URL)
+                self.after(0, lambda: messagebox.showinfo(
+                    "安装悬浮按钮脚本",
+                    "已打开用户脚本安装页。\n\n"
+                    "若 Tampermonkey 已装，会自动弹出安装确认，点「安装」即可；\n"
+                    "若浏览器直接显示了代码文字，说明还没装 Tampermonkey，请先装扩展。"))
+                self.after(0, lambda: self._log("OK 已打开脚本页。若已装 Tampermonkey，点「安装」即可。"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
+        # open / bookmark：走 install_helper
         arg = {"open": "--open", "bookmark": "--install-bookmark"}.get(kind)
         label = {"open": "启动并打开工具页",
                  "bookmark": "安装导入书签"}[kind]
