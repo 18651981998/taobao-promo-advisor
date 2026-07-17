@@ -138,8 +138,8 @@ def choose_browser():
              font=("Microsoft YaHei", 11)).pack(pady=14)
 
     selected = tk.StringVar()
-    installed = [b for b in BROWSERS if is_installed(b)]
-    selected.set(installed[0]["name"] if installed else BROWSERS[0]["name"])
+    # 默认不选中任何浏览器，让用户自己选；避免多个被自动选中造成误导
+    selected.set("")
 
     for b in BROWSERS:
         tk.Radiobutton(root, text=b["name"], variable=selected, value=b["name"],
@@ -152,6 +152,10 @@ def choose_browser():
 
     def on_ok():
         name = selected.get()
+        if not name:
+            messagebox.showwarning("未选择浏览器",
+                                   "请先点选要使用的浏览器，再点「确定」。")
+            return
         browser = next((b for b in BROWSERS if b["name"] == name), None)
         if not browser:
             return
