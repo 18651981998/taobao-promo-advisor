@@ -364,6 +364,15 @@
         <p class="bm-hint">如果你不想拖拽，可以让工具自动关闭浏览器、写入书签，再重新打开。期间请保存好未关闭的标签页。</p>
         <button class="btn" id="bmAutoInstallBtn" type="button" style="margin-top:4px;">关闭浏览器并自动安装</button>
       </div>
+      <div class="bm-way" style="border-top:1px dashed var(--line);padding-top:14px">
+        <div class="bm-way-title">点书签没反应？先检测本地服务</div>
+        <p class="bm-hint">如果拖到书签栏后点击无反应，多半是因为本地服务没有启动。先点下面按钮测试：</p>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button type="button" class="btn2" id="bmTestServerBtn" style="flex:1">测试本地服务能否打开</button>
+          <button type="button" class="btn2" id="bmTestPageBtn" style="flex:1">打开测试商品页</button>
+        </div>
+        <div id="bmTestResult" class="note" style="margin-top:10px;display:none"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -672,11 +681,18 @@ document.getElementById("genBtn").addEventListener("click",gen);
 let BM_CODE = "";
 function makeBmCode(port){
   return "javascript:(function(){"+
-    "function t(){var r='';try{r=document.querySelector('h1').innerText.trim();}catch(e){}if(!r)try{r=document.querySelector('meta[property=\\\"og:title\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.title;}catch(e){}return r;}"+
-    "function p(){var r='';try{r=g_config.defaultItemPrice;}catch(e){}if(!r)try{r=document.querySelector('[class*=\\\"Price\\\"]').innerText.match(/[\\\\d.]+/)[0];}catch(e){}if(!r){var m=document.body.innerText.match(/[¥￥]\\\\s*([\\\\d.]+)/);if(m)r=m[1];}return r;}"+
-    "function c(){var r='';try{r=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.pic;}catch(e){}if(!r){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){r=imgs[i].src;break;}}return r;}"+
-    "var title=t(),price=p(),pic=c(),url=location.href;"+
-    "var u='http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url);window.open(u,'_blank');})();";
+    "var title='',price='',pic='',url=location.href;"+
+    "try{title=document.querySelector('h1').innerText.trim();}catch(e){}"+
+    "if(!title)try{title=document.querySelector('meta[property=\\\"og:title\\\"]').content.trim();}catch(e){}"+
+    "if(!title)try{title=document.title||'';}catch(e){}"+
+    "try{price=document.querySelector('[class*=\\\"Price\\\"]').innerText.match(/[\\\\d.]+/)[0];}catch(e){}"+
+    "if(!price){var m=document.body.innerText.match(/[¥￥]\\\\s*([\\\\d.]+)/);if(m)price=m[1];}"+
+    "try{pic=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}"+
+    "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"+
+    "var u='http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url);"+
+    "console.log('[推广参谋] 抓取结果:',{title:title,price:price,pic:pic,url:url});"+
+    "window.open(u,'_blank');"+
+  "})();";
 }
 function setBmCode(code){
   BM_CODE = code || makeBmCode(8123);
@@ -698,19 +714,28 @@ async function updateBmStatus(){
     const res = await fetch("/api/bookmark-status");
     const d = await res.json();
     box.style.display = "inline-flex";
-    // 弹窗内显示检测详情
+    // 弹窗内显示检测详情：优先显示当前浏览器状态，避免 360 等无关浏览器干扰
     const detectBox = document.getElementById("bmDetect");
     if(detectBox && Array.isArray(d.detected)){
+      const ua = navigator.userAgent.toLowerCase();
+      const isEdge = /edg\//.test(ua);
+      const isChrome = /chrome\//.test(ua) && !isEdge;
+      const is360 = /360se|360ee|360chrome|360se6|qihu 360/.test(ua) && !isChrome && !isEdge;
+      let currentName = isEdge ? "Microsoft Edge" : (isChrome ? "Google Chrome" : (is360 ? "360安全浏览器" : ""));
+      const current = currentName ? d.detected.find(x => x.name === currentName) : null;
       const installedNames = d.detected.filter(x=>x.installed).map(x=>x.name);
-      const installedBrowsers = d.detected.filter(x=>!x.error).map(x=>x.name);
       if(installedNames.length > 0){
         detectBox.innerHTML = `<b>已检测到书签：</b>${installedNames.join("、")} <span class="tag ok">已安装</span>`;
         detectBox.style.display = "block";
-      } else if(installedBrowsers.length > 0){
-        detectBox.innerHTML = `<b>已检测到浏览器：</b>${installedBrowsers.join("、")} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
+      } else if(current && current.profiles > 0){
+        detectBox.innerHTML = `<b>当前浏览器：</b>${current.name} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
+        detectBox.style.display = "block";
+      } else if(d.detected.some(x => x.profiles > 0)){
+        const names = d.detected.filter(x => x.profiles > 0).map(x => x.name);
+        detectBox.innerHTML = `<b>检测到浏览器数据：</b>${names.join("、")} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
         detectBox.style.display = "block";
       } else {
-        detectBox.innerHTML = `<b>未检测到 Chrome/Edge/360 浏览器。</b> 请确认已安装 Chrome 或 Edge 后再安装书签。`;
+        detectBox.innerHTML = `<b>未检测到 Chrome/Edge 浏览器数据。</b> 请确认已安装 Chrome 或 Edge 后再安装书签。`;
         detectBox.style.display = "block";
       }
     }
@@ -814,11 +839,39 @@ async function copyBmCode(){
   }
 }
 
+async function testBmServer(){
+  const box = document.getElementById("bmTestResult");
+  box.style.display = "block";
+  box.textContent = "正在检测本地服务…";
+  try{
+    const res = await fetch("/", {method:"HEAD"});
+    if(res.ok){
+      box.innerHTML = "✅ <b>本地服务正常。</b> 如果点击书签仍没反应，请打开淘宝/天猫商品页再点书签，或在商品页按 F12 → Console 看是否有「[推广参谋] 抓取结果」日志。";
+      box.style.color = "var(--ok)";
+    } else {
+      box.innerHTML = "⚠️ <b>本地服务返回异常：</b> " + res.status + "。请关闭本页，重新双击「运行工具.bat」→ 点 ① 启动。";
+      box.style.color = "var(--warn)";
+    }
+  } catch(e){
+    box.innerHTML = "❌ <b>无法连接到本地服务（127.0.0.1:8123）。</b><br>请按以下步骤检查：<br>1. 双击「运行工具.bat」→ 点 ① 启动并打开工具页；<br>2. 如果已经启动，请右键任务栏检查是否有 Python 进程被安全软件拦截；<br>3. 360/电脑管家可能会拦截本地端口，请允许 promo_server.py 访问网络。";
+    box.style.color = "#c62828";
+  }
+}
+
+function testBmPage(){
+  // 打开一个淘宝商品示例页，用于测试书签是否能正常跳转回工具
+  const testUrl = "https://item.taobao.com/item.htm?id=1234567890";
+  alert("将打开一个示例淘宝商品页（可能不存在真实商品）。\n\n打开后，请点击书签栏里的「导入推广参谋」，看是否能跳转回本工具。");
+  window.open(testUrl, "_blank");
+}
+
 document.getElementById("bmInstallBtn").addEventListener("click", ()=>{openBmModal();fetchBmCode();});
 document.getElementById("bmModalClose").addEventListener("click", closeBmModal);
 document.getElementById("bmAutoInstallBtn").addEventListener("click", autoInstallBookmark);
 document.getElementById("bmCopyBtn").addEventListener("click", copyBmCode);
 document.getElementById("bmManualBtn").addEventListener("click", showManualSteps);
+document.getElementById("bmTestServerBtn").addEventListener("click", testBmServer);
+document.getElementById("bmTestPageBtn").addEventListener("click", testBmPage);
 document.getElementById("bmMarkBtn").addEventListener("click", ()=>{
   localStorage.setItem("jp_bm_marked", "1");
   const box = document.getElementById("bmStatus");
