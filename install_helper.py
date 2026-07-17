@@ -210,11 +210,18 @@ def bookmarklet_code(port):
             "if(!price){var m=document.body.innerText.match(/[¥￥]\\s*([\\d.]+)/);if(m)price=m[1];}"
             "try{pic=document.querySelector('meta[property=\"og:image\"]').content.trim();}catch(e){}"
             "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"
-            "var u='http://127.0.0.1:" + str(port) + "/?title='+encodeURIComponent(title)"
+            "var d={title:title,price:price,pic:pic,url:url};"
+            "console.log('[推广参谋] 抓取结果:',d);"
+            "try{var x=new XMLHttpRequest();"
+            "x.open('POST','http://127.0.0.1:" + str(port) + "/api/browser-parse',false);"
+            "x.setRequestHeader('Content-Type','application/json');"
+            "x.send(JSON.stringify(d));"
+            "var r=x.status===200?JSON.parse(x.responseText):null;"
+            "if(r&&r.ok){window.open('http://127.0.0.1:" + str(port) + "/','_blank');}else{throw new Error('post failed');}"
+            "}catch(e){console.log('[推广参谋] POST失败，回退URL传参',e);"
+            "window.open('http://127.0.0.1:" + str(port) + "/?title='+encodeURIComponent(title)"
             "+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)"
-            "+'&url='+encodeURIComponent(url);"
-            "console.log('[推广参谋] 抓取结果:',{title:title,price:price,pic:pic,url:url});"
-            "window.open(u,'_blank');})();")
+            "+'&url='+encodeURIComponent(url),'_blank');}})();")
 
 
 def inject_bookmark(browser, code):
