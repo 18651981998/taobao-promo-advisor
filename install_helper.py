@@ -202,19 +202,19 @@ def pick_browser():
 
 def bookmarklet_code(port):
     return ("javascript:(function(){"
-            "function t(){var r='';try{r=document.querySelector('h1').innerText.trim();}catch(e){}"
-            "if(!r)try{r=document.querySelector('meta[property=\"og:title\"]').content.trim();}catch(e){}"
-            "if(!r)try{r=g_config.title;}catch(e){}return r;}"
-            "function p(){var r='';try{r=g_config.defaultItemPrice;}catch(e){}"
-            "if(!r)try{r=document.querySelector('[class*=\"Price\"]').innerText.match(/[\\d.]+/)[0];}catch(e){}"
-            "if(!r){var m=document.body.innerText.match(/[¥￥]\\s*([\\d.]+)/);if(m)r=m[1];}return r;}"
-            "function c(){var r='';try{r=document.querySelector('meta[property=\"og:image\"]').content.trim();}catch(e){}"
-            "if(!r)try{r=g_config.pic;}catch(e){}"
-            "if(!r){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){r=imgs[i].src;break;}}return r;}"
-            "var title=t(),price=p(),pic=c(),url=location.href;"
+            "var title='',price='',pic='',url=location.href;"
+            "try{title=document.querySelector('h1').innerText.trim();}catch(e){}"
+            "if(!title)try{title=document.querySelector('meta[property=\"og:title\"]').content.trim();}catch(e){}"
+            "if(!title)try{title=document.title||'';}catch(e){}"
+            "try{price=document.querySelector('[class*=\"Price\"]').innerText.match(/[\\d.]+/)[0];}catch(e){}"
+            "if(!price){var m=document.body.innerText.match(/[¥￥]\\s*([\\d.]+)/);if(m)price=m[1];}"
+            "try{pic=document.querySelector('meta[property=\"og:image\"]').content.trim();}catch(e){}"
+            "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"
             "var u='http://127.0.0.1:" + str(port) + "/?title='+encodeURIComponent(title)"
             "+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)"
-            "+'&url='+encodeURIComponent(url);window.open(u,'_blank');})();")
+            "+'&url='+encodeURIComponent(url);"
+            "console.log('[推广参谋] 抓取结果:',{title:title,price:price,pic:pic,url:url});"
+            "window.open(u,'_blank');})();")
 
 
 def inject_bookmark(browser, code):
