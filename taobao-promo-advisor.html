@@ -179,8 +179,8 @@
       <h3>📋 快速开始</h3>
       <div class="qs-grid">
         <div class="qs-card"><span class="qs-num">1</span><div class="qs-txt"><b>启动工具</b>双击「运行工具.bat」→ 点 ① 启动并打开工具页。</div></div>
-        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>安装书签</b>点击顶部「安装」，把「导入推广参谋」写入浏览器书签栏。</div></div>
-        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>导入商品</b>打开淘宝/天猫商品页，点书签栏「导入推广参谋」自动导入。</div></div>
+        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>导入商品（推荐）</b>复制淘宝/天猫商品页网址，粘贴到下方「商品链接」框，点「解析链接」自动填好标题/价格/主图。</div></div>
+        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>书签导入（可选）</b>若链接解析失败，可安装顶部「导入书签」，在商品页点书签栏一键导入。</div></div>
       </div>
     </div>
   </div>
@@ -191,7 +191,7 @@
       <h2><span class="ic">🛒</span>① 填商品信息 <span class="tag">必填</span></h2>
 
       <div class="field upload">
-        <label>商品主图 / 链接（可选，用于留档）</label>
+        <label>商品链接 / 主图（粘贴链接可自动解析标题·价格·主图）</label>
         <input type="file" id="imgFile" accept="image/*">
         <div class="preview" id="imgPrev">
           <img id="imgPrevImg" src="" alt="" onerror="this.parentElement.style.display='none'; this.parentElement.parentElement.querySelector('input[type=file]').value='';">
@@ -203,7 +203,7 @@
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
         </div>
         <div class="hint" id="parseStatus"></div>
-        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">提示：淘宝/天猫商品页需要登录态，自动解析可能失败；推荐安装顶部「导入书签」，在商品页点书签栏一键导入。</div>
+        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">推荐：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可手动补全，或点顶部「安装」用书签方式导入。</div>
       </div>
 
       <div class="field">
