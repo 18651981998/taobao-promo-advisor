@@ -92,30 +92,59 @@
   .note{font-size:12px;color:var(--hint);background:#fafbfc;border:1px dashed var(--line2);border-radius:8px;padding:10px 12px;margin-top:4px}
   .empty{text-align:center;color:var(--hint);padding:40px 10px;border:1px dashed var(--line2);border-radius:12px}
   @media print{body{background:#fff}.panel:first-child,.toolbar,.sub{display:none}.grid{grid-template-columns:1fr}.card,.panel{break-inside:avoid}}
+  /* ===== 美化新增 ===== */
+  .hero{background:linear-gradient(135deg,#ff5000,#ff7a00);color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:16px;box-shadow:0 8px 24px rgba(255,80,0,.18)}
+  .hero .h-top{display:flex;align-items:center;gap:12px}
+  .hero .h-logo{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0}
+  .hero h1{font-size:20px;font-weight:700;color:#fff;line-height:1.2}
+  .hero .h-sub{font-size:13px;opacity:.92;margin-top:3px}
+  .hero .h-meta{font-size:12px;opacity:.82;margin-top:3px}
+  .guide{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .guide .g{flex:1;min-width:200px;background:rgba(255,255,255,.14);border-radius:10px;padding:9px 12px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+  .guide .g b{background:#fff;color:#ff5000;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
+  .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
+  .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
+  .panel h2 .ic{width:24px;height:24px;border-radius:7px;background:#fff2ec;color:#ff5000;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-right:2px}
+  .btn{transition:transform .08s, box-shadow .2s; box-shadow:0 4px 14px rgba(255,80,0,.25)}
+  .btn:hover{box-shadow:0 6px 18px rgba(255,80,0,.32)}
+  .btn:active{transform:translateY(1px)}
+  .chip{transition:transform .08s}
+  .chip:hover{transform:translateY(-1px)}
+  .ext-status{transition:all .2s;margin-bottom:16px}
+  .card{transition:box-shadow .2s}
+  .card:hover{box-shadow:0 4px 14px rgba(20,30,50,.06)}
 </style>
 </head>
 <body>
 <div id="browserTip" style="display:none;background:#fff3e0;color:#a35e0a;padding:10px 16px;text-align:center;font-size:13px;border-bottom:1px solid #ffd180;">
-  ⚠ 检测到非 Chrome/Edge 浏览器，可能导致页面卡加载。请使用 <b>Google Chrome</b> 或 <b>Microsoft Edge</b> 打开本工具（双击 start.vbs 或 启动.bat）。
+  ⚠ 检测到非 Chrome/Edge 浏览器，可能导致页面卡加载。请使用 <b>Google Chrome</b> 或 <b>Microsoft Edge</b> 打开本工具（双击「运行工具.bat」）。
 </div>
 <div class="wrap">
-  <header>
-    <div class="logo">淘</div>
-    <div>
-      <h1>淘系推广参谋</h1>
-      <div class="sub">基于万相台无界最新推广逻辑 · 输入商品与账户状态，生成可照搬的后台配置单</div>
-      <div class="meta">作者：A0_0🇨🇳 涛声依旧 ｜ 版本 V26.0717</div>
-      <div id="extStatus" class="ext-status ext-missing" style="display:none;">
-        <span id="extStatusText">扩展状态：检测中…</span>
-        <button id="extInstallBtn" type="button">点击安装</button>
+  <div class="hero">
+    <div class="h-top">
+      <div class="h-logo">淘</div>
+      <div>
+        <h1>淘系推广参谋</h1>
+        <div class="h-sub">基于万相台无界最新推广逻辑 · 输入商品与账户状态，生成可照搬的后台配置单</div>
+        <div class="h-meta">作者：A0_0🇨🇳 涛声依旧 ｜ 版本 V26.0717</div>
       </div>
     </div>
-  </header>
+    <div class="guide">
+      <div class="g"><b>1</b><span>双击「运行工具.bat」→ 点 <b>① 启动并打开工具页</b>（自动装书签 + 扩展）</span></div>
+      <div class="g"><b>2</b><span>打开淘宝/天猫商品页，点书签栏「导入推广参谋」或扩展图标，自动带入</span></div>
+      <div class="g"><b>3</b><span>填账户状态 → 点「生成推广配置单」拿投放方案</span></div>
+    </div>
+  </div>
+
+  <div id="extStatus" class="ext-status ext-missing" style="display:none;">
+    <span id="extStatusText">扩展状态：检测中…</span>
+    <button id="extInstallBtn" type="button">点击安装</button>
+  </div>
 
   <div class="grid">
     <!-- 左侧输入 -->
     <div class="panel">
-      <h2>① 填商品信息 <span class="tag">必填</span></h2>
+      <h2><span class="ic">🛒</span>① 填商品信息 <span class="tag">必填</span></h2>
 
       <div class="field upload">
         <label>商品主图 / 链接（可选，用于留档）</label>
@@ -175,7 +204,7 @@
         </div>
       </div>
 
-      <h2 style="margin-top:22px">② 填账户状态 <span class="tag">来自后台</span></h2>
+      <h2 style="margin-top:22px"><span class="ic">📊</span>② 填账户状态 <span class="tag">来自后台</span></h2>
       <div class="row">
         <div class="field">
           <label>账户余额（元）</label>
@@ -209,7 +238,7 @@
 
     <!-- 右侧结果 -->
     <div class="panel">
-      <h2>③ 推广配置单 <span class="tag">照着填后台</span></h2>
+      <h2><span class="ic">📋</span>③ 推广配置单 <span class="tag">照着填后台</span></h2>
       <div id="empty" class="empty">填写左侧信息后点击「生成推广配置单」<br>即可获得一份可执行的万相台无界投放方案</div>
 
       <div id="result" class="result">
@@ -589,7 +618,7 @@ async function installExtension(){
       updateExtStatus();
     }
   } catch(e){
-    alert("启动安装失败，请手动运行「运行工具.bat」选择「仅加载扩展」。\n" + e);
+    alert("启动安装失败，请手动运行「运行工具.bat」选择「① 启动并打开工具页」。\n" + e);
     updateExtStatus();
   }
 }
