@@ -130,7 +130,7 @@ def resolve_user_data(browser):
 def choose_browser():
     root = tk.Tk()
     root.title("淘系推广参谋 · 选择浏览器")
-    root.geometry("440x320")
+    root.geometry("440x420")
     root.resizable(False, False)
 
     tk.Label(root,
