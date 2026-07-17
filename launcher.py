@@ -155,8 +155,8 @@ class Launcher(tk.Tk):
 
         tk.Label(self, text="淘系推广参谋",
                  font=("Microsoft YaHei", 18, "bold"), fg="#ff5000").pack(pady=(18, 2))
-        tk.Label(self, text="作者：A0_0 涛声依旧    版本：V26.0717",
-                 font=("Microsoft YaHei", 10), fg="#999999").pack(pady=(0, 16))
+        tk.Label(self, text=f"作者：A0_0 涛声依旧    版本：V26.0717    路径：{HERE}",
+                 font=("Microsoft YaHei", 9), fg="#999999").pack(pady=(0, 16))
 
         self.btn_frame = tk.Frame(self)
         self.btn_frame.pack(fill="x", padx=32)
