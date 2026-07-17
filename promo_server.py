@@ -451,6 +451,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = self.path
+        if path == "/api/bookmarklet-code":
+            self._send(200, json.dumps({
+                "ok": True,
+                "name": "导入推广参谋",
+                "code": bookmarklet_code(PORT)
+            }, ensure_ascii=False))
+            return
         if path == "/api/bookmark-status":
             self._send(200, json.dumps(check_bookmark_status(), ensure_ascii=False))
             return
