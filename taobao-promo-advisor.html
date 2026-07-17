@@ -203,7 +203,21 @@
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
         </div>
         <div class="hint" id="parseStatus"></div>
-        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">推荐：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可手动补全，或点顶部「安装」用书签方式导入。</div>
+        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">推荐：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可用下方「浏览器抓取」方案。</div>
+        <div id="browserFallback" style="display:none; margin-top:12px; padding:12px; background:#fff7f0; border:1px dashed #ffccaa; border-radius:8px;">
+          <div style="font-weight:600; color:#c45c00; margin-bottom:8px; font-size:13px;">🛠 链接解析失败，用当前浏览器抓（绕过登录态）</div>
+          <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:10px;">
+            1. 点「复制抓取代码」<br>
+            2. 打开这个商品页（保持登录态）<br>
+            3. 按 F12 → Console → 粘贴代码 → 回车<br>
+            4. 会自动跳转回本工具，并把标题/价格/主图填好。
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+            <button type="button" class="btn2" id="copyScraperBtn">复制抓取代码</button>
+            <button type="button" class="btn2" id="openLinkBtn">打开商品页</button>
+          </div>
+          <textarea id="scraperCode" style="width:100%; height:80px; font-size:11px; font-family:Consolas,monospace; border:1px solid var(--line2); border-radius:6px; padding:8px; background:#fafbfc; color:var(--sub);" readonly></textarea>
+        </div>
       </div>
 
       <div class="field">
@@ -629,11 +643,26 @@ function guessCat(title){
   return "";
 }
 document.getElementById("parseBtn").addEventListener("click",parseLink);
+function copyScraperCode(){
+  const area = document.getElementById("scraperCode");
+  if(!area || !area.value){ alert("抓取代码未生成，请先粘贴商品链接并点「解析链接」触发失败提示。"); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(area.value).then(()=>alert("抓取代码已复制，请打开商品页 → F12 → Console → 粘贴 → 回车。"));
+  } else {
+    area.select(); document.execCommand("copy"); alert("抓取代码已复制，请打开商品页 → F12 → Console → 粘贴 → 回车。");
+  }
+}
+document.getElementById("copyScraperBtn").addEventListener("click", copyScraperCode);
+document.getElementById("openLinkBtn").addEventListener("click", ()=>{
+  const url = document.getElementById("link").value.trim();
+  if(url) window.open(url, "_blank"); else alert("请先粘贴商品链接");
+});
 function parseLink(){
   const url=document.getElementById("link").value.trim();
   const st=document.getElementById("parseStatus");
   if(!url){ st.textContent="请先粘贴商品链接"; st.style.color="var(--bad)"; return; }
   st.textContent="解析中…"; st.style.color="var(--sub)";
+  const fb = document.getElementById("browserFallback"); if(fb) fb.style.display="none";
   fetch("/api/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})})
     .then(r=>r.json()).then(d=>{
       if(d.ok){
@@ -658,15 +687,23 @@ function parseLink(){
           st.style.color="var(--ok)";
         }
         st.textContent=msg;
+        const fb2 = document.getElementById("browserFallback"); if(fb2) fb2.style.display="none";
       } else {
         let msg = "自动解析失败：" + d.msg;
         if (d.msg && d.msg.includes("验证页")) {
-          msg += "；淘宝/天猫需要登录态或官方 API 才能抓取。请直接手动填写标题/价格/类目，或配置淘宝客 API 凭证。";
+          msg += "；淘宝需要登录态，服务端抓取不到。请用下方「浏览器抓取」方案，或手动填写。";
         } else {
           msg += "（可手动填写）";
         }
         st.textContent = msg;
         st.style.color = "var(--warn)";
+        // 显示浏览器抓取兜底方案
+        const fallback = document.getElementById("browserFallback");
+        const area = document.getElementById("scraperCode");
+        if(fallback && area){
+          area.value = makeBmCode(8123).replace(/^javascript:/, '');
+          fallback.style.display = "block";
+        }
       }
     })
     .catch(e=>{
