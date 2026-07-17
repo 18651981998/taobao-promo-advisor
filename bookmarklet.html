@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>淘系推广参谋 · 浏览器抓取书签</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif; background:#f5f7fa; color:#333; line-height:1.6; padding:20px; max-width:800px; margin:0 auto;}
+    h1{font-size:22px; color:#ff5000; margin-bottom:8px;}
+    h2{font-size:16px; margin-top:24px; margin-bottom:10px; color:#222;}
+    .card{background:#fff; border-radius:12px; padding:20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .bookmarklet{display:inline-block; background:#ff5000; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; cursor:move; border:2px dashed #ff8a6a;}
+    .bookmarklet:hover{background:#e64a00;}
+    .step{display:flex; gap:12px; margin:14px 0; align-items:flex-start;}
+    .step-num{width:24px; height:24px; border-radius:50%; background:#ff5000; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;}
+    .code{background:#f8f9fa; border:1px solid #e8e8e8; border-radius:6px; padding:10px; font-family:Consolas,Monaco,monospace; font-size:12px; word-break:break-all; color:#555;}
+    ul{padding-left:20px;}
+    li{margin:6px 0;}
+    .note{color:#888; font-size:13px;}
+  </style>
+</head>
+<body>
+  <h1>淘系推广参谋 · 浏览器抓取书签</h1>
+  <p class="note">不用申请淘宝官方 API，利用你当前浏览器登录态，一键把商品信息导入本地工具。</p>
+
+  <div class="card" style="background:#fff3e0; border-left:4px solid #ff8a00;">
+    <h2>⚠ 请使用 Chrome 或 Edge</h2>
+    <p><strong>360 浏览器会导致本地工具页面卡加载、扩展无法正常加载。</strong> 推荐使用 Google Chrome 或 Microsoft Edge。</p>
+    <p>如果你还没安装 Chrome，请先安装；本工具的所有一键启动器都会自动调用 Chrome。</p>
+  </div>
+
+  <div class="card">
+    <h2>第一步：把下面这个按钮拖到浏览器书签栏</h2>
+    <p>按住鼠标左键，把橙色按钮拖到你的浏览器书签栏（Chrome/Edge 地址栏下方），松开后即可。</p>
+    <p>
+      <a class="bookmarklet" id="bmLink" href="#">导入推广参谋</a>
+    </p>
+    <p class="note">如果拖不动，可以复制下方代码，手动新建一个书签，名称随便填，网址粘贴代码：</p>
+    <div class="code" id="bmCode"></div>
+  </div>
+
+  <div class="card">
+    <h2>第二步：在淘宝/天猫商品页使用</h2>
+    <div class="step"><div class="step-num">1</div><div>先用浏览器打开任意淘宝/天猫商品详情页。</div></div>
+    <div class="step"><div class="step-num">2</div><div>点击书签栏上的「导入推广参谋」。</div></div>
+    <div class="step"><div class="step-num">3</div><div>会自动跳回本地工具（http://127.0.0.1:8123），并把标题、价格、主图、链接填好。</div></div>
+  </div>
+
+  <div class="card">
+    <h2>扩展方式（推荐）</h2>
+    <p>如果你使用「加载扩展.bat」打不开，可以手动加载：</p>
+    <ol>
+      <li>打开 Chrome，地址栏输入 <code>chrome://extensions/</code> 回车。</li>
+      <li>右上角开启「开发者模式」。</li>
+      <li>点击「加载已解压的扩展程序」。</li>
+      <li>选择本目录下的 <code>extension</code> 文件夹。</li>
+      <li>在工具栏固定扩展图标，打开淘宝/天猫商品页后点击图标即可导入。</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>注意事项</h2>
+    <ul>
+      <li><strong>请使用 Google Chrome 或 Microsoft Edge 打开本工具。</strong> 360 浏览器会导致本地页面卡加载、扩展无法加载。</li>
+      <li>使用前请确保本地工具已启动（双击 <b>start.vbs</b> 或 <b>启动.bat</b>）。</li>
+      <li>书签只能抓取<strong>当前浏览器里已经打开</strong>的商品页；因为用的是你的登录态，所以不会被淘宝验证页拦截。</li>
+      <li>如果价格没抓出来，请确认页面已加载完成再点书签。</li>
+      <li>如果书签栏没有显示，按 <kbd>Ctrl+Shift+B</kbd>（Windows）打开。</li>
+    </ul>
+  </div>
+
+  <p class="note" style="text-align:center;margin-top:24px;">淘系推广参谋 · <strong>A0_0🇨🇳 涛声依旧</strong> 出品 ｜ 版本 <strong>V26.0717</strong></p>
+
+  <script>
+    var bmCode = "javascript:(function(){" +
+      "function t(){var r='';try{r=document.querySelector('h1').innerText.trim();}catch(e){}if(!r)try{r=document.querySelector('meta[property=\\\"og:title\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.title;}catch(e){}if(!r)try{r=document.querySelector('[data-spm=\\\"1000983\\\"]').innerText.trim();}catch(e){}return r;}" +
+      "function p(){var r='';try{r=g_config.defaultItemPrice;}catch(e){}if(!r)try{r=g_config.reservePrice;}catch(e){}if(!r)try{r=document.querySelector('meta[property=\\\"og:price:amount\\\"]').content.trim();}catch(e){}if(!r)try{r=document.querySelector('[class*=\\\"Price\\\"]').innerText.match(/[\\d.]+/)[0];}catch(e){}if(!r)try{r=document.querySelector('[class*=\\\"price\\\"]').innerText.match(/[\\d.]+/)[0];}catch(e){}if(!r){var m=document.body.innerText.match(/[¥￥][\\s]*([\\d.]+)/);if(m)r=m[1];}return r;}" +
+      "function c(){var r='';try{r=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}if(!r)try{r=g_config.pic;}catch(e){}if(!r)try{r=document.querySelector('#J_ImgBooth').src;}catch(e){}if(!r){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src&&imgs[i].src.indexOf('alicdn.com')>-1){r=imgs[i].src;break;}} }return r;}" +
+      "var title=t(), price=p(), pic=c(), url=location.href;" +
+      "var u='http://127.0.0.1:8123/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url);" +
+      "window.open(u,'_blank');" +
+    "})();";
+
+    document.getElementById('bmLink').href = bmCode;
+    document.getElementById('bmCode').textContent = bmCode;
+  </script>
+</body>
+</html>
