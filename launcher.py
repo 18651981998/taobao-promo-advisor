@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""淘系推广参谋 · 图形化启动菜单（无控制台黑窗口，杜绝双击闪退）
+"""淘系推广参谋 · 图形化启动菜单（无控制台黑窗口）
 
-菜单（按「使用 / 安装 / 管理」分组，共 4 项）：
-  ① 启动并打开工具页   —— 自动装书签 + 带扩展打开 Chrome（推荐）
-  ② 安装书签           —— 仅把书签写入浏览器书签栏（永久）
-  ③ 停止本地服务
-  ④ 退出
+现在只负责：
+  1. 启动本地服务并用浏览器打开工具页
+  2. 安装「导入推广参谋」书签到浏览器书签栏
+  3. 停止本地服务
+  4. 退出
 
-用 pythonw.exe 启动本文件时不分配控制台，因此在资源管理器里双击 .bat
-不会再出现“黑窗口闪一下”的问题。
+商品导入统一使用浏览器书签（Bookmarklet）：
+  在商品页点一下书签栏「导入推广参谋」，即可把标题/价格/主图导入本地工具。
+  不再依赖 Chrome 扩展或 Tampermonkey，安装更稳。
 """
 import os
 import sys
@@ -21,6 +22,7 @@ from tkinter import messagebox, scrolledtext
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python.exe"
+PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
 SERVER = os.path.join(HERE, "promo_server.py")
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 PORT = 8123
@@ -33,22 +35,6 @@ def server_up():
         return True
     except Exception:
         return False
-
-
-def start_server():
-    # 先停掉任何旧进程，确保代码更新后一定加载最新版
-    stop_server()
-    if not os.path.isfile(PY):
-        return False
-    # 启动器自己会控制浏览器打开，所以让服务不要自动弹出默认浏览器
-    subprocess.Popen([PY, SERVER, "--no-open"], stdout=subprocess.DEVNULL,
-                     stderr=subprocess.DEVNULL, cwd=HERE,
-                     creationflags=0x08000000)
-    for _ in range(30):
-        time.sleep(0.3)
-        if server_up():
-            return True
-    return False
 
 
 def stop_server():
@@ -65,11 +51,27 @@ def stop_server():
     return not server_up()
 
 
+def start_server():
+    stop_server()
+    pyw = PYW if os.path.isfile(PYW) else PY
+    if not os.path.isfile(pyw):
+        return False
+    # pythonw + CREATE_NO_WINDOW：彻底隐藏黑色控制台窗口
+    subprocess.Popen([pyw, SERVER, "--no-open"], stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, cwd=HERE,
+                     creationflags=0x08000000)
+    for _ in range(30):
+        time.sleep(0.3)
+        if server_up():
+            return True
+    return False
+
+
 def run_install_helper(extra_arg):
-    if not os.path.isfile(PY):
+    if not os.path.isfile(PYW) and not os.path.isfile(PY):
         messagebox.showerror("错误", "找不到 Python 运行环境。")
         return
-    cmd = [PY, INSTALL_HELPER]
+    cmd = [PYW if os.path.isfile(PYW) else PY, INSTALL_HELPER]
     if extra_arg:
         cmd.append(extra_arg)
     subprocess.run(cmd, cwd=HERE)
@@ -79,48 +81,51 @@ class Launcher(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("淘系推广参谋 · 启动菜单   |   A0_0 涛声依旧  V26.0717")
-        self.geometry("560x470")
+        self.geometry("520x420")
         self.resizable(False, False)
         try:
             self.tk.call("tk", "scaling", 1.0)
         except Exception:
             pass
 
-        tk.Label(self, text="淘系推广参谋 · 启动菜单",
-                 font=("Microsoft YaHei", 16, "bold"), fg="#ff6a00").pack(pady=(14, 2))
+        tk.Label(self, text="淘系推广参谋",
+                 font=("Microsoft YaHei", 18, "bold"), fg="#ff5000").pack(pady=(18, 2))
         tk.Label(self, text="作者：A0_0 涛声依旧    版本：V26.0717",
-                 font=("Microsoft YaHei", 10), fg="#999999").pack(pady=(0, 10))
+                 font=("Microsoft YaHei", 10), fg="#999999").pack(pady=(0, 16))
 
         self.btn_frame = tk.Frame(self)
-        self.btn_frame.pack(fill="x", padx=24)
+        self.btn_frame.pack(fill="x", padx=32)
+        self.buttons = []
+        self.running = False
 
         def group(title):
             tk.Label(self.btn_frame, text=title, font=("Microsoft YaHei", 10, "bold"),
-                     fg="#bbbbbb", anchor="w").pack(fill="x", pady=(8, 2))
+                     fg="#bbbbbb", anchor="w").pack(fill="x", pady=(10, 4))
 
         def add_btn(label, cb, primary=False):
             b = tk.Button(self.btn_frame, text=label, font=("Microsoft YaHei", 12),
-                          height=1, relief="raised", command=cb, anchor="w", padx=12)
+                          height=1, relief="flat", command=cb, anchor="w", padx=14)
             if primary:
-                b.configure(bg="#ff6a00", fg="#ffffff", activebackground="#e85f00")
-            b.pack(fill="x", pady=4)
+                b.configure(bg="#ff5000", fg="#ffffff", activebackground="#e04600")
+            else:
+                b.configure(bg="#ffffff", fg="#333333", activebackground="#f2f2f2")
+            b.pack(fill="x", pady=4, ipady=4)
             self.buttons.append(b)
 
         group("使用")
-        add_btn("①   启动并打开工具页（已带扩展）", lambda: self.do_action("open"), primary=True)
-        group("安装导入")
-        add_btn("②   安装书签（永久）", lambda: self.do_action("bookmark"))
+        add_btn("①   启动并打开工具页", lambda: self.do_action("open"), primary=True)
+        group("导入")
+        add_btn("②   安装导入书签", lambda: self.do_action("bookmark"))
         group("管理")
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
 
         tk.Label(self, text="运行日志", font=("Microsoft YaHei", 10),
-                 fg="#666666").pack(anchor="w", padx=24, pady=(6, 0))
-        self.log = scrolledtext.ScrolledText(self, height=9, font=("Consolas", 9),
+                 fg="#666666").pack(anchor="w", padx=32, pady=(10, 0))
+        self.log = scrolledtext.ScrolledText(self, height=7, font=("Consolas", 9),
                                              bg="#fafafa", fg="#333333", state="disabled")
-        self.log.pack(fill="both", expand=True, padx=24, pady=(2, 12))
+        self.log.pack(fill="both", expand=True, padx=32, pady=(2, 14))
 
-        self.running = False
         self._startup()
 
     def _log(self, msg):
@@ -163,7 +168,8 @@ class Launcher(tk.Tk):
             threading.Thread(target=w, daemon=True).start()
             return
         arg = {"open": "--open", "bookmark": "--install-bookmark"}.get(kind)
-        label = {"open": "启动并打开工具页（带扩展）", "bookmark": "安装书签"}[kind]
+        label = {"open": "启动并打开工具页",
+                 "bookmark": "安装导入书签"}[kind]
         self._set_running(True)
         self._log("正在执行：" + label + " ...")
         def w():
