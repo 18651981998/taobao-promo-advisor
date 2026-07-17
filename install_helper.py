@@ -110,7 +110,21 @@ def resolve_exe(browser):
 
 def resolve_user_data(browser):
     ud = os.path.expandvars(browser.get("user_data", ""))
-    return ud if os.path.isdir(ud) else None
+    if os.path.isdir(ud):
+        return ud
+    # 360安全浏览器实际数据目录在 %APPDATA%\360se6\Application\<版本>
+    if browser.get("name") == "360安全浏览器":
+        base = os.path.expandvars("%APPDATA%\\360se6\\Application")
+        if os.path.isdir(base):
+            # 找版本号最大的目录
+            try:
+                dirs = [d for d in os.listdir(base) if os.path.isdir(os.path.join(base, d)) and d[0].isdigit()]
+                if dirs:
+                    dirs.sort(key=lambda x: [int(n) for n in x.split(".")], reverse=True)
+                    return os.path.join(base, dirs[0])
+            except Exception:
+                pass
+    return None
 
 
 def choose_browser():
