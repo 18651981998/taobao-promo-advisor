@@ -24,6 +24,26 @@
 """
 import os
 import sys
+sys.dont_write_bytecode = True  # 禁止生成 .pyc 缓存，避免更新后仍运行旧代码
+
+# 启动前强制清理本目录下的所有 .pyc / __pycache__，防止旧缓存导致选择窗口等逻辑不生效
+try:
+    import pathlib
+    _here = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
+    for _pyc in _here.rglob("*.pyc"):
+        try:
+            _pyc.unlink(missing_ok=True)
+        except Exception:
+            pass
+    for _cache in _here.rglob("__pycache__"):
+        try:
+            if _cache.is_dir():
+                _cache.rmdir()
+        except Exception:
+            pass
+except Exception:
+    pass
+
 import time
 import webbrowser
 import threading
