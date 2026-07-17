@@ -26,7 +26,11 @@ PORT = 8123
 HERE = os.path.dirname(os.path.abspath(__file__))
 HTML_PATH = os.path.join(HERE, "taobao-promo-advisor.html")
 PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python.exe"
+PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
+
+# 复用安装助手里生成的书签代码，确保检测与写入使用同一串代码
+from install_helper import bookmarklet_code
 
 
 def find_free_port(start=PORT, end=PORT+20):
@@ -389,6 +393,54 @@ def parse_url(url):
     return fetch_page(url)
 
 
+def get_last_browser():
+    """读取上次用户选中的浏览器"""
+    try:
+        p = os.path.join(HERE, "last_browser.txt")
+        with open(p, encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception:
+        return None
+
+
+def check_bookmark_status():
+    """检查书签是否已写入浏览器书签栏（基于 last_browser.txt 定位）"""
+    name = get_last_browser()
+    if not name:
+        return {"ok": False, "installed": False, "msg": "尚未选择过浏览器"}
+    browsers = {
+        "Google Chrome": "%LOCALAPPDATA%\\Google\\Chrome\\User Data",
+        "Microsoft Edge": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data",
+        "360安全浏览器": "%LOCALAPPDATA%\\360\\360se6\\User Data",
+        "360极速浏览器": "%LOCALAPPDATA%\\360Chrome\\Chrome\\User Data",
+    }
+    ud = os.path.expandvars(browsers.get(name, ""))
+    if not ud or not os.path.isdir(ud):
+        return {"ok": False, "installed": False, "msg": f"找不到 {name} 的书签目录"}
+    code = bookmarklet_code(PORT)
+    profiles = set()
+    bm = os.path.join(ud, "Bookmarks")
+    if os.path.isfile(bm):
+        profiles.add(bm)
+    try:
+        for d in os.listdir(ud):
+            p = os.path.join(ud, d, "Bookmarks")
+            if os.path.isfile(p):
+                profiles.add(p)
+    except Exception:
+        pass
+    for prof in profiles:
+        try:
+            with open(prof, encoding="utf-8") as f:
+                data = json.load(f)
+            children = data.get("roots", {}).get("bookmark_bar", {}).get("children", [])
+            if any(c.get("url") == code for c in children if c.get("type") == "url"):
+                return {"ok": True, "installed": True, "browser": name}
+        except Exception:
+            continue
+    return {"ok": True, "installed": False, "browser": name}
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         self.send_response(code)
@@ -399,6 +451,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = self.path
+        if path == "/api/bookmark-status":
+            self._send(200, json.dumps(check_bookmark_status(), ensure_ascii=False))
+            return
         if path in ("/", "/index.html"):
             path = "/taobao-promo-advisor.html"
         # 安全路径：只允许当前目录下的静态文件
@@ -430,15 +485,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send(200, json.dumps(result, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
-        elif self.path == "/api/install-extension":
-            # 触发本地安装助手（非阻塞）：关浏览器→装书签→带扩展重启并打开工具页
+        elif self.path in ("/api/install-bookmark", "/api/install-extension"):
+            # 触发本地安装助手（非阻塞）：关闭浏览器 → 写入书签 → 重新打开浏览器和工具页
             try:
-                subprocess.Popen([PY, INSTALL_HELPER, "--open"],
+                pyw = PYW if os.path.isfile(PYW) else PY
+                subprocess.Popen([pyw, INSTALL_HELPER, "--install-bookmark"],
                                  stdout=subprocess.DEVNULL,
                                  stderr=subprocess.DEVNULL, cwd=HERE,
                                  creationflags=0x08000000)
                 self._send(200, json.dumps({"ok": True,
-                    "msg": "安装程序已启动，浏览器会短暂关闭后重新带扩展打开，请稍候..."}, ensure_ascii=False))
+                    "msg": "安装程序已启动，浏览器会短暂关闭后重新打开，书签写入完成后即可使用。"}, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         else:
