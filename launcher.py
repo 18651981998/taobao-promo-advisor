@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 """淘系推广参谋 · 图形化启动菜单（无控制台黑窗口，杜绝双击闪退）
 
-把原来的编号式控制台菜单改为 tkinter 图形界面：
-  1. 启动服务并打开工具页
-  2. 一键安装书签 + 扩展
-  3. 仅加载扩展
-  4. 停止本地服务
-  5. 退出
+菜单（按「使用 / 安装 / 管理」分组，共 4 项）：
+  ① 启动并打开工具页   —— 自动装书签 + 带扩展打开 Chrome（推荐）
+  ② 安装书签           —— 仅把书签写入浏览器书签栏（永久）
+  ③ 停止本地服务
+  ④ 退出
 
 用 pythonw.exe 启动本文件时不分配控制台，因此在资源管理器里双击 .bat
 不会再出现“黑窗口闪一下”的问题。
@@ -94,19 +93,26 @@ class Launcher(tk.Tk):
 
         self.btn_frame = tk.Frame(self)
         self.btn_frame.pack(fill="x", padx=24)
-        actions = [
-            ("1.   启动服务并打开工具页", lambda: self.do_action("open")),
-            ("2.   一键安装书签 + 扩展", lambda: self.do_action("install")),
-            ("3.   仅加载扩展", lambda: self.do_action("ext")),
-            ("4.   停止本地服务", lambda: self.do_action("stop")),
-            ("5.   退出", lambda: self.do_action("exit")),
-        ]
-        self.buttons = []
-        for label, cb in actions:
+
+        def group(title):
+            tk.Label(self.btn_frame, text=title, font=("Microsoft YaHei", 10, "bold"),
+                     fg="#bbbbbb", anchor="w").pack(fill="x", pady=(8, 2))
+
+        def add_btn(label, cb, primary=False):
             b = tk.Button(self.btn_frame, text=label, font=("Microsoft YaHei", 12),
                           height=1, relief="raised", command=cb, anchor="w", padx=12)
+            if primary:
+                b.configure(bg="#ff6a00", fg="#ffffff", activebackground="#e85f00")
             b.pack(fill="x", pady=4)
             self.buttons.append(b)
+
+        group("使用")
+        add_btn("①   启动并打开工具页（已带扩展）", lambda: self.do_action("open"), primary=True)
+        group("安装导入")
+        add_btn("②   安装书签（永久）", lambda: self.do_action("bookmark"))
+        group("管理")
+        add_btn("③   停止本地服务", lambda: self.do_action("stop"))
+        add_btn("④   退出", lambda: self.do_action("exit"))
 
         tk.Label(self, text="运行日志", font=("Microsoft YaHei", 10),
                  fg="#666666").pack(anchor="w", padx=24, pady=(6, 0))
@@ -156,9 +162,8 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
-        arg = {"open": "--open-only", "install": None, "ext": "--extension-only"}[kind]
-        label = {"open": "启动服务并打开工具页", "install": "安装书签 + 扩展",
-                 "ext": "加载扩展"}[kind]
+        arg = {"open": "--open", "bookmark": "--install-bookmark"}.get(kind)
+        label = {"open": "启动并打开工具页（带扩展）", "bookmark": "安装书签"}[kind]
         self._set_running(True)
         self._log("正在执行：" + label + " ...")
         def w():
