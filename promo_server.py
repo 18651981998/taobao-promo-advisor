@@ -431,14 +431,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         elif self.path == "/api/install-extension":
-            # 触发本地安装助手（非阻塞），浏览器会短暂关闭后重新带扩展启动
+            # 触发本地安装助手（非阻塞）：关浏览器→装书签→带扩展重启并打开工具页
             try:
-                subprocess.Popen([PY, INSTALL_HELPER, "--extension-only"],
+                subprocess.Popen([PY, INSTALL_HELPER, "--open"],
                                  stdout=subprocess.DEVNULL,
                                  stderr=subprocess.DEVNULL, cwd=HERE,
                                  creationflags=0x08000000)
                 self._send(200, json.dumps({"ok": True,
-                    "msg": "安装程序已启动，浏览器会短暂关闭后重新打开，请稍候..."}, ensure_ascii=False))
+                    "msg": "安装程序已启动，浏览器会短暂关闭后重新带扩展打开，请稍候..."}, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         else:
