@@ -208,9 +208,9 @@
           <div style="font-weight:600; color:#c45c00; margin-bottom:8px; font-size:13px;">🛠 链接解析失败，用当前浏览器抓（绕过登录态）</div>
           <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:10px;">
             1. 点「复制抓取代码」<br>
-            2. 打开这个商品页（保持登录态）<br>
+            2. 打开商品页（保持登录态）<br>
             3. 按 F12 → Console → 粘贴代码 → 回车<br>
-            4. 会自动跳转回本工具，并把标题/价格/主图填好。
+            4. 数据会自动传回本地工具，回到本页即可看到标题/价格/主图已填好
           </div>
           <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
             <button type="button" class="btn2" id="copyScraperBtn">复制抓取代码</button>
@@ -647,9 +647,9 @@ function copyScraperCode(){
   const area = document.getElementById("scraperCode");
   if(!area || !area.value){ alert("抓取代码未生成，请先粘贴商品链接并点「解析链接」触发失败提示。"); return; }
   if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(area.value).then(()=>alert("抓取代码已复制，请打开商品页 → F12 → Console → 粘贴 → 回车。"));
+    navigator.clipboard.writeText(area.value).then(()=>alert("抓取代码已复制。请打开商品页 → F12 → Console → 粘贴 → 回车，再回到本工具页即可看到数据已填好。"));
   } else {
-    area.select(); document.execCommand("copy"); alert("抓取代码已复制，请打开商品页 → F12 → Console → 粘贴 → 回车。");
+    area.select(); document.execCommand("copy"); alert("抓取代码已复制。请打开商品页 → F12 → Console → 粘贴 → 回车，再回到本工具页即可看到数据已填好。");
   }
 }
 document.getElementById("copyScraperBtn").addEventListener("click", copyScraperCode);
@@ -712,6 +712,43 @@ function parseLink(){
     });
 }
 
+/* 回填数据到表单（链接解析/浏览器抓取/URL参数共用） */
+function fillFromData(d, sourceName){
+  const genericTitle = /商品详情|宝贝详情|淘宝网|天猫|tmall|taobao|detail|page/i;
+  if(d.title && !genericTitle.test(d.title)) document.getElementById("title").value=d.title;
+  if(d.price) document.getElementById("price").value=d.price;
+  const c=guessCat(d.title||"");
+  if(c) document.getElementById("cat").value=c;
+  if(d.pic){
+    const prev=document.getElementById("imgPrev");
+    document.getElementById("imgPrevImg").src=d.pic;
+    document.getElementById("imgPrevName").textContent="（"+sourceName+"）";
+    prev.style.display="flex";
+  }
+  if(d.url) document.getElementById("link").value=d.url;
+  const st=document.getElementById("parseStatus");
+  st.textContent="已从"+sourceName+"导入。可补全其他信息后生成配置单。";
+  st.style.color="var(--ok)";
+  const fallback=document.getElementById("browserFallback");
+  if(fallback) fallback.style.display="none";
+}
+
+/* 轮询浏览器抓取回来的数据 */
+async function checkLastParse(){
+  try{
+    const res=await fetch("/api/last-parse");
+    const d=await res.json();
+    if(d.ok && d.data && d.data.title){
+      const lastTs=window.__lastParseTs||0;
+      const newTs=d.data.ts||0;
+      if(newTs>lastTs){
+        window.__lastParseTs=newTs;
+        fillFromData(d.data, "浏览器抓取");
+      }
+    }
+  }catch(e){ /* 离线或未启动时静默 */ }
+}
+
 document.getElementById("genBtn").addEventListener("click",gen);
 
 /* 书签安装状态检测与安装 */
@@ -726,9 +763,19 @@ function makeBmCode(port){
     "if(!price){var m=document.body.innerText.match(/[¥￥]\\\\s*([\\\\d.]+)/);if(m)price=m[1];}"+
     "try{pic=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}"+
     "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"+
-    "var u='http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url);"+
-    "console.log('[推广参谋] 抓取结果:',{title:title,price:price,pic:pic,url:url});"+
-    "window.open(u,'_blank');"+
+    "var d={title:title,price:price,pic:pic,url:url};"+
+    "console.log('[推广参谋] 抓取结果:',d);"+
+    "try{"+
+      "var x=new XMLHttpRequest();"+
+      "x.open('POST','http://127.0.0.1:"+port+"/api/browser-parse',false);"+
+      "x.setRequestHeader('Content-Type','application/json');"+
+      "x.send(JSON.stringify(d));"+
+      "var r=x.status===200?JSON.parse(x.responseText):null;"+
+      "if(r&&r.ok){window.open('http://127.0.0.1:"+port+"/','_blank');}else{throw new Error('post failed');}"+
+    "}catch(e){"+
+      "console.log('[推广参谋] POST失败，回退URL传参',e);"+
+      "window.open('http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url),'_blank');"+
+    "};"+
   "})();";
 }
 function setBmCode(code){
@@ -959,22 +1006,15 @@ window.addEventListener("load",()=>{
   const price=params.get("price");
   const pic=params.get("pic");
   const url=params.get("url");
-  if(title) document.getElementById("title").value=title;
-  if(price) document.getElementById("price").value=price;
-  if(url) document.getElementById("link").value=url;
-  if(pic){
-    const prev=document.getElementById("imgPrev");
-    document.getElementById("imgPrevImg").src=pic;
-    document.getElementById("imgPrevName").textContent="（来自浏览器抓取）";
-    prev.style.display="flex";
+  if(title || price || pic || url){
+    fillFromData({title, price, pic, url}, "浏览器抓取");
   }
-  if(title || price || pic){
-    const st=document.getElementById("parseStatus");
-    st.textContent="已从商品页导入。可补全其他信息后生成配置单。";
-    st.style.color="var(--ok)";
-    const c=guessCat(title||"");
-    if(c) document.getElementById("cat").value=c;
-  }
+  // 启动轮询：书签/控制台抓取的数据会 POST 到 /api/browser-parse，本页自动回填
+  checkLastParse();
+  setInterval(checkLastParse, 2000);
+  document.addEventListener("visibilitychange", ()=>{
+    if(!document.hidden) checkLastParse();
+  });
 });
 </script>
 <footer class="appfooter">
