@@ -138,36 +138,27 @@ def choose_browser():
              text="请选择要使用的浏览器：",
              font=("Microsoft YaHei", 11)).pack(pady=14)
 
-    # 默认不选中任何浏览器，让用户自己选；避免多个被自动选中造成误导
-    selected = tk.StringVar(value="")
-
-    # 显式再重置一次，防止某些 tk 版本/缓存下出现显示残留
-    def reset_selection():
-        selected.set("")
-        root.update_idletasks()
-    root.after(0, reset_selection)
-
+    # 用 Listbox 替代 Radiobutton，避免旧缓存/变量绑定导致的多选问题
+    listbox = tk.Listbox(root, font=("Microsoft YaHei", 11), height=6,
+                         selectmode="single", activestyle="none")
     for b in BROWSERS:
-        tk.Radiobutton(root, text=b["name"], variable=selected, value=b["name"],
-                       font=("Microsoft YaHei", 10)).pack(anchor="w", padx=40, pady=2)
-        if b.get("note"):
-            tk.Label(root, text=f"   {b['note']}", fg="gray",
-                     font=("Microsoft YaHei", 9)).pack(anchor="w", padx=60)
+        listbox.insert("end", b["name"])
+    listbox.pack(fill="x", padx=40, pady=5)
 
     result = [None]
 
     def on_ok():
-        name = selected.get()
-        if not name:
+        sel = listbox.curselection()
+        if not sel:
             messagebox.showwarning("未选择浏览器",
                                    "请先点选要使用的浏览器，再点「确定」。")
             return
-        browser = next((b for b in BROWSERS if b["name"] == name), None)
+        browser = next((b for b in BROWSERS if b["name"] == listbox.get(sel[0])), None)
         if not browser:
             return
         if not is_installed(browser):
             messagebox.showwarning("浏览器未安装",
-                                   f"「{name}」未安装。\n请先安装该浏览器，或选择其他已安装的浏览器。")
+                                   f"「{listbox.get(sel[0])}」未安装。\n请先安装该浏览器，或选择其他已安装的浏览器。")
             return
         result[0] = browser
         root.destroy()
