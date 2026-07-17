@@ -13,6 +13,7 @@
 """
 import os
 import sys
+sys.dont_write_bytecode = True  # 禁止生成 .pyc，避免缓存导致旧代码被加载
 import json
 import time
 import argparse
@@ -137,9 +138,14 @@ def choose_browser():
              text="请选择要使用的浏览器：",
              font=("Microsoft YaHei", 11)).pack(pady=14)
 
-    selected = tk.StringVar()
     # 默认不选中任何浏览器，让用户自己选；避免多个被自动选中造成误导
-    selected.set("")
+    selected = tk.StringVar(value="")
+
+    # 显式再重置一次，防止某些 tk 版本/缓存下出现显示残留
+    def reset_selection():
+        selected.set("")
+        root.update_idletasks()
+    root.after(0, reset_selection)
 
     for b in BROWSERS:
         tk.Radiobutton(root, text=b["name"], variable=selected, value=b["name"],
