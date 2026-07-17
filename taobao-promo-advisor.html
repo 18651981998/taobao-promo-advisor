@@ -179,8 +179,8 @@
       <h3>📋 快速开始</h3>
       <div class="qs-grid">
         <div class="qs-card"><span class="qs-num">1</span><div class="qs-txt"><b>启动工具</b>双击「运行工具.bat」→ 点 ① 启动并打开工具页。</div></div>
-        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>导入商品（推荐）</b>复制淘宝/天猫商品页网址，粘贴到下方「商品链接」框，点「解析链接」自动填好标题/价格/主图。</div></div>
-        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>书签导入（可选）</b>若链接解析失败，可安装顶部「导入书签」，在商品页点书签栏一键导入。</div></div>
+        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>装悬浮按钮（推荐·一次）</b>在本页点「安装悬浮按钮」，装好油猴脚本后，商品页右下角会出现「🛒 导入推广参谋」，点一下就自动导入。</div></div>
+        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>或粘贴链接</b>复制商品网址粘到下方「商品链接」框 → 点「解析链接」自动填好标题/价格/主图。</div></div>
       </div>
     </div>
   </div>
@@ -203,7 +203,23 @@
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
         </div>
         <div class="hint" id="parseStatus"></div>
-        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:4px;">推荐：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可用下方「浏览器抓取」方案。</div>
+        <div id="floatBtnCard" style="margin-top:12px; padding:14px; background:#eef6ff; border:1px solid #bcd9f5; border-radius:10px;">
+          <div style="font-weight:600; color:#185fa5; margin-bottom:6px; font-size:13px;">🛒 更省事：商品页悬浮按钮（推荐）</div>
+          <div style="font-size:12.5px; color:var(--text); line-height:1.6; margin-bottom:10px;">
+            装一次油猴脚本，淘宝/天猫商品页右下角就会出现「🛒 导入推广参谋」，<b>点一下就自动抓取标题/价格/主图并打开本工具填好</b>，全程不用 F12、不用复制代码。
+          </div>
+          <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
+            <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>（Chrome 网上应用店搜“Tampermonkey”安装，或去 tampermonkey.net）。</li>
+            <li>点下面「一键安装脚本」，油猴会自动弹出安装页 → 点「安装」。</li>
+            <li>打开任意淘宝/天猫商品页，点右下角悬浮按钮即可导入。</li>
+          </ol>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn2" id="installUserscriptBtn">一键安装脚本</button>
+            <button type="button" class="btn2" id="copyUserscriptBtn">复制脚本代码</button>
+          </div>
+          <div class="hint" id="usStatus" style="margin-top:8px;"></div>
+        </div>
+        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:10px;">没有油猴也没关系：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可用下方「浏览器抓取」方案。</div>
         <div id="browserFallback" style="display:none; margin-top:12px; padding:12px; background:#fff7f0; border:1px dashed #ffccaa; border-radius:8px;">
           <div style="font-weight:600; color:#c45c00; margin-bottom:8px; font-size:13px;">🛠 链接解析失败，用当前浏览器抓（绕过登录态）</div>
           <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:10px;">
@@ -657,6 +673,41 @@ document.getElementById("openLinkBtn").addEventListener("click", ()=>{
   const url = document.getElementById("link").value.trim();
   if(url) window.open(url, "_blank"); else alert("请先粘贴商品链接");
 });
+/* 悬浮按钮（油猴脚本）安装引导 */
+document.getElementById("installUserscriptBtn").addEventListener("click", function(){
+  window.open("http://127.0.0.1:8123/taobao-promo.user.js", "_blank");
+  const st=document.getElementById("usStatus");
+  st.style.color="var(--info)";
+  st.textContent="已在新标签打开脚本安装页。若油猴已安装，会自动弹出安装确认；若没有，请先装 Tampermonkey 扩展。";
+});
+document.getElementById("copyUserscriptBtn").addEventListener("click", function(){
+  fetch("/taobao-promo.user.js").then(r=>r.text()).then(txt=>{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(()=>{
+        const st=document.getElementById("usStatus");
+        st.style.color="var(--ok)";
+        st.textContent="脚本已复制 ✓ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存，即可使用悬浮按钮。";
+      });
+    } else { alert("复制失败，请手动从工具文件夹 taobao-promo.user.js 复制。"); }
+  }).catch(e=>{
+    const st=document.getElementById("usStatus");
+    st.style.color="var(--bad)";
+    st.textContent="读取脚本失败，请确认本地服务已启动（双击运行工具.bat → ①）。";
+  });
+});
+/* 检测油猴脚本是否已安装（脚本在本地工具页注入了标记） */
+window.addEventListener('load', function(){
+  if (window.__TAOBAO_PROMO_USERSCRIPT_INSTALLED__) {
+    const card = document.getElementById('floatBtnCard');
+    if (card) {
+      const tag = document.createElement('div');
+      tag.style.cssText='display:inline-block;margin-left:8px;padding:2px 10px;border-radius:12px;font-size:12px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;font-weight:600;';
+      tag.textContent='✓ 脚本已安装';
+      const h = card.querySelector('div');
+      if (h) h.appendChild(tag);
+    }
+  }
+});
 function parseLink(){
   const url=document.getElementById("link").value.trim();
   const st=document.getElementById("parseStatus");
@@ -691,7 +742,7 @@ function parseLink(){
       } else {
         let msg = "自动解析失败：" + d.msg;
         if (d.msg && d.msg.includes("验证页")) {
-          msg += "；淘宝需要登录态，服务端抓取不到。请用下方「浏览器抓取」方案，或手动填写。";
+          msg += "；淘宝需要登录态，服务端抓取不到。更省事：装「悬浮按钮（油猴脚本）」后点一下即可导入；或手动填写。";
         } else {
           msg += "（可手动填写）";
         }
