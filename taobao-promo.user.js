@@ -4,12 +4,12 @@
 // @version      2.0
 // @description  在淘宝/天猫商品页注入悬浮按钮，点击一键抓取标题/价格/主图并传入本地「淘系推广参谋」工具，无需 F12。
 // @author       A0_0 涛声依旧
-// @match        https://item.taobao.com/item.htm*
-// @match        https://detail.tmall.com/item.htm*
-// @match        https://*.tmall.com/*
-// @match        https://*.taobao.com/*
+// @match        https://*taobao.com/*
+// @match        https://*tmall.com/*
 // @match        http://127.0.0.1:8123/*
 // @connect      127.0.0.1
+// @updateURL    http://127.0.0.1:8123/taobao-promo.user.js
+// @downloadURL  http://127.0.0.1:8123/taobao-promo.user.js
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // ==/UserScript==
