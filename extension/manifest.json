@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "淘系推广参谋·商品导入",
+  "version": "1.0",
+  "description": "在淘宝/天猫商品页一键提取标题/价格/主图，导入本地推广参谋工具",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "https://*.taobao.com/*",
+    "https://*.tmall.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1:8123/*", "http://localhost:8123/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "导入推广参谋"
+  }
+}
