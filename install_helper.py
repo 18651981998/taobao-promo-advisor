@@ -142,9 +142,7 @@ def choose_browser():
     selected.set(installed[0]["name"] if installed else BROWSERS[0]["name"])
 
     for b in BROWSERS:
-        status = "已安装" if is_installed(b) else "未安装"
-        text = f"{b['name']}  ({status})"
-        tk.Radiobutton(root, text=text, variable=selected, value=b["name"],
+        tk.Radiobutton(root, text=b["name"], variable=selected, value=b["name"],
                        font=("Microsoft YaHei", 10)).pack(anchor="w", padx=40, pady=2)
         if b.get("note"):
             tk.Label(root, text=f"   {b['note']}", fg="gray",
