@@ -29,8 +29,8 @@ PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python
 PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 
-# 复用安装助手里生成的书签代码，确保检测与写入使用同一串代码
-from install_helper import bookmarklet_code
+# 复用安装助手里生成的书签代码与浏览器数据路径，确保检测与写入使用同一串代码
+from install_helper import bookmarklet_code, BROWSERS, resolve_user_data, is_installed
 
 
 def find_free_port(start=PORT, end=PORT+20):
@@ -404,41 +404,72 @@ def get_last_browser():
 
 
 def check_bookmark_status():
-    """检查书签是否已写入浏览器书签栏（基于 last_browser.txt 定位）"""
-    name = get_last_browser()
-    if not name:
-        return {"ok": False, "installed": False, "msg": "尚未选择过浏览器"}
-    browsers = {
-        "Google Chrome": "%LOCALAPPDATA%\\Google\\Chrome\\User Data",
-        "Microsoft Edge": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data",
-        "360安全浏览器": "%LOCALAPPDATA%\\360\\360se6\\User Data",
-        "360极速浏览器": "%LOCALAPPDATA%\\360Chrome\\Chrome\\User Data",
-    }
-    ud = os.path.expandvars(browsers.get(name, ""))
-    if not ud or not os.path.isdir(ud):
-        return {"ok": False, "installed": False, "msg": f"找不到 {name} 的书签目录"}
+    """检查书签是否已写入任意已安装浏览器的书签栏"""
     code = bookmarklet_code(PORT)
-    profiles = set()
-    bm = os.path.join(ud, "Bookmarks")
-    if os.path.isfile(bm):
-        profiles.add(bm)
-    try:
-        for d in os.listdir(ud):
-            p = os.path.join(ud, d, "Bookmarks")
-            if os.path.isfile(p):
-                profiles.add(p)
-    except Exception:
-        pass
-    for prof in profiles:
-        try:
-            with open(prof, encoding="utf-8") as f:
-                data = json.load(f)
-            children = data.get("roots", {}).get("bookmark_bar", {}).get("children", [])
-            if any(c.get("url") == code for c in children if c.get("type") == "url"):
-                return {"ok": True, "installed": True, "browser": name}
-        except Exception:
+    detected = []
+    installed_in = []
+    # 扫描所有已知浏览器配置（不依赖 exe 路径是否存在，只要数据目录有 Bookmarks 就扫）
+    for browser in BROWSERS:
+        ud = resolve_user_data(browser)
+        # 尝试定位用户数据目录（兼容 360 动态版本目录）
+        possible_dirs = []
+        if ud and os.path.isdir(ud):
+            possible_dirs.append(ud)
+        # 对 360 安全浏览器额外尝试 %APPDATA%\360se6\Application\<版本>
+        if browser["name"] == "360安全浏览器":
+            base360 = os.path.expandvars("%APPDATA%\\360se6\\Application")
+            if os.path.isdir(base360):
+                try:
+                    dirs = [d for d in os.listdir(base360) if os.path.isdir(os.path.join(base360, d)) and d[0].isdigit()]
+                    dirs.sort(key=lambda x: [int(n) for n in x.split(".")], reverse=True)
+                    for d in dirs[:3]:
+                        possible_dirs.append(os.path.join(base360, d))
+                except Exception:
+                    pass
+        # 收集该目录及其子目录下的 Bookmarks 文件
+        profiles = set()
+        for base in possible_dirs:
+            bm = os.path.join(base, "Bookmarks")
+            if os.path.isfile(bm):
+                profiles.add(bm)
+            try:
+                for d in os.listdir(base):
+                    p = os.path.join(base, d, "Bookmarks")
+                    if os.path.isfile(p):
+                        profiles.add(p)
+            except Exception:
+                pass
+        exe_installed = is_installed(browser)
+        if not profiles:
+            detected.append({"name": browser["name"], "profiles": 0, "installed": False,
+                             "error": "未找到书签目录" if not possible_dirs else "目录存在但无 Bookmarks 文件",
+                             "exe_installed": exe_installed})
             continue
-    return {"ok": True, "installed": False, "browser": name}
+        found = False
+        for prof in profiles:
+            try:
+                with open(prof, encoding="utf-8") as f:
+                    data = json.load(f)
+                # 不仅检查书签栏，也检查其他文件夹
+                def find_url(node):
+                    if node.get("type") == "url" and node.get("url") == code:
+                        return True
+                    for child in node.get("children", []):
+                        if find_url(child):
+                            return True
+                    return False
+                if find_url(data.get("roots", {}).get("bookmark_bar", {})) or find_url(data.get("roots", {}).get("other", {})):
+                    found = True
+                    installed_in.append(browser["name"])
+                    break
+            except Exception:
+                continue
+        detected.append({"name": browser["name"], "profiles": len(profiles), "installed": found, "exe_installed": exe_installed})
+    if installed_in:
+        return {"ok": True, "installed": True, "browser": ", ".join(installed_in), "detected": detected}
+    if not detected:
+        return {"ok": False, "installed": False, "msg": "未检测到任何浏览器数据", "detected": detected}
+    return {"ok": True, "installed": False, "msg": "书签尚未写入书签栏", "detected": detected}
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
