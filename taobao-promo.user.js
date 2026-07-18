@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         淘系推广参谋 · 一键导入（悬浮按钮）
 // @namespace    http://127.0.0.1:8123
-// @version      2.1
+// @version      2.2
 // @description  在淘宝/天猫商品页注入悬浮按钮，点击一键抓取标题/价格/主图并传入本地「淘系推广参谋」工具，无需 F12。
 // @author       A0_0 涛声依旧
 // @match        https://*taobao.com/*
