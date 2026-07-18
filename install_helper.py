@@ -286,32 +286,35 @@ def pick_browser():
 
 
 def bookmarklet_code(port):
-    return ("javascript:(function(){"
-            "var title='',price='',pic='',url=location.href;"
-            "try{title=document.querySelector('h1').innerText.trim();}catch(e){}"
-            "if(!title)try{title=document.querySelector('meta[property=\"og:title\"]').content.trim();}catch(e){}"
-            "if(!title)try{title=document.title||'';}catch(e){}"
-            "try{price=document.querySelector('[class*=\"Price\"]').innerText.match(/[\\d.]+/)[0];}catch(e){}"
-            "if(!price){var m=document.body.innerText.match(/[¥￥]\\s*([\\d.]+)/);if(m)price=m[1];}"
-            "try{pic=document.querySelector('meta[property=\"og:image\"]').content.trim();}catch(e){}"
-            "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"
-            "var d={title:title,price:price,pic:pic,url:url};"
-            "console.log('[推广参谋] 抓取结果:',d);"
-            "try{var h=new XMLHttpRequest();"
-            "h.open('GET','http://127.0.0.1:" + str(port) + "/',false);"
-            "h.send();"
-            "if(h.status!==200){throw new Error('service not ready');}"
-            "}catch(e){alert('本地服务未启动，请先双击「运行工具.bat」启动后再点书签。');return;}"
-            "try{var x=new XMLHttpRequest();"
-            "x.open('POST','http://127.0.0.1:" + str(port) + "/api/browser-parse',false);"
-            "x.setRequestHeader('Content-Type','application/json');"
-            "x.send(JSON.stringify(d));"
-            "var r=x.status===200?JSON.parse(x.responseText):null;"
-            "if(r&&r.ok){window.open('http://127.0.0.1:" + str(port) + "/','_blank');}else{throw new Error('post failed');}"
-            "}catch(e){console.log('[推广参谋] POST失败，回退URL传参',e);"
-            "window.open('http://127.0.0.1:" + str(port) + "/?title='+encodeURIComponent(title)"
-            "+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)"
-            "+'&url='+encodeURIComponent(url),'_blank');}})();")
+    """书签代码：点击后向当前商品页注入一个悬浮按钮（与油猴/扩展效果一致），
+    再点按钮即可抓取并导入。不依赖任何扩展或油猴，所有浏览器可用。"""
+    p = str(port)
+    return (
+        "javascript:(function(){"
+        "if(document.getElementById('tb-promo-import-btn'))return;"
+        "var TOOL='http://127.0.0.1:" + p + "';"
+        "function tx(s){try{var e=document.querySelector(s);return e?e.innerText.trim():''}catch(e){return''}}"
+        "function at(s,a){try{var e=document.querySelector(s);return e?((e.getAttribute(a)||e[a]||'').trim()):''}catch(e){return''}}"
+        "function ex(){"
+        "var t=tx('h1')||at('meta[property=\"og:title\"]','content')||document.title;"
+        "t=(t||'').replace(/\\s*-\\s*(淘宝网|天猫|tmall|Taobao).*$/i,'').trim();"
+        "var pr='';"
+        "var ps=['.Price--realSales','.Price--actualValue','#J_PromoPrice .tm-price','#J_PromoPriceNum','#J_StrPrice .tb-rmb-num','.tb-rmb-num','[class*=\"Price\"]'];"
+        "for(var i=0;i<ps.length;i++){var m=tx(ps[i]).match(/[\\d,]+\\.?\\d*/);if(m){pr=m[0].replace(/,/g,'');break;}}"
+        "if(!pr){var b=document.body.innerText.match(/[¥￥]\\s*([\\d,]+\\.?\\d*)/);if(b)pr=b[1].replace(/,/g,'');}"
+        "var pic=at('meta[property=\"og:image\"]','content')||at('#J_ImgBooth','src')||at('#J_ImageWrap img','src');"
+        "if(!pic){var im=document.querySelectorAll('img');for(var j=0;j<im.length;j++){var s=im[j].src||im[j].getAttribute('data-src')||'';if(s.indexOf('alicdn.com')>-1){pic=s;break;}}}"
+        "return{title:t||'',price:pr||'',pic:pic||'',url:location.href};"
+        "}"
+        "function toast(m,ok){var n=document.getElementById('tb-promo-toast');if(!n){n=document.createElement('div');n.id='tb-promo-toast';n.style.cssText='position:fixed;right:20px;bottom:160px;z-index:2147483647;max-width:260px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.2);font-family:-apple-system,\"Microsoft YaHei\",sans-serif;transition:opacity .3s';document.body.appendChild(n);}n.style.background=ok?'#0f6e56':'#c0451d';n.style.color='#fff';n.textContent=m;n.style.opacity='1';clearTimeout(n._timer);n._timer=setTimeout(function(){n.style.opacity='0';},2600);}"
+        "function openTool(d){var q='?title='+encodeURIComponent(d.title||'')+'&price='+encodeURIComponent(d.price||'')+'&pic='+encodeURIComponent(d.pic||'')+'&url='+encodeURIComponent(d.url||'');window.open(TOOL+'/'+q,'_blank');}"
+        "function send(d){try{fetch(TOOL+'/api/browser-parse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()}).then(function(j){toast('已导入',true);openTool(d)}).catch(function(){openTool(d)})}catch(e){openTool(d)}}"
+        "var btn=document.createElement('div');btn.id='tb-promo-import-btn';btn.innerHTML='🛒 导入推广参谋';"
+        "btn.style.cssText='position:fixed;left:20px;top:150px;z-index:2147483647;padding:11px 16px;background:linear-gradient(135deg,#ff5000,#ff7300);color:#fff;border-radius:24px;font-size:14px;font-weight:600;cursor:pointer;display:block!important;visibility:visible!important;opacity:1!important;box-shadow:0 6px 18px rgba(255,80,0,.4);font-family:-apple-system,\"Microsoft YaHei\",sans-serif;line-height:1;user-select:none;border:2px solid #fff';"
+        "btn.onclick=function(){var d=ex();if(!d.title&&!d.price&&!d.pic){toast('未抓取到商品信息',false);openTool(d);return;}toast('正在抓取',true);send(d);};"
+        "document.body.appendChild(btn);"
+        "})();"
+    )
 
 
 def inject_bookmark(browser, code):
