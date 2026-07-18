@@ -14,8 +14,6 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px}
   .wrap{max-width:1080px;margin:0 auto;padding:20px 16px 60px}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-  .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;flex-shrink:0}
   h1{font-size:19px;font-weight:600}
   .sub{color:var(--sub);font-size:13px;margin-bottom:18px}
   .meta{color:var(--brand);font-size:12px;font-weight:600;margin-top:2px}
@@ -24,10 +22,8 @@
   .ext-status{display:inline-flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;padding:4px 10px;border-radius:20px;background:#fff;border:1px solid var(--line)}
   .ext-status.ext-installed{color:#2e7d32;background:#e8f5e9;border-color:#a5d6a7}
   .ext-status.ext-missing{color:#c62828;background:#ffebee;border-color:#ef9a9a}
-  .ext-status button{border:none;background:transparent;cursor:pointer;font-size:12px;color:inherit;text-decoration:underline;padding:0}
-  .grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
-  @media(max-width:860px){.grid{grid-template-columns:1fr}}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px rgba(20,30,50,.05)}
   .panel h2{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
   .panel h2 .tag{font-size:11px;font-weight:500;color:var(--brand);background:#fff2ec;padding:2px 8px;border-radius:6px}
   .field{margin-bottom:14px}
@@ -39,21 +35,45 @@
   .row{display:flex;gap:10px}
   .row>*{flex:1}
   .hint{font-size:12px;color:var(--hint);margin-top:4px}
-  .upload{display:flex;flex-direction:column;gap:8px}
-  .upload .preview{display:none;border:1px dashed var(--line2);border-radius:8px;padding:8px;align-items:center;gap:10px}
-  .upload .preview img{width:54px;height:54px;object-fit:cover;border-radius:6px}
-  .upload .preview span{font-size:12px;color:var(--sub);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .upload .preview button{background:none;border:none;color:var(--bad);font-size:13px;cursor:pointer}
   .opt{display:flex;gap:8px;flex-wrap:wrap}
   .opt label{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--sub)}
   .opt input{accent-color:var(--brand)}
   .opt label:has(input:checked){border-color:var(--brand);background:#fff7f3;color:var(--text);font-weight:500}
-  .btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px}
-  .btn:hover{opacity:.92}
+  .btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;box-shadow:0 4px 14px rgba(255,80,0,.25)}
+  .btn:hover{opacity:.92;box-shadow:0 6px 18px rgba(255,80,0,.32)}
   .btn:active{transform:translateY(1px)}
   .btn2{padding:9px 14px;border:1px solid var(--line2);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:var(--sub);white-space:nowrap;flex:0 0 96px}
   .btn2:hover{border-color:var(--brand);color:var(--brand)}
-  /* result */
+  .btn3{padding:6px 10px;border:1px solid var(--line2);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:var(--info)}
+  .btn3:hover{border-color:var(--info);background:var(--infoBg)}
+  .btn-sm{padding:5px 10px;border:none;border-radius:6px;background:#fff2ec;color:var(--brand);font-size:12px;font-weight:500;cursor:pointer}
+  .btn-sm:hover{background:#ffe8de}
+
+  /* 顶部栏 */
+  .topbar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
+  .topbar .head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}
+  .topbar .head .left{display:flex;align-items:flex-start;gap:12px}
+  .topbar .head .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;flex-shrink:0}
+  .topbar h1{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
+  .topbar .sub{color:var(--sub);font-size:13px;margin-top:2px}
+  .topbar .meta{color:var(--sub);font-size:12px;margin-top:4px}
+
+  /* 商品快照 */
+  .snapshot{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
+  .snapshot img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex-shrink:0;background:#fafbfc}
+  .snap-info{flex:1;min-width:0}
+  .snap-title{font-size:15px;font-weight:600;line-height:1.4;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .snap-stats{display:flex;gap:10px;flex-wrap:wrap}
+  .snap-stat{flex:1;min-width:84px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .snap-stat .l{font-size:12px;color:var(--sub)}
+  .snap-stat .v{font-size:20px;font-weight:700;color:var(--brand);margin-top:2px;display:block;line-height:1.2}
+  @media(max-width:520px){.snapshot{flex-direction:column;align-items:flex-start}.snapshot img{width:72px;height:72px}}
+
+  /* 输入表单内部网格 */
+  .input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 14px}
+  @media(min-width:760px){.input-grid{grid-template-columns:repeat(3,1fr)}}
+
+  /* 结果区域 */
   .result{display:none}
   .diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
   .diag .m{background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
@@ -65,7 +85,7 @@
   .b-ok{background:var(--okBg);color:var(--ok)}
   .b-info{background:var(--infoBg);color:var(--info)}
   .card{background:#fafbfc;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
-  .card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text);display:flex;align-items:center;gap:8px}
+  .card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text);display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
   .card h3 .dot{width:7px;height:7px;border-radius:50%;background:var(--brand)}
   .kv{display:flex;padding:7px 0;border-bottom:1px dashed var(--line)}
   .kv:last-child{border-bottom:none}
@@ -82,51 +102,37 @@
   table th,table td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
   table th{color:var(--sub);font-weight:500;background:#fafbfc}
   table td b{color:var(--text)}
+  table td .tool-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .steps{counter-reset:s;list-style:none}
   .steps li{position:relative;padding:8px 0 8px 34px;border-bottom:1px dashed var(--line);font-size:13px}
   .steps li:last-child{border-bottom:none}
   .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:8px;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
-  .toolbar{display:flex;gap:10px;margin-bottom:14px}
-  .toolbar button{flex:1;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:var(--sub)}
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar button{flex:1;min-width:120px;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:var(--sub)}
   .toolbar button:hover{border-color:var(--brand);color:var(--brand)}
   .note{font-size:12px;color:var(--hint);background:#fafbfc;border:1px dashed var(--line2);border-radius:8px;padding:10px 12px;margin-top:4px}
   .empty{text-align:center;color:var(--hint);padding:40px 10px;border:1px dashed var(--line2);border-radius:12px}
-  @media print{body{background:#fff}.panel:first-child,.toolbar,.sub{display:none}.grid{grid-template-columns:1fr}.card,.panel{break-inside:avoid}}
-  /* ===== 新版清爽顶部 ===== */
-  .topbar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
-  .topbar .head{display:flex;align-items:flex-start;gap:14px;justify-content:space-between}
-  .topbar .head .left{display:flex;align-items:flex-start;gap:12px}
-  .topbar .head .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;flex-shrink:0}
-  .topbar h1{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
-  .topbar .sub{color:var(--sub);font-size:13px;margin-top:2px}
-  .topbar .meta{color:var(--sub);font-size:12px;margin-top:4px}
-  /* ===== 商品快照（扩展/链接抓取自动填充） ===== */
-  .snapshot{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
-  .snapshot img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex-shrink:0;background:#fafbfc}
-  .snap-info{flex:1;min-width:0}
-  .snap-title{font-size:15px;font-weight:600;line-height:1.4;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .snap-stats{display:flex;gap:10px;flex-wrap:wrap}
-  .snap-stat{flex:1;min-width:84px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-  .snap-stat .l{font-size:12px;color:var(--sub)}
-  .snap-stat .v{font-size:20px;font-weight:700;color:var(--brand);margin-top:2px;display:block;line-height:1.2}
-  @media(max-width:520px){.snapshot{flex-direction:column;align-items:flex-start}.snapshot img{width:72px;height:72px}}
-  .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
-  .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
-  .panel h2 .ic{width:24px;height:24px;border-radius:7px;background:#fff2ec;color:#ff5000;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-right:2px}
-  .btn{transition:transform .08s, box-shadow .2s; box-shadow:0 4px 14px rgba(255,80,0,.25)}
-  .btn:hover{box-shadow:0 6px 18px rgba(255,80,0,.32)}
-  .btn:active{transform:translateY(1px)}
-  .chip{transition:transform .08s}
-  .chip:hover{transform:translateY(-1px)}
-  .card{transition:box-shadow .2s}
-  .card:hover{box-shadow:0 4px 14px rgba(20,30,50,.06)}
+
+  /* 推广计算 */
+  .calc-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .calc-inputs{display:flex;flex-direction:column;gap:12px}
+  .calc-result{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .calc-result .l{font-size:12px;color:var(--sub)}
+  .calc-result .v{font-size:22px;font-weight:700;margin-top:2px}
+  .calc-result .v.good{color:var(--ok)}
+  .calc-result .v.bad{color:var(--bad)}
+  .calc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
+  @media print{body{background:#fff}.toolbar,.sub{display:none}.panel,.card{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div id="browserTip" style="display:none;background:#fff3e0;color:#a35e0a;padding:10px 16px;text-align:center;font-size:13px;border-bottom:1px solid #ffd180;">
   ⚠ 检测到非 Chrome/Edge 浏览器，可能导致页面卡加载。请使用 <b>Google Chrome</b> 或 <b>Microsoft Edge</b> 打开本工具（双击「运行工具.bat」）。
 </div>
+
 <div class="wrap">
+  <!-- 顶部 -->
   <div class="topbar">
     <div class="head">
       <div class="left">
@@ -154,19 +160,13 @@
     </div>
   </div>
 
-  <div class="grid">
-    <!-- 左侧输入 -->
-    <div class="panel">
-      <h2><span class="ic">🛒</span>① 填商品信息 <span class="tag">必填</span></h2>
+  <!-- ① 商品信息 + 账户状态：放在上方 -->
+  <div class="panel" id="inputPanel">
+    <h2><span style="font-size:18px">🛒</span>① 填商品信息 <span class="tag">必填</span></h2>
 
-      <div class="field upload">
-        <label>商品链接 / 主图（粘贴链接可自动解析标题·价格·主图）</label>
-        <input type="file" id="imgFile" accept="image/*">
-        <div class="preview" id="imgPrev">
-          <img id="imgPrevImg" src="" alt="" onerror="this.parentElement.style.display='none'; this.parentElement.parentElement.querySelector('input[type=file]').value='';">
-          <span id="imgPrevName"></span>
-          <button type="button" id="imgClear">移除</button>
-        </div>
+    <div class="input-grid">
+      <div class="field" style="grid-column:1/-1">
+        <label>商品链接（粘贴链接可自动解析标题·价格·主图）</label>
         <div class="row" style="align-items:stretch">
           <input type="text" id="link" placeholder="粘贴商品链接，自动解析标题/价格/图片">
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
@@ -174,25 +174,24 @@
         <div class="hint" id="parseStatus"></div>
       </div>
 
-      <div class="field">
+      <div class="field" style="grid-column:1/-1">
         <label>商品标题 / 名称 <span class="req">*</span></label>
         <input type="text" id="title" placeholder="例如：浅色包臀裙牛仔短裙女夏季薄款">
       </div>
 
-      <div class="row">
-        <div class="field">
-          <label>类目 <span class="req">*</span></label>
-          <select id="cat">
-            <option value="">请选择</option>
-            <option>女装</option><option>男装</option><option>美妆护肤</option>
-            <option>家居百货</option><option>食品生鲜</option><option>数码家电</option>
-            <option>母婴</option><option>鞋包配饰</option><option>其他</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>客单价（元）<span class="req">*</span></label>
-          <input type="number" id="price" placeholder="如 59">
-        </div>
+      <div class="field">
+        <label>类目 <span class="req">*</span></label>
+        <select id="cat">
+          <option value="">请选择</option>
+          <option>女装</option><option>男装</option><option>美妆护肤</option>
+          <option>家居百货</option><option>食品生鲜</option><option>数码家电</option>
+          <option>母婴</option><option>鞋包配饰</option><option>其他</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>客单价（元）<span class="req">*</span></label>
+        <input type="number" id="price" placeholder="如 59">
       </div>
 
       <div class="field">
@@ -206,7 +205,7 @@
         </select>
       </div>
 
-      <div class="field">
+      <div class="field" style="grid-column:1/-1">
         <label>主要推广目标</label>
         <div class="opt" id="goalOpts">
           <label><input type="radio" name="goal" value="测款拿量" checked>测款拿量</label>
@@ -215,84 +214,125 @@
           <label><input type="radio" name="goal" value="大促蓄水">大促蓄水</label>
         </div>
       </div>
+    </div>
 
-      <h2 style="margin-top:22px"><span class="ic">📊</span>② 填账户状态 <span class="tag">来自后台</span></h2>
-      <div class="row">
-        <div class="field">
-          <label>账户余额（元）</label>
-          <input type="number" id="balance" placeholder="如 36">
-        </div>
-        <div class="field">
-          <label>今日点击量</label>
-          <input type="number" id="clicks" placeholder="如 1">
-        </div>
+    <h2 style="margin-top:22px"><span style="font-size:18px">📊</span>② 填账户状态 <span class="tag">来自后台</span></h2>
+    <div class="input-grid">
+      <div class="field">
+        <label>账户余额（元）</label>
+        <input type="number" id="balance" placeholder="如 36">
       </div>
-      <div class="row">
-        <div class="field">
-          <label>今日投产比 ROI</label>
-          <input type="number" id="roi" placeholder="如 0" step="0.01">
-        </div>
-        <div class="field">
-          <label>已产生成交？</label>
-          <select id="hasOrder">
-            <option value="0">暂无成交</option>
-            <option value="1">已有成交</option>
-          </select>
-        </div>
+      <div class="field">
+        <label>今日点击量</label>
+        <input type="number" id="clicks" placeholder="如 1">
+      </div>
+      <div class="field">
+        <label>今日投产比 ROI</label>
+        <input type="number" id="roi" placeholder="如 0" step="0.01">
+      </div>
+      <div class="field">
+        <label>已产生成交？</label>
+        <select id="hasOrder">
+          <option value="0">暂无成交</option>
+          <option value="1">已有成交</option>
+        </select>
       </div>
       <div class="field">
         <label>计划日预算（元，留空则按系统建议）</label>
         <input type="number" id="budget" placeholder="系统将根据类目与余额测算">
       </div>
-
-      <button class="btn" id="genBtn">生成推广配置单 →</button>
     </div>
 
-    <!-- 右侧结果 -->
-    <div class="panel">
-      <h2><span class="ic">📋</span>③ 推广配置单 <span class="tag">照着填后台</span></h2>
-      <div id="empty" class="empty">填写左侧信息后点击「生成推广配置单」<br>即可获得一份可执行的万相台无界投放方案</div>
+    <button class="btn" id="genBtn">生成推广配置单 →</button>
+  </div>
 
-      <div id="result" class="result">
-        <div class="toolbar">
-          <button onclick="copyPlan()">复制配置单</button>
-          <button onclick="window.print()">打印 / 存PDF</button>
-        </div>
+  <!-- ② 推广配置单：放在下方 -->
+  <div class="panel">
+    <h2><span style="font-size:18px">📋</span>③ 推广配置单 <span class="tag">照着填后台</span></h2>
+    <div id="empty" class="empty">填写上方商品信息后点击「生成推广配置单」<br>即可获得一份可执行的万相台无界投放方案</div>
 
-        <div class="card">
-          <h3><span class="dot"></span>账户诊断（实时）</h3>
-          <div class="diag" id="diagCards"></div>
-          <div id="diagBadges"></div>
-        </div>
-
-        <div class="card">
-          <h3><span class="dot"></span>推广工具组合（万相台无界）</h3>
-          <table id="toolTable"></table>
-        </div>
-
-        <div class="card">
-          <h3><span class="dot"></span>后台一键配置单</h3>
-          <div id="configKV"></div>
-        </div>
-
-        <div class="card">
-          <h3><span class="dot"></span>关键词分层建议</h3>
-          <div class="chips" id="kwChips"></div>
-          <div class="note" id="kwNote"></div>
-        </div>
-
-        <div class="card">
-          <h3><span class="dot"></span>人群 / 场景包</h3>
-          <div class="chips" id="crowdChips"></div>
-        </div>
-
-        <div class="card">
-          <h3><span class="dot"></span>分阶段优化 checklist</h3>
-          <ol class="steps" id="steps"></ol>
-        </div>
-
-        <div class="note" id="disclaimer"></div>
+    <div id="result" class="result">
+      <div class="toolbar">
+        <button onclick="copyPlan()">复制配置单</button>
+        <button onclick="window.print()">打印 / 存PDF</button>
+        <button onclick="openBackend('index')">打开阿里妈妈后台</button>
       </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>账户诊断（实时）</h3>
+        <div class="diag" id="diagCards"></div>
+        <div id="diagBadges"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>推广盈亏测算</h3>
+        <div class="calc-wrap">
+          <div class="calc-inputs">
+            <div class="field" style="margin-bottom:10px">
+              <label>推广花费（元）</label>
+              <input type="number" id="calcSpend" placeholder="如 100" oninput="calcRoi()">
+            </div>
+            <div class="field" style="margin-bottom:10px">
+              <label>成交金额（元）</label>
+              <input type="number" id="calcRevenue" placeholder="如 300" oninput="calcRoi()">
+            </div>
+            <div class="field" style="margin-bottom:10px">
+              <label>毛利率（%）</label>
+              <input type="number" id="calcMargin" placeholder="如 30" oninput="calcRoi()">
+            </div>
+          </div>
+          <div class="calc-result">
+            <div class="calc-grid">
+              <div>
+                <div class="l">实际 ROI</div>
+                <div class="v" id="calcRoi">—</div>
+              </div>
+              <div>
+                <div class="l">盈亏平衡 ROI</div>
+                <div class="v" id="calcBreakEven">—</div>
+              </div>
+              <div>
+                <div class="l">毛利润</div>
+                <div class="v" id="calcGross">—</div>
+              </div>
+              <div>
+                <div class="l">净利润</div>
+                <div class="v" id="calcNet">—</div>
+              </div>
+            </div>
+            <div style="margin-top:10px" id="calcVerdict"></div>
+          </div>
+        </div>
+        <div class="note" style="margin-top:10px">说明：ROI=成交金额÷花费；盈亏平衡 ROI=1÷毛利率。净利润=成交金额×毛利率−花费。结果为正值表示推广直接盈利，负值表示当前推广亏损。</div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>推广工具组合（万相台无界）</h3>
+        <table id="toolTable"></table>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>后台一键配置单</h3>
+        <div id="configKV"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>关键词分层建议</h3>
+        <div class="chips" id="kwChips"></div>
+        <div class="note" id="kwNote"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>人群 / 场景包</h3>
+        <div class="chips" id="crowdChips"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="dot"></span>分阶段优化 checklist</h3>
+        <ol class="steps" id="steps"></ol>
+      </div>
+
+      <div class="note" id="disclaimer"></div>
     </div>
   </div>
 </div>
@@ -303,7 +343,6 @@
   function refreshExtStatus() {
     var box = document.getElementById('extStatus');
     if (!box) return;
-    // content.js 在工具页会把此标记写到 window 上（与页面共享 window 对象）
     var ok = !!window.__TAOBAO_PROMO_EXTENSION_INSTALLED__;
     if (ok) {
       box.className = 'ext-status ext-installed';
@@ -313,13 +352,32 @@
       box.innerHTML = '✗ 普通扩展未生效（商品页不会有按钮）。点启动器「安装普通扩展」，并确认扩展页开发者模式已开';
     }
   }
-  // 立即检测一次，并在加载完成后、1 秒后再检测（确保 content.js 已运行）
   refreshExtStatus();
   window.addEventListener('load', refreshExtStatus);
   setTimeout(refreshExtStatus, 1000);
 })();
 
-/* ============ 类目参数库（基于万相台无界最新出价与冷启动逻辑整理） ============ */
+/* ============ 后台入口链接 ============ */
+const BACKEND_URLS = {
+  index: "https://ad.alimama.com/index.htm",
+  qzt: "https://ad.alimama.com/operate/index.html?sourceType=4",      // 货品全站推
+  ztc: "https://subway.simba.taobao.com/index.jsp",                    // 关键词推广（直通车）
+  ylmf: "https://ad.alimama.com/operate/index.html?sourceType=3",     // 人群推广（引力魔方）
+  nr: "https://ad.alimama.com/operate/index.html?sourceType=5"        // 内容推广
+};
+const BACKEND_NAMES = {
+  index: "阿里妈妈万相台无界首页",
+  qzt: "货品全站推",
+  ztc: "关键词推广（直通车）",
+  ylmf: "人群推广（引力魔方）",
+  nr: "内容推广"
+};
+function openBackend(key){
+  const url = BACKEND_URLS[key] || BACKEND_URLS.index;
+  window.open(url, "_blank");
+}
+
+/* ============ 类目参数库 ============ */
 const CAT = {
   "女装":    {minBudget:80,  roi:[2,3],   kw:{core:["牛仔短裙女","包臀裙女","显瘦a字裙","夏季连衣裙女"],
              long:["浅色包臀裙牛仔短裙女夏","高腰显瘦牛仔短裙","夏季薄款半身裙","小个子牛仔短裙"],
@@ -359,45 +417,43 @@ const crowdByStage = {
 
 /* ============ 工具选择矩阵（最新万相台无界） ============ */
 function pickTools(stage, goal){
-  // 返回 [{name, scene, when, bid, primary}]
   if(stage==="冷启动"){
     if(goal==="大促蓄水") return [
-      {name:"货品全站推",scene:"智能全域拿量",when:"优先开，养权重",bid:"最大化拿量",primary:true},
-      {name:"内容推广",scene:"短视频/直播种草",when:"同步蓄水",bid:"最大化拿量",primary:false}
+      {name:"货品全站推",key:"qzt",scene:"智能全域拿量",when:"优先开，养权重",bid:"最大化拿量",primary:true},
+      {name:"内容推广",key:"nr",scene:"短视频/直播种草",when:"同步蓄水",bid:"最大化拿量",primary:false}
     ];
-    return [{name:"货品全站推",scene:"智能全域拿量（原万相台）",when:"唯一主推，别分散预算",bid:"最大化拿量 / 控成本拿量",primary:true}];
+    return [{name:"货品全站推",key:"qzt",scene:"智能全域拿量（原万相台）",when:"唯一主推，别分散预算",bid:"最大化拿量 / 控成本拿量",primary:true}];
   }
   if(stage==="成长期"){
     if(goal==="大促蓄水") return [
-      {name:"货品全站推",scene:"放量",when:"主",bid:"最大化拿量",primary:true},
-      {name:"关键词推广",scene:"搜索精准成交",when:"辅",bid:"控成本拿量",primary:false},
-      {name:"内容推广",scene:"内容种草",when:"辅",bid:"最大化拿量",primary:false}
+      {name:"货品全站推",key:"qzt",scene:"放量",when:"主",bid:"最大化拿量",primary:true},
+      {name:"关键词推广",key:"ztc",scene:"搜索精准成交",when:"辅",bid:"控成本拿量",primary:false},
+      {name:"内容推广",key:"nr",scene:"内容种草",when:"辅",bid:"最大化拿量",primary:false}
     ];
     return [
-      {name:"货品全站推",scene:"放量",when:"主",bid:"最大化拿量→控成本",primary:true},
-      {name:"关键词推广",scene:"搜索精准成交",when:"辅（出5-10单后开）",bid:"控成本拿量",primary:false}
+      {name:"货品全站推",key:"qzt",scene:"放量",when:"主",bid:"最大化拿量→控成本",primary:true},
+      {name:"关键词推广",key:"ztc",scene:"搜索精准成交",when:"辅（出5-10单后开）",bid:"控成本拿量",primary:false}
     ];
   }
   if(stage==="爆发期"){
     if(goal==="稳ROI盈利") return [
-      {name:"关键词推广",scene:"搜索精准",when:"主",bid:"控投产比（设目标ROI）",primary:true},
-      {name:"人群推广",scene:"推荐流拉新",when:"辅",bid:"控成本/控ROI",primary:false}
+      {name:"关键词推广",key:"ztc",scene:"搜索精准",when:"主",bid:"控投产比（设目标ROI）",primary:true},
+      {name:"人群推广",key:"ylmf",scene:"推荐流拉新",when:"辅",bid:"控成本/控ROI",primary:false}
     ];
     return [
-      {name:"货品全站推",scene:"放量",when:"主",bid:"控投产比",primary:true},
-      {name:"关键词推广",scene:"搜索",when:"辅",bid:"控投产比",primary:false},
-      {name:"人群推广",scene:"推荐拉新",when:"辅",bid:"控成本",primary:false}
+      {name:"货品全站推",key:"qzt",scene:"放量",when:"主",bid:"控投产比",primary:true},
+      {name:"关键词推广",key:"ztc",scene:"搜索",when:"辅",bid:"控投产比",primary:false},
+      {name:"人群推广",key:"ylmf",scene:"推荐拉新",when:"辅",bid:"控成本",primary:false}
     ];
   }
-  // 成熟期
   if(goal==="大促蓄水") return [
-    {name:"人群推广",scene:"蓄水种草",when:"主",bid:"控成本",primary:true},
-    {name:"货品全站推",scene:"维稳放量",when:"辅",bid:"控投产比",primary:false}
+    {name:"人群推广",key:"ylmf",scene:"蓄水种草",when:"主",bid:"控成本",primary:true},
+    {name:"货品全站推",key:"qzt",scene:"维稳放量",when:"辅",bid:"控投产比",primary:false}
   ];
   return [
-    {name:"关键词推广",scene:"搜索精准盈利",when:"主",bid:"控投产比",primary:true},
-    {name:"人群推广",scene:"推荐流稳ROI",when:"辅",bid:"控投产比",primary:false},
-    {name:"货品全站推",scene:"维稳",when:"辅",bid:"控投产比",primary:false}
+    {name:"关键词推广",key:"ztc",scene:"搜索精准盈利",when:"主",bid:"控投产比",primary:true},
+    {name:"人群推广",key:"ylmf",scene:"推荐流稳ROI",when:"辅",bid:"控投产比",primary:false},
+    {name:"货品全站推",key:"qzt",scene:"维稳",when:"辅",bid:"控投产比",primary:false}
   ];
 }
 
@@ -435,7 +491,7 @@ function gen(){
   else if(balance) badges.push(["b-ok","余额充足，可支撑连续投放"]);
   if(clicks<5) badges.push(["b-warn","未过冷启动：点击<5，先拿量别急着优化"]);
   else badges.push(["b-ok","已积累基础点击样本"]);
-  if(!hasOrder && roi===0) badges.push(["b-bad","暂无成交：当前目标是「拿成交」而非「控ROI」"]);
+  if(!hasOrder && roi===0) badges.push(["b-bad","暂无成交：当前目标是「拿成交」而非「控ROI"]);
   else if(hasOrder) badges.push(["b-ok","已有成交样本，可进入ROI优化阶段"]);
   if(stage==="冷启动") badges.push(["b-info","当前为冷启动期，建议单工具集中预算"]);
   document.getElementById("diagBadges").innerHTML=badges.map(b=>`<span class="badge ${b[0]}">${b[1]}</span>`).join("");
@@ -443,8 +499,8 @@ function gen(){
   /* --- 工具组合 --- */
   const tools=pickTools(stage,goal);
   document.getElementById("toolTable").innerHTML=
-    `<tr><th>推广工具</th><th>场景</th><th>角色</th><th>出价方式</th></tr>`+
-    tools.map(t=>`<tr><td><b>${t.name}</b>${t.primary?' <span class="badge b-ok">主</span>':''}</td><td>${t.scene}</td><td>${t.when}</td><td>${t.bid}</td></tr>`).join("");
+    `<tr><th>推广工具</th><th>场景</th><th>角色</th><th>出价方式</th><th>后台入口</th></tr>`+
+    tools.map(t=>`<tr><td><div class="tool-row"><b>${t.name}</b>${t.primary?' <span class="badge b-ok">主</span>':''}</div></td><td>${t.scene}</td><td>${t.when}</td><td>${t.bid}</td><td><button class="btn-sm" onclick="openBackend('${t.key}')">去后台配置</button></td></tr>`).join("");
 
   /* --- 日预算测算 --- */
   if(!budget){
@@ -482,7 +538,6 @@ function gen(){
   const base=cfg.kw;
   const kwChips=[];
   base.core.forEach(k=>kwChips.push(`<span class="chip tier1"><b>核心词</b> ${k}</span>`));
-  // 从标题提炼长尾
   const titleTerms=title.replace(/[，,。、\s]/g," ").split(" ").filter(t=>t.length>=2).slice(0,4);
   let longExtra=[...base.long];
   titleTerms.forEach(t=>{ if(t.length>=3) longExtra.push(t+" 夏季新款"); });
@@ -529,6 +584,9 @@ function gen(){
   document.getElementById("empty").style.display="none";
   document.getElementById("result").style.display="block";
   document.getElementById("result").scrollIntoView({behavior:"smooth"});
+
+  // 生成后，把客单价自动带到计算模块，方便用户直接填花费/成交
+  calcRoi(true);
 }
 
 function copyPlan(){
@@ -537,34 +595,84 @@ function copyPlan(){
   navigator.clipboard.writeText(txt).then(()=>alert("配置单已复制到剪贴板，可粘贴到备忘录或发给运营。"));
 }
 
-/* 图片上传预览 */
-const imgFile=document.getElementById("imgFile");
-imgFile.addEventListener("change",e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const rd=new FileReader();
-  rd.onload=ev=>{
-    document.getElementById("imgPrevImg").src=ev.target.result;
-    document.getElementById("imgPrevName").textContent=f.name;
-    document.getElementById("imgPrev").style.display="flex";
-  };
-  rd.readAsDataURL(f);
-});
-document.getElementById("imgClear").addEventListener("click",()=>{
-  imgFile.value=""; document.getElementById("imgPrev").style.display="none";
-});
+/* 推广盈亏计算 */
+function calcRoi(autoPrice){
+  const price = parseFloat(document.getElementById("price").value)||0;
+  const spendEl = document.getElementById("calcSpend");
+  const revenueEl = document.getElementById("calcRevenue");
+  const marginEl = document.getElementById("calcMargin");
+
+  // 首次生成配置单时，自动用客单价作为成交金额默认值（用户未填写时）
+  if(autoPrice && price>0 && !revenueEl.value){
+    revenueEl.value = price;
+  }
+
+  const spend = parseFloat(spendEl.value)||0;
+  const revenue = parseFloat(revenueEl.value)||0;
+  const marginPct = parseFloat(marginEl.value)||0;
+
+  const roi = spend>0 ? (revenue/spend) : 0;
+  const marginRate = marginPct>0 ? (marginPct/100) : 0;
+  const breakEven = marginRate>0 ? (1/marginRate) : 0;
+  const gross = revenue * marginRate;
+  const net = gross - spend;
+
+  document.getElementById("calcRoi").textContent = spend>0 ? roi.toFixed(2) : "—";
+  document.getElementById("calcBreakEven").textContent = marginRate>0 ? breakEven.toFixed(2) : "—";
+  document.getElementById("calcGross").textContent = marginRate>0 ? ("¥"+gross.toFixed(2)) : "—";
+  const netEl = document.getElementById("calcNet");
+  if(marginRate>0 && (spend>0 || revenue>0)){
+    netEl.textContent = (net>=0?"¥":"-¥") + Math.abs(net).toFixed(2);
+    netEl.className = "v " + (net>=0?"good":"bad");
+  } else {
+    netEl.textContent = "—";
+    netEl.className = "v";
+  }
+
+  const verdict = document.getElementById("calcVerdict");
+  if(spend>0 && marginRate>0){
+    if(net>0){
+      verdict.innerHTML = `<span class="badge b-ok">✓ 盈利：ROI ${roi.toFixed(2)} 高于盈亏平衡 ${breakEven.toFixed(2)}，净利润 ¥${net.toFixed(2)}</span>`;
+    } else if(Math.abs(net)<0.01){
+      verdict.innerHTML = `<span class="badge b-warn">→ 持平：刚好保本</span>`;
+    } else {
+      verdict.innerHTML = `<span class="badge b-bad">✗ 亏损：ROI ${roi.toFixed(2)} 低于盈亏平衡 ${breakEven.toFixed(2)}，亏损 ¥${Math.abs(net).toFixed(2)}</span>`;
+    }
+  } else {
+    verdict.innerHTML = "";
+  }
+}
+
+function parseSalesNumber(s){
+  if(!s) return 0;
+  const t=String(s).replace(/,/g,'');
+  const m=t.match(/([\d.]+)\s*万/);
+  if(m) return parseFloat(m[1])*10000;
+  const n=parseFloat(t);
+  return isNaN(n)?0:n;
+}
+function setSalesStage(n){
+  const sel=document.getElementById("sales");
+  if(!sel) return;
+  if(n>=1000) sel.value="2000";
+  else if(n>=100) sel.value="500";
+  else if(n>=10) sel.value="50";
+  else if(n>0) sel.value="5";
+  else sel.value="0";
+}
 
 /* 链接自动解析 */
 function guessCat(title){
   const t=title||"";
   const map=[
-    [/裙|上衣|外套|裤|衬衫|T恤|卫衣|毛衣|羽绒|连衣裙/, "女装"],
-    [/男|夹克|西装/, "男装"],
-    [/面膜|精华|防晒|口红|护肤|化妆|水乳|面霜/, "美妆护肤"],
-    [/收纳|拖把|垃圾|香薰|杯|碗|居家|日用/, "家居百货"],
-    [/零食|坚果|茶叶|海鲜|生鲜|食品/, "食品生鲜"],
-    [/耳机|键盘|充电宝|手机|电脑|扫地|相机|家电/, "数码家电"],
-    [/婴儿|纸尿裤|奶瓶|辅食|母婴|宝宝/, "母婴"],
-    [/鞋|包|腰带|配饰|帽子|首饰/, "鞋包配饰"]
+    [/裙|上衣|外套|裤|衬衫|T恤|卫衣|毛衣|羽绒|连衣裙|半身裙|包臀裙|打底|针织衫|吊带|风衣|大衣|棉服|皮草|皮衣/, "女装"],
+    [/男装|男|夹克|西装|西裤|男士|男款|T恤男|衬衫男|男鞋|男包/, "男装"],
+    [/面膜|精华|防晒|口红|护肤|化妆|水乳|面霜|眼霜|粉底|香水|眼影|眉笔|卸妆|洁面|乳液|爽肤水|彩妆|美妆|洗护|沐浴露|洗发水/, "美妆护肤"],
+    [/收纳|拖把|垃圾|香薰|杯|碗|居家|日用|厨房|卫浴|四件套|被子|枕头|床单|窗帘|灯具|家具|装修|五金/, "家居百货"],
+    [/零食|坚果|茶叶|海鲜|生鲜|食品|水果|饮料|牛奶|酒水|粮油|调料|糕点|巧克力|饼干|蜜饯|肉类|蔬菜/, "食品生鲜"],
+    [/耳机|键盘|充电宝|手机|电脑|扫地|相机|家电|电视|冰箱|洗衣机|空调|平板|笔记本|显示器|鼠标|音箱|智能手表|手环|充电器|数据线|内存|硬盘|显卡/, "数码家电"],
+    [/婴儿|纸尿裤|奶瓶|辅食|母婴|宝宝|童装|童鞋|玩具|推车|奶粉|孕产|儿童|积木|绘本/, "母婴"],
+    [/鞋|包|腰带|配饰|帽子|首饰|围巾|手套|袜子|墨镜|眼镜|钱包|手提包|背包|行李箱|皮带|项链|耳环|手链|戒指/, "鞋包配饰"]
   ];
   for(const [re,c] of map){ if(re.test(t)) return c; }
   return "";
@@ -585,12 +693,7 @@ function parseLink(){
         if(d.price) document.getElementById("price").value=d.price;
         const c=guessCat(d.title||"");
         if(c) document.getElementById("cat").value=c;
-        if(d.pic){
-          const prev=document.getElementById("imgPrev");
-          document.getElementById("imgPrevImg").src=d.pic;
-          document.getElementById("imgPrevName").textContent="（解析自链接）";
-          prev.style.display="flex";
-        }
+        setSalesStage(parseSalesNumber(d.sales));
         let msg="解析成功 ✓ "+(d.source==="tbk_api"?"（官方API）":"（页面解析）");
         if(d.warning){
           msg += "；"+d.warning;
@@ -623,6 +726,7 @@ function fillFromData(d, sourceName){
   if(d.price) document.getElementById("price").value=d.price;
   const c=guessCat(d.title||"");
   if(c) document.getElementById("cat").value=c;
+  setSalesStage(parseSalesNumber(d.sales));
   if(d.url) document.getElementById("link").value=d.url;
   showSnapshot(d);
   const st=document.getElementById("parseStatus");
@@ -637,11 +741,6 @@ function showSnapshot(d){
   const box=document.getElementById("snapshot");
   if(!box) return;
   if(d.pic){
-    const prev=document.getElementById("imgPrev");
-    const pi=document.getElementById("imgPrevImg");
-    pi.src=d.pic; pi.style.visibility="visible";
-    document.getElementById("imgPrevName").textContent="（抓取）";
-    prev.style.display="flex";
     const si=document.getElementById("snapImg");
     si.src=d.pic; si.style.visibility="visible";
   }
@@ -670,17 +769,14 @@ async function checkLastParse(){
 
 document.getElementById("genBtn").addEventListener("click",gen);
 
-
-/* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入（来自浏览器书签） */
+/* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入 */
 window.addEventListener("load",()=>{
-  // 浏览器检测：360或IE旧内核显示提示
   const ua=navigator.userAgent.toLowerCase();
   const badUA=/360se|360ee|qihu|theworld|lbbrowser|msie|trident/.test(ua);
   if(badUA){
     const tip=document.getElementById("browserTip");
     if(tip) tip.style.display="block";
   }
-  // 扩展打开本页时，URL 携带抓取到的商品数据（标题/价格/主图/销量/评价）
   const params=new URLSearchParams(location.search);
   const title=params.get("title");
   const price=params.get("price");
@@ -691,7 +787,6 @@ window.addEventListener("load",()=>{
   if(title || price || pic || sales || reviews || url){
     fillFromData({title, price, pic, sales, reviews, url}, "商品页抓取");
   }
-  // 轮询：扩展抓取的数据会 POST 到 /api/browser-parse，本页自动回填
   checkLastParse();
   setInterval(checkLastParse, 2000);
   document.addEventListener("visibilitychange", ()=>{
