@@ -61,11 +61,14 @@ INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 PORT = 8123
 
 # Tampermonkey 官方商店地址（正版，推荐）
-TM_CHROME = "https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojimpmpbldmpobfkfo"
-TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaofnihnnoafoofjgjencj"
+# 官方 Chrome 扩展 ID: dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp）
+# 官方 Edge 扩展 ID: iikmkjmpaadaobahmlepeloendndfphd
+# 参考：https://www.tampermonkey.net/faq.php?q=Q406
+TM_CHROME = "https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo"
+TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd"
 # Tampermonkey 扩展 ID（用于直接打开其详情页）
-TM_CHROME_ID = "dhdgffkkebhmkfjojimpmpbldmpobfkfo"
-TM_EDGE_ID = "iikmkjmpaadaofnihnnoafoofjgjencj"
+TM_CHROME_ID = "dhdgffkkebhmkfjojejmpbldmpobfkfo"
+TM_EDGE_ID = "iikmkjmpaadaobahmlepeloendndfphd"
 # GitHub 上用户脚本的 raw HTTPS 地址（Chrome 138 对本地 HTTP userscript 安装页限制很严，
 # 改成受信任的 HTTPS 公共域名后 Tampermonkey 更容易弹出安装按钮）
 USERSCRIPT_GITHUB_URL = "https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js"
@@ -337,8 +340,8 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._log(
                     f"OK 已用 {browser['name']} 打开 Tampermonkey 商店页，点「添加」安装扩展。\n"
                     "安装完后回到本工具点「安装悬浮按钮脚本」即可。\n"
-                    "注意：正版 Tampermonkey 扩展 ID 是 dhdgffkkebhmkfjojimpmpbldmpobfkfo（中间是 ojimp），\n"
-                    "如果你看到 ID 里有 ejmp（如 dhdgffkkebhmkfjoejempbldmpobfkfo），那是盗版，请卸载。\n"
+                    "注意：正版 Tampermonkey Chrome 扩展 ID 是 dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp），\n"
+                    "如果看到的是其他 ID，请卸载后从上面的链接重新安装。\n"
                     f"Edge 用户请访问：{TM_EDGE}"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
@@ -362,10 +365,10 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._log(
                     "OK 已打开扩展管理页。\n"
                     "请找到名称为「篡改猴」或「Tampermonkey」的扩展，查看其 ID：\n"
-                    "  • 正版 ID：dhdgffkkebhmkfjojimpmpbldmpobfkfo（中间是 ojimp）\n"
-                    "  • 盗版 ID：dhdgffkkebhmkfjoejempbldmpobfkfo（中间是 ejmp）\n"
-                    "如果看到的是盗版 ID，请点击该扩展右下角的「移除」按钮卸载。\n"
-                    "卸载完成后，回到本工具点「安装 Tampermonkey 扩展（正版）」重新安装正版。"))
+                    "  • 正版 Chrome ID：dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp）\n"
+                    "  • 正版 Edge ID：iikmkjmpaadaobahmlepeloendndfphd\n"
+                    "如果你之前是从不明来源下载的，看到其他 ID 请卸载。\n"
+                    "卸载完成后，回到本工具点「安装 Tampermonkey 扩展（正版）」重新安装。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
