@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>淘系推广参谋 · 油猴脚本使用帮助</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f6f7f9;color:#1f2329;line-height:1.7;font-size:14px;margin:0;padding:0}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+  h1{font-size:22px;color:#ff5000;margin-bottom:8px}
+  .sub{color:#646a73;font-size:13px;margin-bottom:22px}
+  .card{background:#fff;border:1px solid #e6e8eb;border-radius:14px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
+  .card h2{font-size:16px;margin:0 0 12px;color:#1f2329;display:flex;align-items:center;gap:8px}
+  .card h2 .num{width:24px;height:24px;border-radius:50%;background:#ff5000;color:#fff;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+  .ok{color:#0f6e56;background:#e1f5ee;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-weight:500}
+  .warn{color:#854f0b;background:#faefda;padding:10px 14px;border-radius:8px;margin-bottom:14px}
+  .bad{color:#a32d2d;background:#fcebeb;padding:10px 14px;border-radius:8px;margin-bottom:14px}
+  ol{padding-left:22px;margin:0}
+  li{margin-bottom:8px}
+  .code{font-family:Consolas,monospace;background:#fafbfc;border:1px dashed #d4d7dc;border-radius:6px;padding:2px 6px;font-size:13px}
+  .tip{font-size:12px;color:#8f959e;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>淘系推广参谋 · 油猴脚本使用帮助</h1>
+  <div class="sub">如果你点启动器的「打开 Tampermonkey 管理面板」后看到 <b>ERR_BLOCKED_BY_CLIENT</b>，是因为 Chrome 安全策略禁止外部程序直接打开油猴内部页面，这是正常的。</div>
+
+  <div class="card">
+    <h2><span class="num">1</span>脚本到底装好了没有？</h2>
+    <div class="ok">装好了。</div>
+    <p>只要你在 Tampermonkey 安装页看到类似「即将重新安装用户脚本 v2.0」或「安装」按钮，就说明脚本已经在 Tampermonkey 里了。</p>
+    <p><b>油猴用户脚本不会出现在 Chrome 的「扩展程序」页里</b>，那里只能看到 Tampermonkey 扩展本身。你写的脚本要在油猴自己的「管理面板」里看。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>怎么打开 Tampermonkey 管理面板？</h2>
+    <p>方法很简单：在 Chrome 浏览器右上角找到 Tampermonkey（油猴）图标，点击它，然后选择「管理面板」/「Dashboard」。</p>
+    <p>如果右上角没有图标，说明它被折叠到「拼图」图标里了，点一下拼图图标，找到 Tampermonkey 旁边的图钉，把它固定到工具栏。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span>管理面板里应该看到什么？</h2>
+    <p>你应该能看到一条脚本：</p>
+    <p><b class="code">淘系推广参谋 · 一键导入（悬浮按钮）</b></p>
+    <p>状态是「已启用」，包含 URL：</p>
+    <ul>
+      <li><span class="code">https://*taobao.com/*</span></li>
+      <li><span class="code">https://*tmall.com/*</span></li>
+      <li><span class="code">http://127.0.0.1:8123/*</span></li>
+    </ul>
+    <p>如果看到这条，就说明脚本已经生效。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">4</span>怎么在商品页使用？</h2>
+    <ol>
+      <li>打开任意淘宝或天猫商品详情页（例如 <span class="code">item.taobao.com</span> 或 <span class="code">detail.tmall.com</span>）。</li>
+      <li>页面加载完成后，右下角会出现一个橙色的悬浮按钮：<b>🛒 导入推广参谋</b>。</li>
+      <li>点击按钮，脚本会自动抓取标题、价格、主图，并打开本地工具页。</li>
+    </ol>
+    <div class="warn">如果没看到悬浮按钮，请刷新页面，或检查 Tampermonkey 图标上是否有数字/红底提示，点进去启用脚本。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">5</span>还是不行？</h2>
+    <p>回到本工具页 <span class="code">http://127.0.0.1:8123/</span>，在「商品链接」框上方点 <b>「复制脚本代码（手动安装）」</b>，然后：</p>
+    <ol>
+      <li>点击 Tampermonkey 图标 → 管理面板。</li>
+      <li>点左侧「+ 添加新脚本」。</li>
+      <li>删除编辑器里的默认内容，粘贴刚才复制的代码。</li>
+      <li>按 <b>Ctrl + S</b> 保存。</li>
+    </ol>
+  </div>
+
+  <div class="tip">本帮助页由本地服务自动生成，可随时点启动器菜单再次打开。</div>
+</div>
+</body>
+</html>
