@@ -85,7 +85,7 @@
       + '&price=' + encodeURIComponent(d.price || '')
       + '&pic=' + encodeURIComponent(d.pic || '')
       + '&url=' + encodeURIComponent(d.url || '');
-    window.open(TOOL + '/' + q, '_blank');
+    window.open(TOOL + '/taobao-promo-advisor.html' + q, '_blank');
   }
 
   function sendData(d) {
