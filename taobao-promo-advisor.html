@@ -676,7 +676,8 @@ document.getElementById("openLinkBtn").addEventListener("click", ()=>{
 });
 /* 悬浮按钮（油猴脚本）安装引导 */
 document.getElementById("installUserscriptBtn").addEventListener("click", function(){
-  window.open("http://127.0.0.1:8123/taobao-promo.user.js", "_blank");
+  // 改用 GitHub raw HTTPS 地址打开安装页，比本地 HTTP 更容易触发 Tampermonkey 安装按钮
+  window.open("https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js", "_blank");
   const st=document.getElementById("usStatus");
   st.style.color="var(--info)";
   st.innerHTML="已在新标签打开脚本安装页。若油猴已安装，会自动弹出安装确认；<b>如果页面只显示文字没有安装按钮，请点上面的「复制脚本代码（手动安装）」按钮，复制后打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</b>";
