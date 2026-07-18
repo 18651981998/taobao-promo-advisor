@@ -209,10 +209,9 @@ class Launcher(tk.Tk):
             return
 
         if kind == "extension":
-            # 安装普通 Chrome 扩展（手动「加载已解压的扩展程序」）
-            # 这是目前最稳定的方式：Chrome 138+ 对自动加载限制很严，手动加载一次即可永久生效。
+            # 安装普通 Chrome 扩展（自动「加载未解压的扩展程序」，失败回退手动）
             self._set_running(True)
-            self._log("请选择浏览器，随后将打开扩展程序页和 extension 文件夹...")
+            self._log("请选择浏览器，随后将尝试自动加载扩展…")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -226,17 +225,29 @@ class Launcher(tk.Tk):
                     self.after(0, lambda: self._log("未检测到「%s」已安装，无法安装扩展。" % browser["name"]))
                     self.after(0, lambda: self._set_running(False))
                     return
-                # 尽量预开启开发者模式（Chrome 138+ 必须）
-                dm = ih.enable_developer_mode(browser)
-                self.after(0, lambda: self._log(
-                    "已%s开发者模式。" % ("预开启" if dm else "尝试预开启（若失败请手动开启）")))
-                # 打开 extension 文件夹，方便用户选中
+                # 先尝试自动加载（CDP 点击 + 对话框填路径）
+                auto_ok = False
+                try:
+                    ih.auto_install_extension(browser, ext_dir, log_fn=lambda m: self.after(0, lambda: self._log(m)))
+                    auto_ok = True
+                except Exception as e:
+                    self.after(0, lambda: self._log("自动加载未成功：%s" % e))
+                if auto_ok:
+                    self.after(0, lambda: self._log(
+                        "\n"
+                        "【自动加载已触发】\n"
+                        "如果弹出过文件夹对话框并已自动选中「extension」文件夹，点「选择文件夹」即可完成。\n"
+                        "列表出现「淘系推广参谋·商品导入」即成功。\n"
+                        "之后打开任意淘宝/天猫商品页，右上角都会自动出现「🛒 导入推广参谋」按钮。\n"
+                        "（若没有自动选中文件夹，请看下方手动步骤）"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                # 回退：手动流程
+                self.after(0, lambda: self._log("已为你打开扩展程序页和 extension 文件夹，请手动加载："))
                 try:
                     os.startfile(ext_dir)
-                    self.after(0, lambda: self._log("已打开「extension」文件夹，等下请选它。"))
                 except Exception as e:
                     self.after(0, lambda: self._log("打开文件夹失败：%s" % e))
-                # 打开扩展程序页
                 ext_url = "chrome://extensions"
                 if "Edge" in browser.get("name", ""):
                     ext_url = "edge://extensions"
@@ -251,8 +262,7 @@ class Launcher(tk.Tk):
                     "1) 在打开的「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n"
                     "2) 点左上角「加载已解压的扩展程序」；\n"
                     "3) 在刚才打开的文件夹中，选中「extension」文件夹，点「选择文件夹」。\n"
-                    "列表出现「淘系推广参谋·商品导入」即成功。\n"
-                    "之后打开任意淘宝/天猫商品页，右上角都会自动出现「🛒 导入推广参谋」按钮。"))
+                    "列表出现「淘系推广参谋·商品导入」即成功。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
