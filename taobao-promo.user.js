@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         淘系推广参谋 · 一键导入（悬浮按钮）
 // @namespace    http://127.0.0.1:8123
-// @version      2.3
+// @version      2.4
 // @description  在淘宝/天猫商品页注入悬浮按钮，点击一键抓取标题/价格/主图并传入本地「淘系推广参谋」工具，无需 F12。
 // @author       A0_0 涛声依旧
 // @match        *://*taobao.com/*
@@ -9,6 +9,7 @@
 // @match        *://*tmall.hk/*
 // @match        http://127.0.0.1:8123/*
 // @connect      127.0.0.1
+// @run-at       document-start
 // @updateURL    https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
 // @downloadURL  https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
 // @grant        GM_xmlhttpRequest
@@ -127,15 +128,21 @@
 
   function addButton() {
     if (document.getElementById('tb-promo-import-btn')) return;
+    if (!document.body) {
+      console.log('[淘系推广参谋] document.body 尚未就绪，延迟注入按钮');
+      return;
+    }
     const btn = document.createElement('div');
     btn.id = 'tb-promo-import-btn';
     btn.innerHTML = '🛒 导入推广参谋';
+    // 默认放左上角，避开天猫/淘宝右侧的固定工具栏、客服浮窗等遮挡
     btn.style.cssText = [
-      'position:fixed', 'right:20px', 'top:120px', 'z-index:9999999',
+      'position:fixed', 'left:20px', 'top:150px', 'z-index:2147483647',
       'padding:11px 16px', 'background:linear-gradient(135deg,#ff5000,#ff7300)', 'color:#fff',
       'border-radius:24px', 'font-size:14px', 'font-weight:600', 'cursor:pointer',
-      'box-shadow:0 6px 18px rgba(255,80,0,.4)', 'font-family:-apple-system,"Microsoft YaHei",sans-serif',
-      'line-height:1', 'user-select:none', 'border:2px solid #fff'
+      'box-shadow:0 6px 18px rgba(255,80,0,.5)', 'font-family:-apple-system,"Microsoft YaHei",sans-serif',
+      'line-height:1', 'user-select:none', 'border:2px solid #fff', 'white-space:nowrap',
+      'visibility:visible !important', 'display:block !important', 'opacity:1 !important'
     ].join(';');
     let busy = false;
     btn.addEventListener('click', function () {
@@ -177,18 +184,31 @@
     document.addEventListener('mouseup', function () { dragging = false; btn.style.transition = 'transform .15s'; });
 
     document.body.appendChild(btn);
-    console.log('[淘系推广参谋] 悬浮按钮已注入', location.href);
+    console.log('[淘系推广参谋] 悬浮按钮已注入', location.href, 'body子元素数:', document.body.children.length);
   }
 
-  if (document.body) addButton();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addButton);
+  // 等待 document.body 出现后再注入，document-start 时可能 body 还不存在
+  function tryInject() {
+    if (document.body) { addButton(); return true; }
+    return false;
+  }
+
+  tryInject();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tryInject);
+  window.addEventListener('load', tryInject);
 
   // SPA 路由切换或页面异步渲染后，若按钮丢失则重建
   try {
     const mo = new MutationObserver(function () {
       if (!document.getElementById('tb-promo-import-btn')) addButton();
     });
-    if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+    // 如果 body 已经出现则直接监听；否则等 DOMContentLoaded 后再监听
+    const startObserve = function () {
+      if (!document.body) return;
+      mo.observe(document.body, { childList: true, subtree: true });
+    };
+    startObserve();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserve);
   } catch (e) {}
 
   // 每隔 2 秒兜底检查一次，确保按钮始终存在
