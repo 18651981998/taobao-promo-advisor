@@ -349,8 +349,9 @@ class Launcher(tk.Tk):
 
         if kind == "extension":
             # 安装普通 Chrome 扩展（不走 Tampermonkey，不受 Chrome 138+ 限制）
+            # 用 --load-extension 命令行参数一键加载，避免手动去扩展页点按钮
             self._set_running(True)
-            self._log("请选择浏览器，随后将打开扩展目录和扩展管理页...")
+            self._log("请选择浏览器，随后将自动加载扩展（无需手动操作）...")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -359,25 +360,34 @@ class Launcher(tk.Tk):
                     return
                 ih.save_browser(browser["name"])
                 ext_dir = os.path.join(HERE, "extension")
-                # 打开扩展目录（资源管理器），用户可找到该文件夹
+                exe = ih.resolve_exe(browser)
+                if not exe or not os.path.isfile(exe):
+                    self.after(0, lambda: self._log("未检测到「%s」已安装，无法自动加载扩展。请改用「安装导入书签」方案。" % browser["name"]))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                # 360 浏览器对 --load-extension 支持差，提示改用手动或书签
+                if "360" in browser.get("name", ""):
+                    self.after(0, lambda: self._log(
+                        "360 浏览器对未打包扩展支持有限，不推荐用此方式。\n"
+                        "建议：① 用「安装导入书签」方案（已验证可用）；或 ② 改用 Chrome/Edge 浏览器再点本按钮。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                # 关闭浏览器实例，--load-extension 仅对首个 Chrome 进程生效
+                if ih.is_running(exe):
+                    self.after(0, lambda: self._log("正在关闭浏览器以加载扩展..."))
+                    ih.kill_browser(exe)
+                    ih.wait_browser_dead(exe)
                 try:
-                    subprocess.Popen(["explorer", ext_dir], shell=False)
-                except Exception:
-                    pass
-                # 打开扩展管理页（开启开发者模式后加载已解压扩展）
-                if "Edge" in browser.get("name", ""):
-                    open_url("edge://extensions/", browser)
-                else:
-                    open_url("chrome://extensions/", browser)
-                self.after(0, lambda: self._log(
-                    "OK 已打开两处：\n"
-                    "1) 扩展目录文件夹（里面是 extension 文件夹）\n"
-                    "2) 浏览器扩展管理页\n"
-                    "请按以下步骤加载：\n"
-                    "  a. 在扩展管理页右上角打开「开发者模式」\n"
-                    "  b. 点「加载已解压的扩展程序」（或把 extension 文件夹直接拖进页面）\n"
-                    "  c. 选择刚打开的 extension 文件夹\n"
-                    "加载后，淘宝/天猫商品页左侧会自动出现「🛒 导入推广参谋」按钮，无需油猴。"))
+                    subprocess.Popen(
+                        [exe, "--load-extension=" + ext_dir, "--new-window", "http://127.0.0.1:%d/" % PORT],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    self.after(0, lambda: self._log(
+                        "OK 已自动加载扩展并打开工具页。\n"
+                        "扩展已注册到该浏览器，之后打开淘宝/天猫商品页会自动出现「🛒 导入推广参谋」按钮，无需油猴、无需每次点书签。\n"
+                        "为保证以后每次打开浏览器都自动加载，请到 chrome://extensions 右上角开启「开发者模式」一次（开启后扩展会永久保留）。\n"
+                        "若哪天按钮消失，重新点本启动器的「安装普通扩展」按钮即可恢复。"))
+                except Exception as e:
+                    self.after(0, lambda: self._log("自动加载失败：%s。请改用「安装导入书签」方案（已验证可用）。" % e))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
