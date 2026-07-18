@@ -209,7 +209,7 @@
             装一次油猴脚本，淘宝/天猫商品页右下角就会出现「🛒 导入推广参谋」，<b>点一下就自动抓取标题/价格/主图并打开本工具填好</b>，全程不用 F12、不用复制代码。
           </div>
           <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
-            <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>。注意：正版 ID 是 <code>dhdgffkkebhmkfjojimpmpbldmpobfkfo</code>（中间 ojimp）；若你已有 ID 含 ejmp 的「篡改猴」，那是盗版，先卸载再装正版。</li>
+            <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>。注意：正版 Chrome ID 是 <code>dhdgffkkebhmkfjojejmpbldmpobfkfo</code>（中间 ejmp）；正版 Edge ID 是 <code>iikmkjmpaadaobahmlepeloendndfphd</code>。请确认你装的和这两个一致。</li>
             <li>先点「一键安装脚本」，油猴会自动弹出安装页 → 点「安装」。</li>
             <li>如果页面没有弹出安装框（部分 Chrome 版本限制），点「复制脚本代码」→ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</li>
             <li>脚本装好后，<b>不在 Chrome 的扩展程序页里</b>，要点浏览器工具栏的油猴图标 → 「管理面板」查看；或点下面的「打开油猴管理面板」按钮。</li>
@@ -703,7 +703,7 @@ document.getElementById("copyUserscriptBtn").addEventListener("click", function(
 document.getElementById("openDashboardBtn").addEventListener("click", function(){
   // Chrome 安全策略限制外部网页打开 chrome-extension:// 内部页面，但用 window.open 仍会尝试打开；
   // 若被拦截，提示用户手动点击浏览器工具栏的油猴图标
-  const win = window.open("chrome-extension://dhdgffkkebhmkfjojimpmpbldmpobfkfo/options.html", "_blank");
+  const win = window.open("chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html", "_blank");
   const st=document.getElementById("usStatus");
   st.style.color="var(--info)";
   st.innerHTML="已尝试打开油猴管理面板。如果页面被浏览器拦截（ERR_BLOCKED_BY_CLIENT），请直接点击浏览器工具栏的油猴图标 → 「管理面板」查看。";
