@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         淘系推广参谋 · 一键导入（悬浮按钮）
 // @namespace    http://127.0.0.1:8123
-// @version      2.0
+// @version      2.1
 // @description  在淘宝/天猫商品页注入悬浮按钮，点击一键抓取标题/价格/主图并传入本地「淘系推广参谋」工具，无需 F12。
 // @author       A0_0 涛声依旧
 // @match        https://*taobao.com/*
@@ -28,10 +28,16 @@
   // 仅在商品页显示按钮
   function isItemPage() {
     const u = location.href;
-    if (/item\.htm|detail\.tmall|item\.taobao|world\.taobao/.test(u)) return true;
-    return !!document.querySelector('#J_Title, #detail, .tb-detail, .tb-main, [data-spm*="d"]');
+    if (/item\.htm|detail\.tmall|item\.taobao|world\.taobao|m\.tb\.cn/.test(u)) return true;
+    const host = location.hostname;
+    if (/\b(taobao|tmall)\b/.test(host) && /\d{8,}/.test(u)) return true;
+    return !!document.querySelector('#J_Title, #detail, .tb-detail, .tb-main, [data-spm*="d"], [data-spm*="item"]');
   }
-  if (!isItemPage()) return;
+  if (!isItemPage()) {
+    console.log('[淘系推广参谋] 当前页面不是商品页，不显示悬浮按钮');
+    return;
+  }
+  console.log('[淘系推广参谋] 脚本已激活，正在注入悬浮按钮...');
 
   const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
 
@@ -155,11 +161,16 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addButton);
   else addButton();
 
-  // SPA 路由切换后若按钮丢失则重建
+  // SPA 路由切换或页面异步渲染后，若按钮丢失则重建
   try {
     const mo = new MutationObserver(function () {
       if (!document.getElementById('tb-promo-import-btn')) addButton();
     });
-    mo.observe(document.body, { childList: true, subtree: false });
+    mo.observe(document.body, { childList: true, subtree: true });
   } catch (e) {}
+
+  // 每隔 2 秒兜底检查一次，确保按钮始终存在
+  setInterval(function () {
+    if (!document.getElementById('tb-promo-import-btn')) addButton();
+  }, 2000);
 })();
