@@ -26,8 +26,104 @@
   function text(sel) {
     try { const e = document.querySelector(sel); return e ? e.innerText.trim() : ''; } catch (e) { return ''; }
   }
+  function textAll(sel) {
+    try {
+      const arr = Array.from(document.querySelectorAll(sel));
+      return arr.map(function (el) { return el.innerText.trim(); }).join('\n');
+    } catch (e) { return ''; }
+  }
   function attr(sel, a) {
     try { const e = document.querySelector(sel); return e ? (e.getAttribute(a) || e[a] || '').trim() : ''; } catch (e) { return ''; }
+  }
+
+  function scoreImage(src) {
+    if (!src) return -1000;
+    let s = 0;
+    // 阿里/淘宝 CDN 才有可能是商品主图
+    if (/alicdn\.com|taobaocdn\.com/.test(src)) s += 30;
+    // 商品图常见上传目录与尺寸标记
+    if (/\/uploaded\//.test(src)) s += 120;
+    if (/\/imgextra\//.test(src)) s += 120;
+    if (/_\d{2,4}x\d{2,4}/.test(src)) s += 80;
+    if (/[?&]x-oss-process|imageView|_Q\d/.test(src)) s += 40;
+    // 排除 logo/占位/loading
+    if (/logo|blank|placeholder|loading|1x1|empty|default|pix\.gif|tfscom/i.test(src)) s -= 500;
+    if (/^data:/.test(src)) s -= 300;
+    return s;
+  }
+
+  function collectImageCandidates() {
+    const candidates = [];
+    const selectors = [
+      '#J_ImgBooth img', '#J_ImgBooth', '#J_ImageWrap img', '#J_ZoomPic img', '#J_ZoomMain img',
+      '.tb-main-pic img', '.tb-booth img', '.main-image img', '.tm-gallery img', '.gallery img',
+      '.item-pic img', '.img-privilege img', '.module-pic img', '#J_PicPanel img', '.pic img'
+    ];
+    for (let s of selectors) {
+      try {
+        const els = document.querySelectorAll(s);
+        els.forEach(function (el) {
+          if (el.tagName === 'IMG') {
+            candidates.push(el.getAttribute('src'));
+            candidates.push(el.getAttribute('data-src'));
+            if (el.srcset) candidates.push(el.srcset.split(',')[0].trim().split(' ')[0]);
+          } else {
+            Array.from(el.querySelectorAll('img')).forEach(function (im) {
+              candidates.push(im.getAttribute('src'));
+              candidates.push(im.getAttribute('data-src'));
+            });
+          }
+        });
+      } catch (e) {}
+    }
+    // 兜底：遍历所有图片，收集看起来像是商品主图的
+    try {
+      Array.from(document.querySelectorAll('img')).forEach(function (im) {
+        if (im.naturalWidth && im.naturalWidth < 100) return;
+        candidates.push(im.getAttribute('src'));
+        candidates.push(im.getAttribute('data-src'));
+        if (im.srcset) candidates.push(im.srcset.split(',')[0].trim().split(' ')[0]);
+      });
+    } catch (e) {}
+    // 去重并评分
+    const seen = new Set();
+    const scored = [];
+    for (let src of candidates) {
+      if (!src || seen.has(src)) continue;
+      seen.add(src);
+      const sc = scoreImage(src);
+      if (sc <= 0) continue;
+      scored.push({ src: src, score: sc });
+    }
+    scored.sort(function (a, b) { return b.score - a.score; });
+    return scored;
+  }
+
+  function extractImage() {
+    const imgs = collectImageCandidates();
+    if (imgs.length) return imgs[0].src;
+    // 最后的兜底：og:image
+    const og = attr('meta[property="og:image"]', 'content');
+    if (og && !/logo|blank|placeholder/i.test(og)) return og;
+    return '';
+  }
+
+  function extractNumber(patterns, fallbackPatterns) {
+    for (let s of patterns) {
+      try {
+        const t = textAll(s);
+        const m = t.match(/[\d,\.万]+/);
+        if (m) return m[0].replace(/,/g, '');
+      } catch (e) {}
+    }
+    if (fallbackPatterns) {
+      const body = document.body ? document.body.innerText : '';
+      for (let re of fallbackPatterns) {
+        const m = body.match(re);
+        if (m) return m[1].replace(/,/g, '');
+      }
+    }
+    return '';
   }
 
   function extract() {
@@ -48,55 +144,19 @@
       if (m) price = m[1].replace(/,/g, '');
     }
 
-    // 主图：优先取商品主图元素（#J_ImgBooth 等），og:image 仅作兜底，避免取到 logo/占位图
-    let pic = '';
-    const picSels = [
-      '#J_ImgBooth img', '#J_ImgBooth', '#J_ImageWrap img', '.tb-main-pic img',
-      '#J_ZoomPic img', '#J_Zoom div img', '.tb-pic img', '#J_ZoomMain img',
-      '.main-image img', '.tb-booth img', '.module-pic img'
-    ];
-    for (const s of picSels) {
-      const el = document.querySelector(s);
-      if (el) {
-        const src = el.getAttribute('src') || el.getAttribute('data-src') || el.src || '';
-        if (src && !/(blank|placeholder|loading|default|1x1|empty|\.gif$)/i.test(src)) { pic = src; break; }
-      }
-    }
-    if (!pic) pic = attr('meta[property="og:image"]', 'content') || '';
-    if (!pic) {
-      const imgs = document.querySelectorAll('#J_ImgBooth img, #J_ImageWrap img, img');
-      for (const im of imgs) {
-        const src = im.src || im.getAttribute('data-src') || '';
-        if (src && (src.indexOf('alicdn.com') > -1 || src.indexOf('taobaocdn') > -1)
-            && !/(blank|placeholder|loading|\.gif$)/i.test(src)) { pic = src; break; }
-      }
-    }
+    const pic = extractImage();
 
-    // 月销量
-    let sales = '';
-    const salesSels = ['.tm-ind-sellCount .tm-count', '#J_DetailMeta .tm-ind-sellCount .tm-count',
-      '[class*="sellCount"] .tm-count', '.tb-sell-count', '.sell-count', '[class*="sell"] .count'];
-    for (const s of salesSels) {
-      const m = text(s).match(/[\d,]+\.?\d*/);
-      if (m) { sales = m[0].replace(/,/g, ''); break; }
-    }
-    if (!sales) {
-      const m = document.body.innerText.match(/(?:月销|已售|销量)[：:\s]*([\d,]+\.?\d*)\s*(?:件|单|笔)?/);
-      if (m) sales = m[1].replace(/,/g, '');
-    }
+    const sales = extractNumber(
+      ['.tm-ind-sellCount', '.tm-ind-sellCount .tm-count', '[class*="sellCount"]', '[class*="sellCount"] .tm-count',
+       '.tb-sell-count', '.sell-count', '#J_SellCounter', '[data-spm*="sell"]'],
+      [/(?:月销|月销量|已售|总销量|销量|月成交量|成交)[：:\s]*([\d,\.万]+)\s*(?:件|笔|单)?/i]
+    );
 
-    // 评价数（累计评价）
-    let reviews = '';
-    const reviewSels = ['.tm-ind-reviewCount .tm-count', '#J_ReviewTab .tm-count',
-      '[class*="reviewCount"] .tm-count', '.tb-rate-count', '.rate-count', '[class*="rate"] .count'];
-    for (const s of reviewSels) {
-      const m = text(s).match(/[\d,]+\.?\d*/);
-      if (m) { reviews = m[0].replace(/,/g, ''); break; }
-    }
-    if (!reviews) {
-      const m = document.body.innerText.match(/累计评价[：:\s]*([\d,]+\.?\d*)/);
-      if (m) reviews = m[1].replace(/,/g, '');
-    }
+    const reviews = extractNumber(
+      ['.tm-ind-reviewCount', '.tm-ind-reviewCount .tm-count', '[class*="reviewCount"]', '[class*="reviewCount"] .tm-count',
+       '.tb-rate-count', '.rate-count', '#J_ReviewTab', '.rate-counter', '[data-spm*="review"]'],
+      [/累计评价[：:\s]*([\d,\.万]+)/i, /(?:评价|评论)[数\s]*[：:\s]*([\d,\.万]+)/i]
+    );
 
     return { title: title || '', price: price || '', pic: pic || '', sales: sales || '', reviews: reviews || '', url: location.href };
   }
