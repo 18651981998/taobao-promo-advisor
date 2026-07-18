@@ -113,17 +113,77 @@ def start_server():
 
 
 def is_installed(browser):
+    # 先检查硬编码路径
     for p in browser.get("exes", []):
         if p and os.path.isfile(p):
             return True
+    # 对 360 浏览器做动态扫描（新版安装路径多变）
+    name = browser.get("name", "")
+    if "360" in name:
+        return bool(scan_for_360(name))
     return False
 
 
 def resolve_exe(browser):
+    # 先检查硬编码路径
     for p in browser.get("exes", []):
         if p and os.path.isfile(p):
             return p
+    # 对 360 浏览器做动态扫描
+    name = browser.get("name", "")
+    if "360" in name:
+        found = scan_for_360(name)
+        if found:
+            return found
     return browser.get("exes", [None])[0]
+
+
+def scan_for_360(name):
+    """动态扫描 360 浏览器可执行文件。新版 360 安装路径经常变化，硬编码路径容易失效。"""
+    import glob
+    candidates = []
+    if "安全" in name:
+        # 360 安全浏览器：主程序可能是 360se.exe 或 360SafeBrowser.exe
+        keywords = [("360se", "360se.exe"), ("360SafeBrowser", "360SafeBrowser.exe")]
+    elif "极速" in name:
+        # 360 极速浏览器：主程序可能是 360chrome.exe 或 chrome.exe 在 360Chrome 目录下
+        keywords = [("360Chrome", "360chrome.exe"), ("360ChromeX", "360chrome.exe"), ("360Chrome", "chrome.exe")]
+    else:
+        return None
+
+    search_roots = [
+        "C:/Program Files",
+        "C:/Program Files (x86)",
+        os.path.expandvars("%LOCALAPPDATA%"),
+        os.path.expandvars("%APPDATA%"),
+    ]
+
+    for root in search_roots:
+        if not os.path.isdir(root):
+            continue
+        for folder_keyword, exe_name in keywords:
+            # 扫描 folder_keyword 开头的目录
+            pattern = os.path.join(root, folder_keyword + "*", "**", exe_name).replace("\\", "/")
+            try:
+                for path in glob.glob(pattern, recursive=True):
+                    if os.path.isfile(path):
+                        candidates.append(path)
+            except Exception:
+                pass
+            # 也扫描直接子目录
+            pattern2 = os.path.join(root, "360", folder_keyword + "*", "**", exe_name).replace("\\", "/")
+            try:
+                for path in glob.glob(pattern2, recursive=True):
+                    if os.path.isfile(path):
+                        candidates.append(path)
+            except Exception:
+                pass
+
+    if not candidates:
+        return None
+    # 优先选择路径最短的（更接近根目录），避免选到更新程序之类
+    candidates.sort(key=lambda x: len(x))
+    return candidates[0]
 
 
 def resolve_user_data(browser):
