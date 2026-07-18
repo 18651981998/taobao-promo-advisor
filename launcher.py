@@ -209,9 +209,9 @@ class Launcher(tk.Tk):
             return
 
         if kind == "extension":
-            # 安装普通 Chrome 扩展：先尝试自动加载，失败则回退到手动
+            # 安装普通 Chrome 扩展：自动打开扩展程序页 + extension 文件夹，用户手动加载
             self._set_running(True)
-            self._log("正在安装扩展，请稍候…")
+            self._log("正在打开扩展程序页和文件夹，请稍候…")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -225,23 +225,15 @@ class Launcher(tk.Tk):
                     self.after(0, lambda: self._log("未检测到「%s」已安装，无法安装扩展。" % browser["name"]))
                     self.after(0, lambda: self._set_running(False))
                     return
-                # 先尝试自动加载（CDP 点击 + 对话框填路径），失败自动回退手动
-                auto_ok = ih.auto_install_extension(browser, ext_dir, log_fn=lambda m: self.after(0, lambda: self._log(m)))
-                if auto_ok:
-                    self.after(0, lambda: self._log(
-                        "\n"
-                        "【自动加载已触发】\n"
-                        "如果弹出的文件夹对话框已自动选中「extension」文件夹，点「选择文件夹」即可完成。\n"
-                        "列表出现「淘系推广参谋·商品导入」即成功。\n"
-                        "之后打开任意淘宝/天猫商品页，右上角都会自动出现「🛒 导入推广参谋」按钮。"))
-                else:
-                    self.after(0, lambda: self._log(
-                        "\n"
-                        "【已自动打开扩展程序页和 extension 文件夹，请手动完成】\n"
-                        "1) 在「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n"
-                        "2) 点左上角「加载已解压的扩展程序」；\n"
-                        "3) 在已打开的文件夹中选中「extension」文件夹，点「选择文件夹」。\n"
-                        "列表出现「淘系推广参谋·商品导入」即成功。"))
+                ih.auto_install_extension(browser, ext_dir, log_fn=lambda m: self.after(0, lambda: self._log(m)))
+                self.after(0, lambda: self._log(
+                    "\n"
+                    "【已打开扩展程序页和 extension 文件夹，请手动完成】\n"
+                    "1) 在「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n"
+                    "2) 点左上角「加载已解压的扩展程序」；\n"
+                    "3) 在已打开的文件夹中，选中「extension」文件夹，点「选择文件夹」。\n"
+                    "列表出现「淘系推广参谋·商品导入」即成功。\n"
+                    "之后打开任意淘宝/天猫商品页，右上角都会自动出现「🛒 导入推广参谋」按钮。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
