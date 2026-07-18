@@ -195,7 +195,8 @@ class Launcher(tk.Tk):
         group("使用")
         add_btn("①   启动并打开工具页", lambda: self.do_action("open"), primary=True)
         add_btn("②   安装悬浮按钮（一键引导）", lambda: self.do_action("guide"), primary=True)
-        group("导入")
+        group("导入（推荐：普通扩展，无需油猴）")
+        add_btn("   安装普通扩展（悬浮按钮，推荐）", lambda: self.do_action("extension"), primary=True)
         add_btn("   安装 Tampermonkey 扩展（正版）", lambda: self.do_action("tm"))
         add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
         add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
@@ -342,6 +343,41 @@ class Launcher(tk.Tk):
                     "注意：正版 Tampermonkey Chrome 扩展 ID 是 dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp），\n"
                     "如果看到的是其他 ID，请卸载后从上面的链接重新安装。\n"
                     f"Edge 用户请访问：{TM_EDGE}"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
+        if kind == "extension":
+            # 安装普通 Chrome 扩展（不走 Tampermonkey，不受 Chrome 138+ 限制）
+            self._set_running(True)
+            self._log("请选择浏览器，随后将打开扩展目录和扩展管理页...")
+            def w():
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
+                ext_dir = os.path.join(HERE, "extension")
+                # 打开扩展目录（资源管理器），用户可找到该文件夹
+                try:
+                    subprocess.Popen(["explorer", ext_dir], shell=False)
+                except Exception:
+                    pass
+                # 打开扩展管理页（开启开发者模式后加载已解压扩展）
+                if "Edge" in browser.get("name", ""):
+                    open_url("edge://extensions/", browser)
+                else:
+                    open_url("chrome://extensions/", browser)
+                self.after(0, lambda: self._log(
+                    "OK 已打开两处：\n"
+                    "1) 扩展目录文件夹（里面是 extension 文件夹）\n"
+                    "2) 浏览器扩展管理页\n"
+                    "请按以下步骤加载：\n"
+                    "  a. 在扩展管理页右上角打开「开发者模式」\n"
+                    "  b. 点「加载已解压的扩展程序」（或把 extension 文件夹直接拖进页面）\n"
+                    "  c. 选择刚打开的 extension 文件夹\n"
+                    "加载后，淘宝/天猫商品页左侧会自动出现「🛒 导入推广参谋」按钮，无需油猴。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
