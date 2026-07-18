@@ -357,6 +357,149 @@ def enable_developer_mode(browser):
     return ok
 
 
+def _launch_with_cdp(browser, debug_port):
+    """关闭浏览器并用 --remote-debugging-port 重新打开扩展程序页，返回进程对象。"""
+    exe = resolve_exe(browser)
+    if not exe or not os.path.isfile(exe):
+        return None
+    kill_browser(exe)
+    time.sleep(1.5)
+    ext_url = "chrome://extensions" if "Edge" not in browser.get("name", "") else "edge://extensions"
+    proc = subprocess.Popen([exe, f"--remote-debugging-port={debug_port}", ext_url],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return proc
+
+
+def _cdp_ext_target(debug_port, browser):
+    """找到 chrome://extensions 的 CDP target，找不到就新建一个。"""
+    import urllib.request, json
+    base = f"http://127.0.0.1:{debug_port}"
+    try:
+        data = json.loads(urllib.request.urlopen(base + "/json", timeout=5).read())
+    except Exception:
+        return None
+    for t in data:
+        if t.get("type") == "page" and "extension" in (t.get("url", "") or ""):
+            return t.get("webSocketDebuggerUrl")
+    # 没找到就新建
+    try:
+        req = urllib.request.Request(base + "/json/new?" + "chrome://extensions", method="PUT")
+        t = json.loads(urllib.request.urlopen(req, timeout=5).read())
+        return t.get("webSocketDebuggerUrl")
+    except Exception:
+        return None
+
+
+def _cdp_click_load_button(ws_url):
+    """通过 CDP 在扩展程序页点击「加载已解压的扩展程序」按钮。返回点击到的文本或 None。"""
+    import websocket, json
+    try:
+        ws = websocket.create_connection(ws_url, timeout=10)
+    except Exception:
+        return None
+    try:
+        ws.send(json.dumps({"id": 1, "method": "Runtime.enable", "params": {}}))
+        while True:
+            m = json.loads(ws.recv())
+            if m.get("id") == 1:
+                break
+        expr = r"""
+        (function(){
+          var els = Array.prototype.slice.call(document.querySelectorAll('button, cr-button, [role=button], .load-button, .action'));
+          for (var i=0;i<els.length;i++){
+            var t = (els[i].innerText || els[i].textContent || '').trim();
+            if (t.indexOf('加载') >= 0) { els[i].click(); return 'clicked:' + t; }
+          }
+          return 'notfound';
+        })()
+        """
+        ws.send(json.dumps({"id": 2, "method": "Runtime.evaluate",
+                            "params": {"expression": expr, "returnByValue": True}}))
+        while True:
+            m = json.loads(ws.recv())
+            if m.get("id") == 2:
+                val = m.get("result", {}).get("result", {}).get("value")
+                return val
+    except Exception:
+        return None
+    finally:
+        try:
+            ws.close()
+        except Exception:
+            pass
+
+
+def _wait_cdp(debug_port, timeout=20):
+    import urllib.request
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{debug_port}/json", timeout=2)
+            return True
+        except Exception:
+            time.sleep(0.5)
+    return False
+
+
+def _handle_folder_dialog(ext_dir, log_fn=None):
+    """在 Windows「选择文件夹」对话框里粘贴路径并确认。"""
+    import pyautogui, pyperclip
+    pyautogui.FAILSAFE = True
+    try:
+        pyperclip.copy(ext_dir)
+    except Exception:
+        pass
+    time.sleep(0.5)
+    # 焦点地址栏
+    pyautogui.hotkey("alt", "d")
+    time.sleep(0.4)
+    pyautogui.hotkey("ctrl", "v")
+    time.sleep(0.4)
+    pyautogui.press("enter")  # 导航到该文件夹
+    time.sleep(1.2)
+    pyautogui.press("enter")  # 确认「选择文件夹」
+    time.sleep(1.0)
+
+
+def auto_install_extension(browser, ext_dir, log_fn=None, debug_port=9333):
+    """尽量自动完成「加载未解压的扩展程序」并选中文件夹。
+
+    流程：预开启开发者模式 → 用 CDP 打开扩展页并点击加载按钮 → 系统对话框粘贴路径确认。
+    任何一步失败都会抛异常，由调用方回退到手动流程。
+    返回 True 表示已尝试点击并填好路径（不保证 100% 成功，但成功率很高）。
+    """
+    if log_fn:
+        log_fn("正在预开启开发者模式…")
+    enable_developer_mode(browser)
+    if log_fn:
+        log_fn("正在重新打开浏览器并启用调试端口…")
+    proc = _launch_with_cdp(browser, debug_port)
+    if not proc:
+        raise RuntimeError("无法启动浏览器")
+    if not _wait_cdp(debug_port, timeout=20):
+        raise RuntimeError("调试端口未就绪")
+    if log_fn:
+        log_fn("已打开扩展程序页，正在通过调试接口点击「加载未解压的扩展程序」…")
+    clicked = None
+    for attempt in range(10):
+        ws_url = _cdp_ext_target(debug_port, browser)
+        if ws_url:
+            clicked = _cdp_click_load_button(ws_url)
+        if clicked and clicked.startswith("clicked"):
+            break
+        time.sleep(1.0)
+    if not (clicked and clicked.startswith("clicked")):
+        raise RuntimeError("未能在扩展程序页找到加载按钮（可能页面未完全加载）")
+    if log_fn:
+        log_fn("已点击「%s」，请在弹出的文件夹对话框中稍候，将自动选中 extension 文件夹…" % clicked)
+    # 等待文件对话框出现
+    time.sleep(2.5)
+    _handle_folder_dialog(ext_dir, log_fn)
+    if log_fn:
+        log_fn("已自动填入扩展文件夹路径并尝试确认。")
+    return True
+
+
 def open_tool_page(browser):
     """直接用选中的浏览器打开工具页，不杀进程"""
     exe = resolve_exe(browser)
