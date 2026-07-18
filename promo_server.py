@@ -512,7 +512,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 data["data"] = {}
             self._send(200, json.dumps(data, ensure_ascii=False))
             return
-        if path in ("/", "/index.html"):
+        if path in ("/", "/index.html") or path.startswith("/?"):
             path = "/taobao-promo-advisor.html"
         # 安全路径：只允许当前目录下的静态文件
         local_path = os.path.normpath(os.path.join(HERE, path.lstrip("/")))
