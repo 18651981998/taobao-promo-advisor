@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""淘系推广参谋 · 浏览器选择 / 书签安装助手
+"""淘系推广参谋 · 浏览器选择 / 安装助手
 
 说明：
-- 由于 Chrome 的单实例机制 + 新版 Chrome 对本地扩展自动加载的限制，
-  命令行 --load-extension 自动安装扩展极不稳定，已彻底弃用。
-- 本助手现在只负责两件事：
+- 普通扩展（Manifest V3，不走 Tampermonkey）是目前最可靠的「装一次、所有商品页自动出按钮」方案。
+- Chrome 138+ 默认会停用「未打包扩展」，必须先在浏览器配置里打开「开发者模式」。
+- 本助手只负责：
   1) 选择要打开的浏览器；
-  2) 把书签写入浏览器书签栏（永久有效）。
-- 商品导入统一使用书签（Bookmarklet）：在商品页点一下书签栏「导入推广参谋」，
-  自动抓取标题/价格/主图并打开本地工具，无需安装任何扩展。
+  2) 在浏览器配置文件里预开启「开发者模式」；
+  3) 用选中的浏览器打开本地工具页。
 """
 import os
 import sys
@@ -26,8 +25,6 @@ PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python
 PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
 SERVER = os.path.join(HERE, "promo_server.py")
 PORT = 8123
-BOOKMARK_NAME = "导入推广参谋"
-
 BROWSERS = [
     {
         "name": "Google Chrome",
@@ -285,79 +282,6 @@ def pick_browser():
     return choose_browser()
 
 
-def bookmarklet_code(port):
-    """书签代码：点击后向当前商品页注入一个悬浮按钮（与油猴/扩展效果一致），
-    再点按钮即可抓取并导入。不依赖任何扩展或油猴，所有浏览器可用。"""
-    p = str(port)
-    return (
-        "javascript:(function(){"
-        "if(document.getElementById('tb-promo-import-btn'))return;"
-        "var TOOL='http://127.0.0.1:" + p + "';"
-        "function tx(s){try{var e=document.querySelector(s);return e?e.innerText.trim():''}catch(e){return''}}"
-        "function at(s,a){try{var e=document.querySelector(s);return e?((e.getAttribute(a)||e[a]||'').trim()):''}catch(e){return''}}"
-        "function ex(){"
-        "var t=tx('h1')||at('meta[property=\"og:title\"]','content')||document.title;"
-        "t=(t||'').replace(/\\s*-\\s*(淘宝网|天猫|tmall|Taobao).*$/i,'').trim();"
-        "var pr='';"
-        "var ps=['.Price--realSales','.Price--actualValue','#J_PromoPrice .tm-price','#J_PromoPriceNum','#J_StrPrice .tb-rmb-num','.tb-rmb-num','[class*=\"Price\"]'];"
-        "for(var i=0;i<ps.length;i++){var m=tx(ps[i]).match(/[\\d,]+\\.?\\d*/);if(m){pr=m[0].replace(/,/g,'');break;}}"
-        "if(!pr){var b=document.body.innerText.match(/[¥￥]\\s*([\\d,]+\\.?\\d*)/);if(b)pr=b[1].replace(/,/g,'');}"
-        "var pic=at('meta[property=\"og:image\"]','content')||at('#J_ImgBooth','src')||at('#J_ImageWrap img','src');"
-        "if(!pic){var im=document.querySelectorAll('img');for(var j=0;j<im.length;j++){var s=im[j].src||im[j].getAttribute('data-src')||'';if(s.indexOf('alicdn.com')>-1){pic=s;break;}}}"
-        "return{title:t||'',price:pr||'',pic:pic||'',url:location.href};"
-        "}"
-        "function toast(m,ok){var n=document.getElementById('tb-promo-toast');if(!n){n=document.createElement('div');n.id='tb-promo-toast';n.style.cssText='position:fixed;right:20px;bottom:160px;z-index:2147483647;max-width:260px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.2);font-family:-apple-system,\"Microsoft YaHei\",sans-serif;transition:opacity .3s';document.body.appendChild(n);}n.style.background=ok?'#0f6e56':'#c0451d';n.style.color='#fff';n.textContent=m;n.style.opacity='1';clearTimeout(n._timer);n._timer=setTimeout(function(){n.style.opacity='0';},2600);}"
-        "function openTool(d){var q='?title='+encodeURIComponent(d.title||'')+'&price='+encodeURIComponent(d.price||'')+'&pic='+encodeURIComponent(d.pic||'')+'&url='+encodeURIComponent(d.url||'');window.open(TOOL+'/taobao-promo-advisor.html'+q,'_blank');}"
-        "function send(d){try{fetch(TOOL+'/api/browser-parse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()}).then(function(j){toast('已导入',true);openTool(d)}).catch(function(){openTool(d)})}catch(e){openTool(d)}}"
-        "var btn=document.createElement('div');btn.id='tb-promo-import-btn';btn.innerHTML='🛒 导入推广参谋';"
-        "btn.style.cssText='position:fixed;left:20px;top:150px;z-index:2147483647;padding:11px 16px;background:linear-gradient(135deg,#ff5000,#ff7300);color:#fff;border-radius:24px;font-size:14px;font-weight:600;cursor:pointer;display:block!important;visibility:visible!important;opacity:1!important;box-shadow:0 6px 18px rgba(255,80,0,.4);font-family:-apple-system,\"Microsoft YaHei\",sans-serif;line-height:1;user-select:none;border:2px solid #fff';"
-        "btn.onclick=function(){var d=ex();if(!d.title&&!d.price&&!d.pic){toast('未抓取到商品信息',false);openTool(d);return;}toast('正在抓取',true);send(d);};"
-        "var dragging=0,sx,sy,sl,st;btn.addEventListener('mousedown',function(e){dragging=1;sx=e.clientX;sy=e.clientY;var r=btn.getBoundingClientRect();sl=r.left;st=r.top;btn.style.transition='none';e.preventDefault();});"
-        "document.addEventListener('mousemove',function(e){if(!dragging)return;btn.style.left=Math.max(0,Math.min(innerWidth-btn.offsetWidth,sl+e.clientX-sx))+'px';btn.style.top=Math.max(0,Math.min(innerHeight-btn.offsetHeight,st+e.clientY-sy))+'px';btn.style.right='auto';});"
-        "document.addEventListener('mouseup',function(){dragging=0;});"
-        "document.body.appendChild(btn);"
-        "})();"
-    )
-
-
-def inject_bookmark(browser, code):
-    ud = resolve_user_data(browser)
-    if not ud:
-        return []
-    profiles = set()
-    bm = os.path.join(ud, "Bookmarks")
-    if os.path.isfile(bm):
-        profiles.add(bm)
-    try:
-        for d in os.listdir(ud):
-            p = os.path.join(ud, d, "Bookmarks")
-            if os.path.isfile(p):
-                profiles.add(p)
-    except Exception:
-        pass
-    done = []
-    for prof in profiles:
-        try:
-            with open(prof, encoding="utf-8") as f:
-                data = json.load(f)
-        except Exception:
-            continue
-        bar = data.get("roots", {}).get("bookmark_bar")
-        if not bar:
-            continue
-        children = bar.setdefault("children", [])
-        if any(c.get("url") == code for c in children if c.get("type") == "url"):
-            done.append(prof)
-            continue
-        now = str(int(time.time() * 1000000) + 11644473600000000)
-        children.append({"type": "url", "name": BOOKMARK_NAME,
-                         "url": code, "date_added": now})
-        with open(prof, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False)
-        done.append(prof)
-    return done
-
-
 def is_running(exe):
     name = os.path.basename(exe).lower()
     try:
@@ -387,30 +311,50 @@ def wait_browser_dead(exe, timeout=10):
     return not is_running(exe)
 
 
-def install_bookmark(browser):
-    """关闭浏览器后写入书签，再重新打开"""
-    exe = resolve_exe(browser)
-    if not exe or not os.path.isfile(exe):
-        messagebox.showwarning("浏览器未安装",
-            f"「{browser['name']}」未安装。\n请先安装该浏览器，或选择其他已安装的浏览器。")
-        return
-    if is_running(exe):
-        ok = messagebox.askyesno("需要关闭浏览器",
-            f"把书签写入「{browser['name']}」需要先完全关闭它。\n现在关闭并继续吗？")
-        if not ok:
-            messagebox.showinfo("已取消", "未做任何改动。")
-            return
-        kill_browser(exe)
-        wait_browser_dead(exe)
-    inject_bookmark(browser, bookmarklet_code(PORT))
+def enable_developer_mode(browser):
+    """在浏览器所有配置文件的 Preferences 里预开启「开发者模式」。
+
+    Chrome 138+ 默认会停用未打包扩展（--load-extension 加载的扩展），
+    只有开发者模式打开时，这些扩展才会保持启用。我们必须在浏览器完全关闭时
+    修改 Preferences 才安全。返回是否成功修改了至少一个 profile。
+    """
+    ud = resolve_user_data(browser)
+    if not ud:
+        return False
+    # 收集所有含 Preferences 的 profile 目录
+    profiles = []
+    if os.path.isfile(os.path.join(ud, "Default", "Preferences")):
+        profiles.append(os.path.join(ud, "Default"))
     try:
-        subprocess.Popen([exe, f"http://127.0.0.1:{PORT}/"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for d in os.listdir(ud):
+            pdir = os.path.join(ud, d)
+            pref = os.path.join(pdir, "Preferences")
+            if os.path.isdir(pdir) and os.path.isfile(pref) and pdir not in profiles:
+                profiles.append(pdir)
     except Exception:
         pass
-    messagebox.showinfo("书签已安装",
-        f"已将「{BOOKMARK_NAME}」写入 {browser['name']} 书签栏。\n"
-        "打开淘宝/天猫商品页，点书签栏「导入推广参谋」即可把商品导入工具。")
+    if not profiles:
+        return False
+    ok = False
+    for pdir in profiles:
+        pref = os.path.join(pdir, "Preferences")
+        try:
+            with open(pref, encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            continue
+        ext = data.setdefault("extensions", {}).setdefault("ui", {})
+        if ext.get("developer_mode") is True:
+            ok = True
+            continue
+        ext["developer_mode"] = True
+        try:
+            with open(pref, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False)
+            ok = True
+        except Exception:
+            continue
+    return ok
 
 
 def open_tool_page(browser):
@@ -431,8 +375,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--open", action="store_true",
                         help="选择浏览器并打开工具页")
-    parser.add_argument("--install-bookmark", action="store_true",
-                        help="安装书签到浏览器书签栏")
     args = parser.parse_args()
 
     if not start_server():
@@ -445,10 +387,7 @@ def main():
         return
     save_browser(browser["name"])
 
-    if args.install_bookmark:
-        install_bookmark(browser)
-    else:
-        open_tool_page(browser)
+    open_tool_page(browser)
 
 
 if __name__ == "__main__":
