@@ -27,20 +27,31 @@
   <div class="sub">如果你点启动器的「打开 Tampermonkey 管理面板」后看到 <b>ERR_BLOCKED_BY_CLIENT</b>，是因为 Chrome 安全策略禁止外部程序直接打开油猴内部页面，这是正常的。</div>
 
   <div class="card">
-    <h2><span class="num">1</span>脚本到底装好了没有？</h2>
+    <h2><span class="num">1</span>先确认 Tampermonkey 是不是正版</h2>
+    <div class="bad">市面上有很多山寨版 Tampermonkey，名字也叫「篡改猴」，会导致脚本装不上或装完后找不到。</div>
+    <p>打开 Chrome 的「扩展程序」页（地址栏输入 <span class="code">chrome://extensions/</span>），找到 Tampermonkey/篡改猴，查看它的 ID：</p>
+    <ul>
+      <li><b>正版 ID：</b><span class="code">dhdgffkkebhmkfjojimpmpbldmpobfkfo</span>（注意中间是 <span class="code">ojimp</span>）</li>
+      <li><b>盗版 ID：</b><span class="code">dhdgffkkebhmkfjoejempbldmpobfkfo</span>（中间是 <span class="code">ejmp</span>）</li>
+    </ul>
+    <p>如果你看到的是盗版 ID，请点击该扩展右下角的「移除」按钮卸载，然后回到启动器点「安装 Tampermonkey 扩展（正版）」重新安装。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>脚本到底装好了没有？</h2>
     <div class="ok">装好了。</div>
-    <p>只要你在 Tampermonkey 安装页看到类似「即将重新安装用户脚本 v2.0」或「安装」按钮，就说明脚本已经在 Tampermonkey 里了。</p>
+    <p>只要你在 Tampermonkey 安装页看到类似「即将重新安装用户脚本 v2.1」或「安装」按钮，就说明脚本已经在 Tampermonkey 里了。</p>
     <p><b>油猴用户脚本不会出现在 Chrome 的「扩展程序」页里</b>，那里只能看到 Tampermonkey 扩展本身。你写的脚本要在油猴自己的「管理面板」里看。</p>
   </div>
 
   <div class="card">
-    <h2><span class="num">2</span>怎么打开 Tampermonkey 管理面板？</h2>
+    <h2><span class="num">3</span>怎么打开 Tampermonkey 管理面板？</h2>
     <p>方法很简单：在 Chrome 浏览器右上角找到 Tampermonkey（油猴）图标，点击它，然后选择「管理面板」/「Dashboard」。</p>
     <p>如果右上角没有图标，说明它被折叠到「拼图」图标里了，点一下拼图图标，找到 Tampermonkey 旁边的图钉，把它固定到工具栏。</p>
   </div>
 
   <div class="card">
-    <h2><span class="num">3</span>管理面板里应该看到什么？</h2>
+    <h2><span class="num">4</span>管理面板里应该看到什么？</h2>
     <p>你应该能看到一条脚本：</p>
     <p><b class="code">淘系推广参谋 · 一键导入（悬浮按钮）</b></p>
     <p>状态是「已启用」，包含 URL：</p>
@@ -53,7 +64,7 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">4</span>怎么在商品页使用？</h2>
+    <h2><span class="num">5</span>怎么在商品页使用？</h2>
     <ol>
       <li>打开任意淘宝或天猫商品详情页（例如 <span class="code">item.taobao.com</span> 或 <span class="code">detail.tmall.com</span>）。</li>
       <li>页面加载完成后，右下角会出现一个橙色的悬浮按钮：<b>🛒 导入推广参谋</b>。</li>
@@ -63,7 +74,7 @@
   </div>
 
   <div class="card">
-    <h2><span class="num">5</span>还是不行？</h2>
+    <h2><span class="num">6</span>还是不行？</h2>
     <p>回到本工具页 <span class="code">http://127.0.0.1:8123/</span>，在「商品链接」框上方点 <b>「复制脚本代码（手动安装）」</b>，然后：</p>
     <ol>
       <li>点击 Tampermonkey 图标 → 管理面板。</li>
