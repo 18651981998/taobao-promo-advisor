@@ -25,15 +25,9 @@ import argparse
 PORT = 8123
 HERE = os.path.dirname(os.path.abspath(__file__))
 HTML_PATH = os.path.join(HERE, "taobao-promo-advisor.html")
-PY = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\python.exe"
-PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pythonw.exe"
-INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 
-# 浏览器书签抓取后 POST 回来的数据临时存放（按 IP 隔离，避免多用户串数据）
-_last_parse = {"title": "", "price": "", "pic": "", "url": "", "ts": 0, "ip": ""}
-
-# 复用安装助手里生成的书签代码与浏览器数据路径，确保检测与写入使用同一串代码
-from install_helper import bookmarklet_code, BROWSERS, resolve_user_data, is_installed
+# 浏览器扩展抓取后 POST 回来的数据临时存放（按 IP 隔离，避免多用户串数据）
+_last_parse = {"title": "", "price": "", "pic": "", "sales": "", "reviews": "", "url": "", "ts": 0, "ip": ""}
 
 
 def find_free_port(start=PORT, end=PORT+20):
@@ -396,85 +390,6 @@ def parse_url(url):
     return fetch_page(url)
 
 
-def get_last_browser():
-    """读取上次用户选中的浏览器"""
-    try:
-        p = os.path.join(HERE, "last_browser.txt")
-        with open(p, encoding="utf-8") as f:
-            return f.read().strip()
-    except Exception:
-        return None
-
-
-def check_bookmark_status():
-    """检查书签是否已写入任意已安装浏览器的书签栏"""
-    code = bookmarklet_code(PORT)
-    detected = []
-    installed_in = []
-    # 扫描所有已知浏览器配置（不依赖 exe 路径是否存在，只要数据目录有 Bookmarks 就扫）
-    for browser in BROWSERS:
-        ud = resolve_user_data(browser)
-        # 尝试定位用户数据目录（兼容 360 动态版本目录）
-        possible_dirs = []
-        if ud and os.path.isdir(ud):
-            possible_dirs.append(ud)
-        # 对 360 安全浏览器额外尝试 %APPDATA%\360se6\Application\<版本>
-        if browser["name"] == "360安全浏览器":
-            base360 = os.path.expandvars("%APPDATA%\\360se6\\Application")
-            if os.path.isdir(base360):
-                try:
-                    dirs = [d for d in os.listdir(base360) if os.path.isdir(os.path.join(base360, d)) and d[0].isdigit()]
-                    dirs.sort(key=lambda x: [int(n) for n in x.split(".")], reverse=True)
-                    for d in dirs[:3]:
-                        possible_dirs.append(os.path.join(base360, d))
-                except Exception:
-                    pass
-        # 收集该目录及其子目录下的 Bookmarks 文件
-        profiles = set()
-        for base in possible_dirs:
-            bm = os.path.join(base, "Bookmarks")
-            if os.path.isfile(bm):
-                profiles.add(bm)
-            try:
-                for d in os.listdir(base):
-                    p = os.path.join(base, d, "Bookmarks")
-                    if os.path.isfile(p):
-                        profiles.add(p)
-            except Exception:
-                pass
-        exe_installed = is_installed(browser)
-        if not profiles:
-            detected.append({"name": browser["name"], "profiles": 0, "installed": False,
-                             "error": "未找到书签目录" if not possible_dirs else "目录存在但无 Bookmarks 文件",
-                             "exe_installed": exe_installed})
-            continue
-        found = False
-        for prof in profiles:
-            try:
-                with open(prof, encoding="utf-8") as f:
-                    data = json.load(f)
-                # 不仅检查书签栏，也检查其他文件夹
-                def find_url(node):
-                    if node.get("type") == "url" and node.get("url") == code:
-                        return True
-                    for child in node.get("children", []):
-                        if find_url(child):
-                            return True
-                    return False
-                if find_url(data.get("roots", {}).get("bookmark_bar", {})) or find_url(data.get("roots", {}).get("other", {})):
-                    found = True
-                    installed_in.append(browser["name"])
-                    break
-            except Exception:
-                continue
-        detected.append({"name": browser["name"], "profiles": len(profiles), "installed": found, "exe_installed": exe_installed})
-    if installed_in:
-        return {"ok": True, "installed": True, "browser": ", ".join(installed_in), "detected": detected}
-    if not detected:
-        return {"ok": False, "installed": False, "msg": "未检测到任何浏览器数据", "detected": detected}
-    return {"ok": True, "installed": False, "msg": "书签尚未写入书签栏", "detected": detected}
-
-
 class Handler(http.server.BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8", extra_headers=None):
         self.send_response(code)
@@ -493,16 +408,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = self.path
-        if path == "/api/bookmarklet-code":
-            self._send(200, json.dumps({
-                "ok": True,
-                "name": "导入推广参谋",
-                "code": bookmarklet_code(PORT)
-            }, ensure_ascii=False))
-            return
-        if path == "/api/bookmark-status":
-            self._send(200, json.dumps(check_bookmark_status(), ensure_ascii=False))
-            return
         if path == "/api/last-parse":
             # 返回最近一次浏览器抓取的数据（如果 30 秒内有）
             global _last_parse
@@ -549,7 +454,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         elif self.path == "/api/browser-parse":
-            # 浏览器书签/控制台脚本在淘宝页面抓取后 POST 数据回来
+            # 浏览器扩展在淘宝页面抓取后 POST 数据回来
             try:
                 length = int(self.headers.get("Content-Length", 0))
                 raw = self.rfile.read(length).decode("utf-8", "ignore")
@@ -559,23 +464,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "title": payload.get("title", ""),
                     "price": payload.get("price", ""),
                     "pic": payload.get("pic", ""),
+                    "sales": payload.get("sales", ""),
+                    "reviews": payload.get("reviews", ""),
                     "url": payload.get("url", ""),
                     "ts": time.time(),
                     "ip": self.client_address[0],
                 }
                 self._send(200, json.dumps({"ok": True, "msg": "已接收"}, ensure_ascii=False))
-            except Exception as e:
-                self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
-        elif self.path in ("/api/install-bookmark", "/api/install-extension"):
-            # 触发本地安装助手（非阻塞）：关闭浏览器 → 写入书签 → 重新打开浏览器和工具页
-            try:
-                pyw = PYW if os.path.isfile(PYW) else PY
-                subprocess.Popen([pyw, INSTALL_HELPER, "--install-bookmark"],
-                                 stdout=subprocess.DEVNULL,
-                                 stderr=subprocess.DEVNULL, cwd=HERE,
-                                 creationflags=0x08000000)
-                self._send(200, json.dumps({"ok": True,
-                    "msg": "安装程序已启动，浏览器会短暂关闭后重新打开，书签写入完成后即可使用。"}, ensure_ascii=False))
             except Exception as e:
                 self._send(200, json.dumps({"ok": False, "msg": str(e)}, ensure_ascii=False))
         else:
