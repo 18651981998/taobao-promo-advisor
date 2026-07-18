@@ -8,7 +8,7 @@
     ② 安装悬浮按钮（一键引导）—— 自动弹出 Tampermonkey 商店页 + 本地脚本安装页
   导入
     安装 Tampermonkey 扩展         —— 打开正版 Tampermonkey 商店页
-    安装悬浮按钮脚本               —— 打开本地用户脚本安装页（需先装 Tampermonkey）
+    安装悬浮按钮脚本               —— 打开 GitHub 上的用户脚本安装页（HTTPS，更易弹出安装按钮）
     安装导入书签（备选）           —— 旧方案，浏览器书签导入
   管理
     ③ 停止本地服务
@@ -66,8 +66,12 @@ TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkj
 # Tampermonkey 扩展 ID（用于直接打开其详情页）
 TM_CHROME_ID = "dhdgffkkebhmkfjojimpmpbldmpobfkfo"
 TM_EDGE_ID = "iikmkjmpaadaofnihnnoafoofjgjencj"
-# 本地用户脚本安装页（Tampermonkey 会自动接管并弹出安装）
-USERSCRIPT_URL = f"http://127.0.0.1:{PORT}/taobao-promo.user.js"
+# GitHub 上用户脚本的 raw HTTPS 地址（Chrome 138 对本地 HTTP userscript 安装页限制很严，
+# 改成受信任的 HTTPS 公共域名后 Tampermonkey 更容易弹出安装按钮）
+USERSCRIPT_GITHUB_URL = "https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js"
+# 本地用户脚本安装页（备用）
+USERSCRIPT_LOCAL_URL = f"http://127.0.0.1:{PORT}/taobao-promo.user.js"
+USERSCRIPT_URL = USERSCRIPT_GITHUB_URL
 
 
 def tm_settings_url(browser):
