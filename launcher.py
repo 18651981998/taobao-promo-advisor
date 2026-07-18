@@ -5,22 +5,16 @@
 功能菜单：
   使用
     ① 启动并打开工具页
-    ② 安装悬浮按钮（一键引导）—— 自动弹出 Tampermonkey 商店页 + 本地脚本安装页
-  导入
-    安装 Tampermonkey 扩展         —— 打开正版 Tampermonkey 商店页
-    安装悬浮按钮脚本               —— 打开 GitHub 上的用户脚本安装页（HTTPS，更易弹出安装按钮）
-    安装导入书签（备选）           —— 旧方案，浏览器书签导入
+    ② 普通安装（悬浮按钮）—— 打开 Chrome 扩展程序页 + extension 文件夹，手动加载一次即可
   管理
     ③ 停止本地服务
     ④ 退出
 
 说明：
-  浏览器（Chrome/Edge）出于安全策略，禁止任何程序自动把扩展静默装进浏览器，
-  必须用户在弹出的商店页点一次「添加」。因此「一键引导」= 自动帮你把安装页弹出来，
-  你只需点确认。这是目前最接近「启动后自动安装」的做法。
-
-  商品导入主方案 = Tampermonkey 用户脚本（悬浮按钮）：在商品页点一下「🛒 导入推广参谋」，
-  即把标题/价格/主图自动传入本地工具。无需 F12、无需复制代码。
+  Chrome/Edge 出于安全策略，禁止任何程序自动静默安装扩展。
+  因此点击「普通安装」后，工具会帮你打开扩展管理页和 extension 文件夹，
+  你只需在扩展管理页点「加载已解压的扩展程序」，然后选中 extension 文件夹即可。
+  这是目前最稳定、最不容易被浏览器安全策略拦截的安装方式。
 """
 import os
 import sys
@@ -59,39 +53,6 @@ PYW = r"C:\Users\Administrator\.workbuddy\binaries\python\versions\3.13.12\pytho
 SERVER = os.path.join(HERE, "promo_server.py")
 INSTALL_HELPER = os.path.join(HERE, "install_helper.py")
 PORT = 8123
-
-# Tampermonkey 官方商店地址（正版，推荐）
-# 官方 Chrome 扩展 ID: dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp）
-# 官方 Edge 扩展 ID: iikmkjmpaadaobahmlepeloendndfphd
-# 参考：https://www.tampermonkey.net/faq.php?q=Q406
-TM_CHROME = "https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo"
-TM_EDGE = "https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd"
-# Tampermonkey 扩展 ID（用于直接打开其详情页）
-TM_CHROME_ID = "dhdgffkkebhmkfjojejmpbldmpobfkfo"
-TM_EDGE_ID = "iikmkjmpaadaobahmlepeloendndfphd"
-# GitHub 上用户脚本的 raw HTTPS 地址（Chrome 138 对本地 HTTP userscript 安装页限制很严，
-# 改成受信任的 HTTPS 公共域名后 Tampermonkey 更容易弹出安装按钮）
-USERSCRIPT_GITHUB_URL = "https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js"
-# 本地用户脚本安装页（备用）
-USERSCRIPT_LOCAL_URL = f"http://127.0.0.1:{PORT}/taobao-promo.user.js"
-USERSCRIPT_URL = USERSCRIPT_GITHUB_URL
-
-
-def tm_settings_url(browser):
-    """根据所选浏览器，返回 Tampermonkey 详情页地址（带 ID 直达，省去手动查找）。"""
-    name = browser.get("name", "") if isinstance(browser, dict) else str(browser)
-    if "Edge" in name:
-        return f"edge://extensions/?id={TM_EDGE_ID}"
-    return f"chrome://extensions/?id={TM_CHROME_ID}"
-
-
-def tm_dashboard_url(browser):
-    """返回 Tampermonkey 脚本管理面板地址（已安装脚本在这里查看）。"""
-    name = browser.get("name", "") if isinstance(browser, dict) else str(browser)
-    if "Edge" in name:
-        return f"edge-extension://{TM_EDGE_ID}/options.html"
-    return f"chrome-extension://{TM_CHROME_ID}/options.html"
-
 
 def server_up():
     try:
@@ -194,15 +155,8 @@ class Launcher(tk.Tk):
 
         group("使用")
         add_btn("①   启动并打开工具页", lambda: self.do_action("open"), primary=True)
-        add_btn("②   安装悬浮按钮（一键引导）", lambda: self.do_action("guide"), primary=True)
-        group("导入（推荐：普通扩展，无需油猴）")
-        add_btn("   安装普通扩展（悬浮按钮，推荐）", lambda: self.do_action("extension"), primary=True)
-        add_btn("   安装 Tampermonkey 扩展（正版）", lambda: self.do_action("tm"))
-        add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
-        add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
+        add_btn("②   普通安装（悬浮按钮）", lambda: self.do_action("extension"), primary=True)
         group("管理")
-        add_btn("   打开油猴管理面板（查看脚本）", lambda: self.do_action("dashboard"))
-        add_btn("   打开帮助页（使用说明）", lambda: self.do_action("help"))
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
 
@@ -254,104 +208,11 @@ class Launcher(tk.Tk):
             threading.Thread(target=w, daemon=True).start()
             return
 
-        if kind == "dashboard":
-            self._set_running(True)
-            self._log("请选择浏览器，随后将打开油猴管理面板...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                dash_url = tm_dashboard_url(browser)
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开油猴管理面板..."))
-                open_url(dash_url, browser)
-                self.after(0, lambda: self._log(
-                    "已尝试打开油猴管理面板。\n"
-                    "Chrome 安全策略可能会拦截 chrome-extension:// 链接，出现 ERR_BLOCKED_BY_CLIENT，\n"
-                    "这很正常。如果被拦截，请直接点击浏览器工具栏的油猴图标 → 「管理面板」查看脚本。\n"
-                    "脚本安装成功后，管理面板里会显示「淘系推广参谋 · 一键导入（悬浮按钮）」。"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
-        if kind == "help":
-            self._set_running(True)
-            self._log("请选择浏览器，随后将打开油猴脚本帮助页...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                help_url = os.path.join(HERE, "tampermonkey-help.html")
-                file_url = "file://" + help_url.replace("\\", "/")
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开帮助页..."))
-                open_url(file_url, browser)
-                self.after(0, lambda: self._log(
-                    "OK 已打开帮助页。里面有图文步骤：如何打开油猴管理面板、如何查看脚本、商品页如何使用。"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
-        if kind == "guide":
-            # 一键引导：先选择浏览器，再自动弹出 Tampermonkey 商店页 + 本地脚本安装页
-            self._set_running(True)
-            self._log("请选择浏览器，随后将打开 Tampermonkey 安装页与脚本页...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                if not server_up():
-                    start_server()
-                time.sleep(0.6)
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开安装页..."))
-                # 先打开 Tampermonkey 设置页（直达开关），再打开商店页与脚本页
-                open_url(tm_settings_url(browser), browser)
-                open_url(TM_CHROME, browser)
-                open_url(USERSCRIPT_URL, browser)
-                self.after(0, lambda: self._log(
-                    f"OK 已用 {browser['name']} 打开三个页面：\n"
-                    "1) Tampermonkey 详情页（开「允许用户脚本」开关）\n"
-                    "2) Tampermonkey 商店页 → 点「添加」安装扩展\n"
-                    "3) 悬浮按钮脚本页 → 点「安装」安装脚本。若未弹安装框，回工具页点「复制脚本代码（手动安装）」\n"
-                    f"Edge 用户商店链接：{TM_EDGE}"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
-        if kind == "tm":
-            self._set_running(True)
-            self._log("请选择浏览器，随后打开 Tampermonkey 商店页...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 商店页..."))
-                open_url(TM_CHROME, browser)
-                self.after(0, lambda: self._log(
-                    f"OK 已用 {browser['name']} 打开 Tampermonkey 商店页，点「添加」安装扩展。\n"
-                    "安装完后回到本工具点「安装悬浮按钮脚本」即可。\n"
-                    "注意：正版 Tampermonkey Chrome 扩展 ID 是 dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp），\n"
-                    "如果看到的是其他 ID，请卸载后从上面的链接重新安装。\n"
-                    f"Edge 用户请访问：{TM_EDGE}"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
         if kind == "extension":
-            # 安装普通 Chrome 扩展（不走 Tampermonkey，不受 Chrome 138+ 限制）
-            # 用 --load-extension 命令行参数一键加载，避免手动去扩展页点按钮
+            # 安装普通 Chrome 扩展（手动「加载已解压的扩展程序」）
+            # 这是目前最稳定的方式：Chrome 138+ 对自动加载限制很严，手动加载一次即可永久生效。
             self._set_running(True)
-            self._log("请选择浏览器，随后将自动加载扩展（无需手动操作）...")
+            self._log("请选择浏览器，随后将打开扩展程序页和 extension 文件夹...")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -362,69 +223,43 @@ class Launcher(tk.Tk):
                 ext_dir = os.path.join(HERE, "extension")
                 exe = ih.resolve_exe(browser)
                 if not exe or not os.path.isfile(exe):
-                    self.after(0, lambda: self._log("未检测到「%s」已安装，无法自动加载扩展。请改用「安装导入书签」方案。" % browser["name"]))
+                    self.after(0, lambda: self._log("未检测到「%s」已安装，无法安装扩展。" % browser["name"]))
                     self.after(0, lambda: self._set_running(False))
                     return
-                # 360 浏览器对 --load-extension 支持差，提示改用手动或书签
-                if "360" in browser.get("name", ""):
-                    self.after(0, lambda: self._log(
-                        "360 浏览器对未打包扩展支持有限，不推荐用此方式。\n"
-                        "建议：① 用「安装导入书签」方案（已验证可用）；或 ② 改用 Chrome/Edge 浏览器再点本按钮。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                # 关闭浏览器实例，--load-extension 仅对首个 Chrome 进程生效
-                if ih.is_running(exe):
-                    self.after(0, lambda: self._log("正在关闭浏览器以加载扩展..."))
-                    ih.kill_browser(exe)
-                    ih.wait_browser_dead(exe)
+                # 尽量预开启开发者模式（Chrome 138+ 必须）
+                dm = ih.enable_developer_mode(browser)
+                self.after(0, lambda: self._log(
+                    "已%s开发者模式。" % ("预开启" if dm else "尝试预开启（若失败请手动开启）")))
+                # 打开 extension 文件夹，方便用户选中
                 try:
-                    subprocess.Popen(
-                        [exe, "--load-extension=" + ext_dir, "--new-window", "http://127.0.0.1:%d/" % PORT],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    self.after(0, lambda: self._log(
-                        "OK 已自动加载扩展并打开工具页。\n"
-                        "扩展已注册到该浏览器，之后打开淘宝/天猫商品页会自动出现「🛒 导入推广参谋」按钮，无需油猴、无需每次点书签。\n"
-                        "为保证以后每次打开浏览器都自动加载，请到 chrome://extensions 右上角开启「开发者模式」一次（开启后扩展会永久保留）。\n"
-                        "若哪天按钮消失，重新点本启动器的「安装普通扩展」按钮即可恢复。"))
+                    os.startfile(ext_dir)
+                    self.after(0, lambda: self._log("已打开「extension」文件夹，等下请选它。"))
                 except Exception as e:
-                    self.after(0, lambda: self._log("自动加载失败：%s。请改用「安装导入书签」方案（已验证可用）。" % e))
+                    self.after(0, lambda: self._log("打开文件夹失败：%s" % e))
+                # 打开扩展程序页
+                ext_url = "chrome://extensions"
+                if "Edge" in browser.get("name", ""):
+                    ext_url = "edge://extensions"
+                try:
+                    subprocess.Popen([exe, ext_url],
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                except Exception as e:
+                    self.after(0, lambda: self._log("打开扩展程序页失败：%s" % e))
+                self.after(0, lambda: self._log(
+                    "\n"
+                    "【请按下面 3 步手动加载扩展】\n"
+                    "1) 在打开的「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n"
+                    "2) 点左上角「加载已解压的扩展程序」；\n"
+                    "3) 在刚才打开的文件夹中，选中「extension」文件夹，点「选择文件夹」。\n"
+                    "列表出现「淘系推广参谋·商品导入」即成功。\n"
+                    "之后打开任意淘宝/天猫商品页，右上角都会自动出现「🛒 导入推广参谋」按钮。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
 
-        if kind == "script":
-            self._set_running(True)
-            self._log("请选择浏览器，随后将打开 Tampermonkey 设置页（开用户脚本开关）...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                if not server_up():
-                    start_server()
-                time.sleep(0.6)
-                # 第一步：先打开 Tampermonkey 详情页（带 ID 直达，省去手动查找）
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 设置页..."))
-                open_url(tm_settings_url(browser), browser)
-                # 第二步：直接打开脚本安装页，不再弹窗阻断；提示写到日志栏
-                self.after(0, lambda: self._log(
-                    "已打开 Tampermonkey 详情页，请确认「允许用户脚本」开关已开启。\n"
-                    "现在打开脚本安装页..."))
-                open_url(USERSCRIPT_URL, browser)
-                self.after(0, lambda: self._log(
-                    "OK 已打开悬浮按钮脚本安装页。\n"
-                    "Tampermonkey 应该会弹出安装确认框，点「安装」即可。\n"
-                    "若未弹框，回工具页点「复制脚本代码（手动安装）」手动粘贴。"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
-        # open / bookmark：走 install_helper
-        arg = {"open": "--open", "bookmark": "--install-bookmark"}.get(kind)
-        label = {"open": "启动并打开工具页",
-                 "bookmark": "安装导入书签"}[kind]
+        # open：走 install_helper 选择浏览器并打开工具页
+        arg = {"open": "--open"}.get(kind)
+        label = {"open": "启动并打开工具页"}[kind]
         self._set_running(True)
         self._log("正在执行：" + label + " ...")
         def w():
