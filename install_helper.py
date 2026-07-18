@@ -297,20 +297,6 @@ def is_running(exe):
     return False
 
 
-def kill_browser(exe):
-    name = os.path.basename(exe)
-    subprocess.run(["taskkill", "/F", "/IM", name, "/T"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def wait_browser_dead(exe, timeout=10):
-    for _ in range(timeout):
-        if not is_running(exe):
-            return True
-        time.sleep(1)
-    return not is_running(exe)
-
-
 def enable_developer_mode(browser):
     """在浏览器所有配置文件的 Preferences 里预开启「开发者模式」。
 
@@ -357,181 +343,54 @@ def enable_developer_mode(browser):
     return ok
 
 
-def _extensions_url(browser):
-    return "edge://extensions" if "Edge" in browser.get("name", "") else "chrome://extensions"
-
-
-def _is_port_free(port):
-    import socket
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(0.5)
-        s.bind(("127.0.0.1", port))
-        s.close()
-        return True
-    except Exception:
-        return False
-
-
-def _find_free_port(start=9333):
-    import socket
-    for p in range(start, start + 20):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind(("127.0.0.1", p))
-            s.close()
-            return p
-        except Exception:
-            continue
-    return start
-
-
 def _open_ext_folder(ext_dir):
-    """打开 extension 文件夹。使用 explorer.exe /n 打开新窗口，避免等待已有资源管理器实例。"""
+    """打开 extension 文件夹。优先用 os.startfile（最快），失败再用 explorer.exe。"""
     if not os.path.isdir(ext_dir):
         return
     try:
-        # /n 强制新窗口，避免已有资源管理器窗口慢加载；逗号分隔参数
-        subprocess.Popen(["explorer.exe", "/n,", ext_dir],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        os.startfile(ext_dir)
     except Exception:
         try:
-            os.startfile(ext_dir)
+            subprocess.Popen(["explorer.exe", ext_dir],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except Exception:
             pass
+
+
+def _extensions_url(browser):
+    """返回该浏览器可能支持的扩展程序页 URL 列表（按优先顺序）。"""
+    name = browser.get("name", "")
+    if "360安全" in name:
+        return ["se://extensions", "chrome://extensions"]
+    if "360极速" in name:
+        return ["chrome://extensions", "se://extensions"]
+    if "Edge" in name:
+        return ["edge://extensions"]
+    return ["chrome://extensions"]
 
 
 def _open_extensions_page(browser):
-    """在浏览器中打开扩展程序页（不关闭浏览器）。"""
+    """在浏览器中打开扩展程序页（不关闭浏览器）。按优先顺序尝试多个 URL。"""
     exe = resolve_exe(browser)
     if not exe or not os.path.isfile(exe):
         return False
-    url = _extensions_url(browser)
-    try:
-        subprocess.Popen([exe, url],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return True
-    except Exception:
-        return False
-
-
-def _launch_with_cdp(browser, debug_port=9333):
-    """关闭浏览器并用 --remote-debugging-port 重新打开扩展程序页，返回 (proc, port)。"""
-    exe = resolve_exe(browser)
-    if not exe or not os.path.isfile(exe):
-        return None
-    kill_browser(exe)
-    # 确保 Chrome 完全退出，避免端口冲突和新实例启动慢
-    for _ in range(10):
-        if not is_running(exe):
-            break
-        time.sleep(0.5)
-    time.sleep(0.5)
-    # 如果调试端口被占用，换一个
-    port = debug_port if _is_port_free(debug_port) else _find_free_port(debug_port + 1)
-    ext_url = _extensions_url(browser)
-    proc = subprocess.Popen([exe, f"--remote-debugging-port={port}", ext_url],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return proc, port
-
-
-def _cdp_ext_target(debug_port, browser):
-    """找到 chrome://extensions 的 CDP target，找不到就新建一个。"""
-    import urllib.request, json
-    base = f"http://127.0.0.1:{debug_port}"
-    try:
-        data = json.loads(urllib.request.urlopen(base + "/json", timeout=5).read())
-    except Exception:
-        return None
-    for t in data:
-        if t.get("type") == "page" and "extension" in (t.get("url", "") or ""):
-            return t.get("webSocketDebuggerUrl")
-    # 没找到就新建
-    try:
-        req = urllib.request.Request(base + "/json/new?" + "chrome://extensions", method="PUT")
-        t = json.loads(urllib.request.urlopen(req, timeout=5).read())
-        return t.get("webSocketDebuggerUrl")
-    except Exception:
-        return None
-
-
-def _cdp_click_load_button(ws_url):
-    """通过 CDP 在扩展程序页点击「加载已解压的扩展程序」按钮。返回点击到的文本或 None。"""
-    import websocket, json
-    try:
-        ws = websocket.create_connection(ws_url, timeout=10)
-    except Exception:
-        return None
-    try:
-        ws.send(json.dumps({"id": 1, "method": "Runtime.enable", "params": {}}))
-        while True:
-            m = json.loads(ws.recv())
-            if m.get("id") == 1:
-                break
-        expr = r"""
-        (function(){
-          var els = Array.prototype.slice.call(document.querySelectorAll('button, cr-button, [role=button], .load-button, .action'));
-          for (var i=0;i<els.length;i++){
-            var t = (els[i].innerText || els[i].textContent || '').trim();
-            if (t.indexOf('加载') >= 0) { els[i].click(); return 'clicked:' + t; }
-          }
-          return 'notfound';
-        })()
-        """
-        ws.send(json.dumps({"id": 2, "method": "Runtime.evaluate",
-                            "params": {"expression": expr, "returnByValue": True}}))
-        while True:
-            m = json.loads(ws.recv())
-            if m.get("id") == 2:
-                val = m.get("result", {}).get("result", {}).get("value")
-                return val
-    except Exception:
-        return None
-    finally:
+    urls = _extensions_url(browser)
+    for url in urls:
         try:
-            ws.close()
+            subprocess.Popen([exe, url],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return url
         except Exception:
-            pass
-
-
-def _wait_cdp(debug_port, timeout=20):
-    import urllib.request
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        try:
-            urllib.request.urlopen(f"http://127.0.0.1:{debug_port}/json", timeout=2)
-            return True
-        except Exception:
-            time.sleep(0.5)
+            continue
     return False
 
 
-def _handle_folder_dialog(ext_dir, log_fn=None):
-    """在 Windows「选择文件夹」对话框里粘贴路径并确认。"""
-    import pyautogui, pyperclip
-    pyautogui.FAILSAFE = True
-    try:
-        pyperclip.copy(ext_dir)
-    except Exception:
-        pass
-    time.sleep(0.5)
-    # 焦点地址栏
-    pyautogui.hotkey("alt", "d")
-    time.sleep(0.4)
-    pyautogui.hotkey("ctrl", "v")
-    time.sleep(0.4)
-    pyautogui.press("enter")  # 导航到该文件夹
-    time.sleep(1.2)
-    pyautogui.press("enter")  # 确认「选择文件夹」
-    time.sleep(1.0)
-
-
 def auto_install_extension(browser, ext_dir, log_fn=None, debug_port=9333):
-    """尽量自动完成「加载未解压的扩展程序」并选中文件夹。
+    """打开扩展程序页和 extension 文件夹，让用户手动加载已解压扩展。
 
-    流程：预开启开发者模式 → 用 CDP 打开扩展页并点击加载按钮 → 系统对话框粘贴路径确认。
-    任何一步失败都会自动回退到手动流程：直接打开扩展程序页 + extension 文件夹。
-    返回 True 表示已尝试自动加载；返回 False 表示已回退到手动流程。
+    说明：Chrome 138+ 不再允许外部程序直接静默安装未打包扩展，因此最稳的做法是
+    自动帮你打开扩展管理页 + extension 文件夹，你只需点两下「加载已解压的扩展程序」。
+    本函数不关闭、不重启浏览器，速度最快。
     """
     def log(msg):
         if log_fn:
@@ -539,44 +398,24 @@ def auto_install_extension(browser, ext_dir, log_fn=None, debug_port=9333):
 
     log("正在预开启开发者模式…")
     enable_developer_mode(browser)
-    log("正在尝试自动点击「加载未解压的扩展程序」…")
-    try:
-        launched = _launch_with_cdp(browser, debug_port)
-        if not launched:
-            raise RuntimeError("无法启动浏览器")
-        proc, port = launched
-        if not _wait_cdp(port, timeout=12):
-            raise RuntimeError("调试端口未就绪")
-        log("已打开扩展程序页，正在通过调试接口点击加载按钮…")
-        clicked = None
-        for _ in range(10):
-            ws_url = _cdp_ext_target(port, browser)
-            if ws_url:
-                clicked = _cdp_click_load_button(ws_url)
-            if clicked and clicked.startswith("clicked"):
-                break
-            time.sleep(1.0)
-        if not (clicked and clicked.startswith("clicked")):
-            raise RuntimeError("未能在扩展程序页找到加载按钮")
-        log("已自动点击「%s」，正在填入 extension 文件夹路径…" % clicked)
-        time.sleep(2.5)
-        _handle_folder_dialog(ext_dir, log_fn)
-        log("已自动填入扩展文件夹路径，请确认是否已安装。")
-        return True
-    except Exception as e:
-        log("自动加载未成功：%s" % e)
-        # 回退：确保扩展程序页和文件夹都已打开
-        log("正在打开扩展程序页…")
-        _open_extensions_page(browser)
-        time.sleep(0.8)
-        log("正在打开 extension 文件夹…")
-        _open_ext_folder(ext_dir)
-        log("\n" +
-            "【已自动打开扩展程序页和 extension 文件夹，请手动完成】\n" +
-            "1) 在「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n" +
-            "2) 点左上角「加载已解压的扩展程序」，然后选中已打开的「extension」文件夹，点「选择文件夹」。\n" +
-            "列表出现「淘系推广参谋·商品导入」即成功。")
-        return False
+
+    log("正在打开扩展程序页…")
+    opened_url = _open_extensions_page(browser)
+    if opened_url:
+        log("已打开扩展程序页：%s" % opened_url)
+    else:
+        log("未能自动打开扩展程序页，请手动打开 chrome://extensions 或 se://extensions")
+
+    log("正在打开 extension 文件夹…")
+    _open_ext_folder(ext_dir)
+
+    log("\n" +
+        "【请按下面 3 步手动加载扩展】\n" +
+        "1) 在打开的「扩展程序」页面右上角，确认「开发者模式」是【开】的；\n" +
+        "2) 点左上角「加载已解压的扩展程序」；\n" +
+        "3) 在打开的文件夹中，选中「extension」文件夹，点「选择文件夹」。\n" +
+        "列表出现「淘系推广参谋·商品导入」即成功。")
+    return True
 
 
 def open_tool_page(browser):
