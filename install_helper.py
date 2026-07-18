@@ -387,11 +387,12 @@ def _find_free_port(start=9333):
 
 
 def _open_ext_folder(ext_dir):
-    """打开 extension 文件夹。使用 explorer.exe 最稳；失败才回退 os.startfile。"""
+    """打开 extension 文件夹。使用 explorer.exe /n 打开新窗口，避免等待已有资源管理器实例。"""
     if not os.path.isdir(ext_dir):
         return
     try:
-        subprocess.Popen(["explorer.exe", ext_dir],
+        # /n 强制新窗口，避免已有资源管理器窗口慢加载；逗号分隔参数
+        subprocess.Popen(["explorer.exe", "/n,", ext_dir],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         try:
@@ -433,6 +434,8 @@ def _launch_with_cdp(browser, debug_port=9333):
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return proc, port
 
+
+def _cdp_ext_target(debug_port, browser):
     """找到 chrome://extensions 的 CDP target，找不到就新建一个。"""
     import urllib.request, json
     base = f"http://127.0.0.1:{debug_port}"
