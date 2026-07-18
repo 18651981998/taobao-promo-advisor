@@ -4,14 +4,14 @@
 // @version      2.2
 // @description  在淘宝/天猫商品页注入悬浮按钮，点击一键抓取标题/价格/主图并传入本地「淘系推广参谋」工具，无需 F12。
 // @author       A0_0 涛声依旧
-// @match        https://*taobao.com/*
-// @match        https://*tmall.com/*
+// @match        *://*taobao.com/*
+// @match        *://*tmall.com/*
+// @match        *://*tmall.hk/*
 // @match        http://127.0.0.1:8123/*
 // @connect      127.0.0.1
 // @updateURL    https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
 // @downloadURL  https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
 // @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
 // ==/UserScript==
 
 (function () {
@@ -25,21 +25,17 @@
     return;
   }
 
-  // 仅在商品页显示按钮
+  // 判断当前是否为商品详情页（淘宝/天猫详情页地址规律性较强）
   function isItemPage() {
     const u = location.href;
     if (/item\.htm|detail\.tmall|item\.taobao|world\.taobao|m\.tb\.cn/.test(u)) return true;
     const host = location.hostname;
     if (/\b(taobao|tmall)\b/.test(host) && /\d{8,}/.test(u)) return true;
-    return !!document.querySelector('#J_Title, #detail, .tb-detail, .tb-main, [data-spm*="d"], [data-spm*="item"]');
+    return !!document.querySelector('#J_Title, #detail, .tb-detail, .tb-main, [data-spm*="d"], [data-spm*="item"], .item-title, h1');
   }
-  if (!isItemPage()) {
-    console.log('[淘系推广参谋] 当前页面不是商品页，不显示悬浮按钮');
-    return;
-  }
-  console.log('[淘系推广参谋] 脚本已激活，正在注入悬浮按钮...');
 
-  const win = (typeof unsafeWindow !== 'undefined') ? unsafeWindow : window;
+  const onItem = isItemPage();
+  console.log('[淘系推广参谋] 脚本已激活。当前页面是否商品页：', onItem, location.href);
 
   function text(sel) {
     try { const e = document.querySelector(sel); return e ? e.innerText.trim() : ''; } catch (e) { return ''; }
@@ -51,7 +47,7 @@
   function extract() {
     let title = text('h1')
       || attr('meta[property="og:title"]', 'content')
-      || (win.g_config && win.g_config.title) || document.title;
+      || document.title;
     title = (title || '').replace(/\s*-\s*(淘宝网|天猫|tmall|Taobao|TAOBAO).*$/i, '').trim();
 
     let price = '';
@@ -135,7 +131,7 @@
     btn.id = 'tb-promo-import-btn';
     btn.innerHTML = '🛒 导入推广参谋';
     btn.style.cssText = [
-      'position:fixed', 'right:20px', 'bottom:90px', 'z-index:999999',
+      'position:fixed', 'right:20px', 'top:120px', 'z-index:9999999',
       'padding:11px 16px', 'background:linear-gradient(135deg,#ff5000,#ff7300)', 'color:#fff',
       'border-radius:24px', 'font-size:14px', 'font-weight:600', 'cursor:pointer',
       'box-shadow:0 6px 18px rgba(255,80,0,.4)', 'font-family:-apple-system,"Microsoft YaHei",sans-serif',
@@ -144,6 +140,10 @@
     let busy = false;
     btn.addEventListener('click', function () {
       if (busy) return;
+      if (!onItem) {
+        showToast('请在商品详情页（item.taobao.com / detail.tmall.com）使用此按钮', false);
+        return;
+      }
       busy = true; btn.style.opacity = '.7';
       const d = extract();
       if (!d.title && !d.price && !d.pic) {
@@ -155,18 +155,40 @@
     });
     btn.addEventListener('mouseenter', function () { btn.style.transform = 'scale(1.05)'; });
     btn.addEventListener('mouseleave', function () { btn.style.transform = 'scale(1)'; });
+
+    // 按住按钮可拖动，避免被页面固定栏遮挡
+    let dragging = false, startX, startY, startLeft, startTop;
+    btn.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      const rect = btn.getBoundingClientRect();
+      startLeft = rect.left; startTop = rect.top;
+      btn.style.transition = 'none';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      btn.style.left = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, startLeft + dx)) + 'px';
+      btn.style.top = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, startTop + dy)) + 'px';
+      btn.style.right = 'auto';
+    });
+    document.addEventListener('mouseup', function () { dragging = false; btn.style.transition = 'transform .15s'; });
+
     document.body.appendChild(btn);
+    console.log('[淘系推广参谋] 悬浮按钮已注入', location.href);
   }
 
+  if (document.body) addButton();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addButton);
-  else addButton();
 
   // SPA 路由切换或页面异步渲染后，若按钮丢失则重建
   try {
     const mo = new MutationObserver(function () {
       if (!document.getElementById('tb-promo-import-btn')) addButton();
     });
-    mo.observe(document.body, { childList: true, subtree: true });
+    if (document.body) mo.observe(document.body, { childList: true, subtree: true });
   } catch (e) {}
 
   // 每隔 2 秒兜底检查一次，确保按钮始终存在
