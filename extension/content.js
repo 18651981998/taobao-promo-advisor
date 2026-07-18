@@ -48,18 +48,57 @@
       if (m) price = m[1].replace(/,/g, '');
     }
 
-    let pic = attr('meta[property="og:image"]', 'content')
-      || attr('#J_ImgBooth', 'src')
-      || attr('#J_ImageWrap img', 'src');
+    // 主图：优先取商品主图元素（#J_ImgBooth 等），og:image 仅作兜底，避免取到 logo/占位图
+    let pic = '';
+    const picSels = [
+      '#J_ImgBooth img', '#J_ImgBooth', '#J_ImageWrap img', '.tb-main-pic img',
+      '#J_ZoomPic img', '#J_Zoom div img', '.tb-pic img', '#J_ZoomMain img',
+      '.main-image img', '.tb-booth img', '.module-pic img'
+    ];
+    for (const s of picSels) {
+      const el = document.querySelector(s);
+      if (el) {
+        const src = el.getAttribute('src') || el.getAttribute('data-src') || el.src || '';
+        if (src && !/(blank|placeholder|loading|default|1x1|empty|\.gif$)/i.test(src)) { pic = src; break; }
+      }
+    }
+    if (!pic) pic = attr('meta[property="og:image"]', 'content') || '';
     if (!pic) {
-      const imgs = document.querySelectorAll('#J_ImgBooth, #J_ImageWrap img, img');
+      const imgs = document.querySelectorAll('#J_ImgBooth img, #J_ImageWrap img, img');
       for (const im of imgs) {
         const src = im.src || im.getAttribute('data-src') || '';
-        if (src && (src.indexOf('alicdn.com') > -1 || src.indexOf('taobaocdn') > -1)) { pic = src; break; }
+        if (src && (src.indexOf('alicdn.com') > -1 || src.indexOf('taobaocdn') > -1)
+            && !/(blank|placeholder|loading|\.gif$)/i.test(src)) { pic = src; break; }
       }
     }
 
-    return { title: title || '', price: price || '', pic: pic || '', url: location.href };
+    // 月销量
+    let sales = '';
+    const salesSels = ['.tm-ind-sellCount .tm-count', '#J_DetailMeta .tm-ind-sellCount .tm-count',
+      '[class*="sellCount"] .tm-count', '.tb-sell-count', '.sell-count', '[class*="sell"] .count'];
+    for (const s of salesSels) {
+      const m = text(s).match(/[\d,]+\.?\d*/);
+      if (m) { sales = m[0].replace(/,/g, ''); break; }
+    }
+    if (!sales) {
+      const m = document.body.innerText.match(/(?:月销|已售|销量)[：:\s]*([\d,]+\.?\d*)\s*(?:件|单|笔)?/);
+      if (m) sales = m[1].replace(/,/g, '');
+    }
+
+    // 评价数（累计评价）
+    let reviews = '';
+    const reviewSels = ['.tm-ind-reviewCount .tm-count', '#J_ReviewTab .tm-count',
+      '[class*="reviewCount"] .tm-count', '.tb-rate-count', '.rate-count', '[class*="rate"] .count'];
+    for (const s of reviewSels) {
+      const m = text(s).match(/[\d,]+\.?\d*/);
+      if (m) { reviews = m[0].replace(/,/g, ''); break; }
+    }
+    if (!reviews) {
+      const m = document.body.innerText.match(/累计评价[：:\s]*([\d,]+\.?\d*)/);
+      if (m) reviews = m[1].replace(/,/g, '');
+    }
+
+    return { title: title || '', price: price || '', pic: pic || '', sales: sales || '', reviews: reviews || '', url: location.href };
   }
 
   function showToast(msg, ok) {
@@ -84,6 +123,8 @@
     const q = '?title=' + encodeURIComponent(d.title || '')
       + '&price=' + encodeURIComponent(d.price || '')
       + '&pic=' + encodeURIComponent(d.pic || '')
+      + '&sales=' + encodeURIComponent(d.sales || '')
+      + '&reviews=' + encodeURIComponent(d.reviews || '')
       + '&url=' + encodeURIComponent(d.url || '');
     window.open(TOOL + '/taobao-promo-advisor.html' + q, '_blank');
   }
@@ -110,7 +151,7 @@
     btn.id = 'tb-promo-import-btn';
     btn.innerHTML = '🛒 导入推广参谋';
     btn.style.cssText = [
-      'position:fixed', 'left:20px', 'top:150px', 'z-index:2147483647',
+      'position:fixed', 'right:20px', 'top:140px', 'z-index:2147483647',
       'padding:11px 16px', 'background:linear-gradient(135deg,#ff5000,#ff7300)', 'color:#fff',
       'border-radius:24px', 'font-size:14px', 'font-weight:600', 'cursor:pointer', 'display:block !important',
       'visibility:visible !important', 'opacity:1 !important',
@@ -150,28 +191,36 @@
     console.log('[淘系推广参谋] 悬浮按钮已注入', location.href);
   }
 
+  function attachObserver() {
+    try {
+      const mo = new MutationObserver(function () {
+        if (!document.getElementById('tb-promo-import-btn')) addButton();
+      });
+      mo.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (e) {}
+  }
+
   function init() {
-    if (document.body) addButton();
-    else {
+    if (document.body) {
+      addButton();
+      attachObserver();
+    } else {
       const t = setInterval(function () {
-        if (document.body) { clearInterval(t); addButton(); }
-      }, 300);
+        if (document.body) {
+          clearInterval(t);
+          addButton();
+          attachObserver();
+        }
+      }, 200);
     }
   }
   init();
 
+  // 兜底：页面各种时机都尝试补一次按钮，确保一定出现
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', addButton);
   }
   window.addEventListener('load', addButton);
-
-  // SPA 路由切换或页面异步渲染后，若按钮丢失则重建
-  try {
-    const mo = new MutationObserver(function () {
-      if (!document.getElementById('tb-promo-import-btn')) addButton();
-    });
-    if (document.body) mo.observe(document.body, { childList: true, subtree: true });
-  } catch (e) {}
 
   // 每隔 2 秒兜底检查一次，确保按钮始终存在
   setInterval(function () {
