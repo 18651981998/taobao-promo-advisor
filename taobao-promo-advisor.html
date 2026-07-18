@@ -204,33 +204,45 @@
         </div>
         <div class="hint" id="parseStatus"></div>
         <div id="floatBtnCard" style="margin-top:12px; padding:14px; background:#eef6ff; border:1px solid #bcd9f5; border-radius:10px;">
-          <div style="font-weight:600; color:#185fa5; margin-bottom:6px; font-size:13px;">🛒 更省事：商品页悬浮按钮（推荐）</div>
-          <div style="font-size:12.5px; color:var(--text); line-height:1.6; margin-bottom:10px;">
-            装一次油猴脚本，淘宝/天猫商品页右下角就会出现「🛒 导入推广参谋」，<b>点一下就自动抓取标题/价格/主图并打开本工具填好</b>，全程不用 F12、不用复制代码。
+          <div style="font-weight:600; color:#185fa5; margin-bottom:6px; font-size:13px;">🛒 商品页悬浮按钮（推荐：书签，零安装）</div>
+          <div style="font-size:12.5px; color:var(--text); line-height:1.55; margin-bottom:10px;">
+            不用装油猴、不用装扩展。把下面橙色链接<b>拖到浏览器书签栏</b>，以后在淘宝/天猫商品页点一下书签，页面就出现「🛒 导入推广参谋」按钮。
           </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+            <a id="dragBookmark" href="#" draggable="true" style="display:inline-block; padding:10px 14px; background:linear-gradient(135deg,#ff5000,#ff7300); color:#fff; border-radius:20px; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 4px 12px rgba(255,80,0,.3); cursor:grab;">🛒 导入推广参谋（拖我到书签栏）</a>
+            <button type="button" class="btn2" id="copyBookmarkBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制书签代码</button>
+          </div>
+          <div class="hint" id="bmStatus" style="margin-bottom:8px;"></div>
           <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
-            <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>。注意：正版 Chrome ID 是 <code>dhdgffkkebhmkfjojejmpbldmpobfkfo</code>（中间 ejmp）；正版 Edge ID 是 <code>iikmkjmpaadaobahmlepeloendndfphd</code>。请确认你装的和这两个一致。</li>
-            <li>先点「一键安装脚本」，油猴会自动弹出安装页 → 点「安装」。</li>
-            <li>如果页面没有弹出安装框（部分 Chrome 版本限制），点「复制脚本代码」→ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</li>
-            <li>脚本装好后，<b>不在 Chrome 的扩展程序页里</b>，要点浏览器工具栏的油猴图标 → 「管理面板」查看；或点下面的「打开油猴管理面板」按钮。</li>
-            <li>打开任意淘宝/天猫商品页，点右下角悬浮按钮即可导入。</li>
+            <li>用鼠标把上面橙色链接拖到浏览器<b>书签栏</b>（地址栏下面那一行）。看不到书签栏？按 <code>Ctrl+Shift+B</code> 显示。</li>
+            <li>打开任意淘宝/天猫商品页，点书签栏的「导入推广参谋」，页面左侧立刻出现橙色悬浮按钮。</li>
+            <li>点悬浮按钮，自动抓取标题/价格/主图并打开本工具页填好。</li>
           </ol>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="btn2" id="installUserscriptBtn">一键安装脚本</button>
-            <button type="button" class="btn2" id="copyUserscriptBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制脚本代码（手动安装）</button>
-            <button type="button" class="btn2" id="openDashboardBtn" style="background:#fff; color:#0f6e56; border:1px solid #0f6e56;">打开油猴管理面板</button>
-          </div>
-          <div class="hint" id="usStatus" style="margin-top:8px;"></div>
-          <div style="margin-top:12px; padding:10px 12px; background:#fff4ec; border:1px dashed #ffb38a; border-radius:8px;">
-            <div style="font-weight:600; color:#c45c00; font-size:12.5px; margin-bottom:6px;">⚠️ Chrome 138+ 无法运行油猴脚本？</div>
-            <div style="font-size:12px; color:var(--text); line-height:1.65;">
-              新版 Chrome 默认不运行用户脚本，即使已安装也可能不生效。两种可靠的替代方案：<br>
-              <b>方案 A（书签，最省事）</b>：点启动器「安装导入书签」→ 选你的浏览器 → 商品页点书签栏「导入推广参谋」即可。<br>
-              <b>方案 B（控制台，零安装）</b>：点下面「复制控制台代码」→ 在商品页按 F12 粘贴 → 回车，立即可见悬浮按钮。
+          <details style="font-size:12.5px; color:var(--text);">
+            <summary style="cursor:pointer; color:#888; margin-bottom:8px;">其他方案（油猴脚本 / 控制台代码）</summary>
+            <div style="padding:8px 0;">
+              <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
+                <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>，正版 Chrome ID <code>dhdgffkkebhmkfjojejmpbldmpobfkfo</code>、Edge ID <code>iikmkjmpaadaobahmlepeloendndfphd</code>。</li>
+                <li>先点「一键安装脚本」，油猴自动弹出安装页 → 点「安装」。</li>
+                <li>若没弹出，点「复制脚本代码（手动安装）」→ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</li>
+                <li>⚠️ Chrome 138+ 默认不运行用户脚本，脚本可能不生效。如失效请改用上面的书签方案。</li>
+              </ol>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn2" id="installUserscriptBtn">一键安装脚本</button>
+                <button type="button" class="btn2" id="copyUserscriptBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制脚本代码（手动安装）</button>
+                <button type="button" class="btn2" id="openDashboardBtn" style="background:#fff; color:#0f6e56; border:1px solid #0f6e56;">打开油猴管理面板</button>
+              </div>
+              <div class="hint" id="usStatus" style="margin-top:8px;"></div>
+              <div style="margin-top:12px; padding:10px 12px; background:#fff4ec; border:1px dashed #ffb38a; border-radius:8px;">
+                <div style="font-weight:600; color:#c45c00; font-size:12.5px; margin-bottom:6px;">💡 控制台代码（零安装，无需油猴）</div>
+                <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:8px;">
+                  点「复制控制台代码」→ 商品页按 F12 → Console → 粘贴 → 回车，立即可见悬浮按钮。
+                </div>
+                <button type="button" class="btn2" id="copyConsoleBtn" style="background:#fff; color:#c45c00; border:1px solid #c45c00;">复制控制台代码（零安装）</button>
+                <div class="hint" id="consoleStatus" style="margin-top:6px;"></div>
+              </div>
             </div>
-            <button type="button" class="btn2" id="copyConsoleBtn" style="margin-top:8px; background:#fff; color:#c45c00; border:1px solid #c45c00;">复制控制台代码（零安装）</button>
-            <div class="hint" id="consoleStatus" style="margin-top:6px;"></div>
-          </div>
+          </details>
         </div>
         <div class="hint" style="color:var(--sub); font-size:12px; margin-top:10px;">没有油猴也没关系：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可用下方「浏览器抓取」方案。</div>
         <div id="browserFallback" style="display:none; margin-top:12px; padding:12px; background:#fff7f0; border:1px dashed #ffccaa; border-radius:8px;">
@@ -737,7 +749,33 @@ document.getElementById("copyConsoleBtn").addEventListener("click", function(){
     st.textContent="读取脚本失败，请确认本地服务已启动（双击运行工具.bat → ①）。";
   });
 });
-});
+/* 书签方案：从接口获取 bookmarklet 代码，设置拖拽链接 + 复制按钮 */
+(function(){
+  function setupBookmark(){
+    fetch("/api/bookmarklet-code").then(r=>r.json()).then(d=>{
+      if(!d || !d.code) return;
+      const a = document.getElementById("dragBookmark");
+      const copyBtn = document.getElementById("copyBookmarkBtn");
+      const st = document.getElementById("bmStatus");
+      if(a) a.href = d.code;
+      if(copyBtn){
+        copyBtn.addEventListener("click", function(){
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(d.code).then(()=>{
+              if(st){ st.style.color="var(--ok)"; st.textContent="书签代码已复制 ✓ 右键书签栏 → 添加网页 → 名称填「导入推广参谋」、网址粘贴此代码 → 保存。"; }
+            });
+          } else { alert("复制失败，请刷新页面后再试。"); }
+        });
+      }
+      if(a && st){ st.style.color="var(--info)"; st.textContent="↑ 用鼠标把上面橙色链接拖到书签栏即可（或点「复制书签代码」手动添加）。"; }
+    }).catch(e=>{
+      const st=document.getElementById("bmStatus");
+      if(st){ st.style.color="var(--bad)"; st.textContent="获取书签代码失败，请确认本地服务已启动（双击运行工具.bat → ①）。"; }
+    });
+  }
+  if(document.readyState!=="loading") setupBookmark();
+  else document.addEventListener("DOMContentLoaded", setupBookmark);
+})();
 /* 检测油猴脚本是否已安装（脚本在本地工具页注入了标记） */
 window.addEventListener('load', function(){
   if (window.__TAOBAO_PROMO_USERSCRIPT_INSTALLED__) {
