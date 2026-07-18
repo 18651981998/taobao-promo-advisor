@@ -197,7 +197,8 @@ class Launcher(tk.Tk):
         add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
         add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
         group("管理")
-        add_btn("   打开帮助页（脚本查看/使用说明）", lambda: self.do_action("dashboard"))
+        add_btn("   打开油猴管理面板（查看脚本）", lambda: self.do_action("dashboard"))
+        add_btn("   打开帮助页（使用说明）", lambda: self.do_action("help"))
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
 
@@ -251,6 +252,28 @@ class Launcher(tk.Tk):
 
         if kind == "dashboard":
             self._set_running(True)
+            self._log("请选择浏览器，随后将打开油猴管理面板...")
+            def w():
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
+                dash_url = tm_dashboard_url(browser)
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开油猴管理面板..."))
+                open_url(dash_url, browser)
+                self.after(0, lambda: self._log(
+                    "已尝试打开油猴管理面板。\n"
+                    "Chrome 安全策略可能会拦截 chrome-extension:// 链接，出现 ERR_BLOCKED_BY_CLIENT，\n"
+                    "这很正常。如果被拦截，请直接点击浏览器工具栏的油猴图标 → 「管理面板」查看脚本。\n"
+                    "脚本安装成功后，管理面板里会显示「淘系推广参谋 · 一键导入（悬浮按钮）」。"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
+        if kind == "help":
+            self._set_running(True)
             self._log("请选择浏览器，随后将打开油猴脚本帮助页...")
             def w():
                 browser = ih.choose_browser()
@@ -260,14 +283,11 @@ class Launcher(tk.Tk):
                     return
                 ih.save_browser(browser["name"])
                 help_url = os.path.join(HERE, "tampermonkey-help.html")
-                # 如果浏览器能打开本地文件路径，就直接用 file:// 本地地址
                 file_url = "file://" + help_url.replace("\\", "/")
                 self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开帮助页..."))
                 open_url(file_url, browser)
                 self.after(0, lambda: self._log(
-                    "OK 已打开帮助页。\n"
-                    "Chrome 禁止外部程序直接打开油猴管理面板（会出现 ERR_BLOCKED_BY_CLIENT），\n"
-                    "请按帮助页步骤：点击浏览器工具栏的油猴图标 → 管理面板查看脚本。"))
+                    "OK 已打开帮助页。里面有图文步骤：如何打开油猴管理面板、如何查看脚本、商品页如何使用。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
