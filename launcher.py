@@ -82,6 +82,14 @@ def tm_settings_url(browser):
     return f"chrome://extensions/?id={TM_CHROME_ID}"
 
 
+def tm_dashboard_url(browser):
+    """返回 Tampermonkey 脚本管理面板地址（已安装脚本在这里查看）。"""
+    name = browser.get("name", "") if isinstance(browser, dict) else str(browser)
+    if "Edge" in name:
+        return f"edge-extension://{TM_EDGE_ID}/options.html"
+    return f"chrome-extension://{TM_CHROME_ID}/options.html"
+
+
 def server_up():
     try:
         import urllib.request
@@ -189,6 +197,7 @@ class Launcher(tk.Tk):
         add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
         add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
         group("管理")
+        add_btn("   打开 Tampermonkey 管理面板", lambda: self.do_action("dashboard"))
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
 
@@ -240,6 +249,23 @@ class Launcher(tk.Tk):
             threading.Thread(target=w, daemon=True).start()
             return
 
+        if kind == "dashboard":
+            self._set_running(True)
+            self._log("请选择浏览器，随后将打开 Tampermonkey 管理面板...")
+            def w():
+                browser = ih.choose_browser()
+                if not browser:
+                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
+                    self.after(0, lambda: self._set_running(False))
+                    return
+                ih.save_browser(browser["name"])
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 管理面板..."))
+                open_url(tm_dashboard_url(browser), browser)
+                self.after(0, lambda: self._log("OK 已打开 Tampermonkey 管理面板，已安装的脚本都在里面。"))
+                self.after(0, lambda: self._set_running(False))
+            threading.Thread(target=w, daemon=True).start()
+            return
+
         if kind == "guide":
             # 一键引导：先选择浏览器，再自动弹出 Tampermonkey 商店页 + 本地脚本安装页
             self._set_running(True)
@@ -259,21 +285,12 @@ class Launcher(tk.Tk):
                 open_url(tm_settings_url(browser), browser)
                 open_url(TM_CHROME, browser)
                 open_url(USERSCRIPT_URL, browser)
-                self.after(0, lambda: messagebox.showinfo(
-                    "安装引导",
-                    f"已选择浏览器：{browser['name']}\n\n"
-                    "已自动为你打开三个页面：\n\n"
+                self.after(0, lambda: self._log(
+                    f"OK 已用 {browser['name']} 打开三个页面：\n"
                     "1) Tampermonkey 详情页（开「允许用户脚本」开关）\n"
-                    "2) Tampermonkey 商店页\n"
-                    "   → 点「添加」把扩展装进浏览器（只需这一次）。\n\n"
-                    "3) 悬浮按钮脚本页\n"
-                    "   → 若 Tampermonkey 已装且用户脚本开关已开，会自动弹出安装确认，点「安装」即可；\n"
-                    "     若页面只显示文字、不弹安装框，请回到工具页点「复制脚本代码（手动安装）」\n"
-                    "     手动粘贴到 Tampermonkey 新建脚本里，效果一样。\n\n"
-                    "装完后打开任意淘宝/天猫商品页，右下角会出现「🛒 导入推广参谋」按钮。\n\n"
-                    "注：浏览器出于安全策略禁止程序静默安装扩展，必须你点一次确认。\n"
-                    "Edge 用户商店链接：\n" + TM_EDGE))
-                self.after(0, lambda: self._log("OK 已打开安装引导页面，按提示点确认即可。"))
+                    "2) Tampermonkey 商店页 → 点「添加」安装扩展\n"
+                    "3) 悬浮按钮脚本页 → 点「安装」安装脚本。若未弹安装框，回工具页点「复制脚本代码（手动安装）」\n"
+                    f"Edge 用户商店链接：{TM_EDGE}"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
@@ -290,14 +307,10 @@ class Launcher(tk.Tk):
                 ih.save_browser(browser["name"])
                 self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 商店页..."))
                 open_url(TM_CHROME, browser)
-                self.after(0, lambda: messagebox.showinfo(
-                    "安装 Tampermonkey",
-                    f"已选择浏览器：{browser['name']}\n\n"
-                    "已打开 Tampermonkey（正版）商店页。\n\n"
-                    "点「添加」安装扩展。安装完后，回到本工具点「安装悬浮按钮脚本」即可。\n\n"
-                    "「篡改猴」是第三方修改版，来源不可靠，建议使用上面的正版。\n"
-                    "Edge 用户请访问：\n" + TM_EDGE))
-                self.after(0, lambda: self._log("OK 已打开 Tampermonkey 商店页。"))
+                self.after(0, lambda: self._log(
+                    f"OK 已用 {browser['name']} 打开 Tampermonkey 商店页，点「添加」安装扩展。\n"
+                    "安装完后回到本工具点「安装悬浮按钮脚本」即可。\n"
+                    f"Edge 用户请访问：{TM_EDGE}"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
@@ -318,8 +331,16 @@ class Launcher(tk.Tk):
                 # 第一步：先打开 Tampermonkey 详情页（带 ID 直达，省去手动查找）
                 self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 设置页..."))
                 open_url(tm_settings_url(browser), browser)
-                # 第二步：弹窗提示用户打开「允许用户脚本」开关，确定后再打开脚本页
-                self.after(0, lambda: self._prompt_tm_switch(browser))
+                # 第二步：直接打开脚本安装页，不再弹窗阻断；提示写到日志栏
+                self.after(0, lambda: self._log(
+                    "已打开 Tampermonkey 详情页，请确认「允许用户脚本」开关已开启。\n"
+                    "现在打开脚本安装页..."))
+                open_url(USERSCRIPT_URL, browser)
+                self.after(0, lambda: self._log(
+                    "OK 已打开悬浮按钮脚本安装页。\n"
+                    "Tampermonkey 应该会弹出安装确认框，点「安装」即可。\n"
+                    "若未弹框，回工具页点「复制脚本代码（手动安装）」手动粘贴。"))
+                self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
 
@@ -338,31 +359,6 @@ class Launcher(tk.Tk):
                 self.after(0, lambda: self._log("OK 完成：" + label))
                 self.after(0, lambda: self._set_running(False))
         threading.Thread(target=w, daemon=True).start()
-
-    def _prompt_tm_switch(self, browser):
-        """引导用户打开 Tampermonkey 的「允许用户脚本」开关（主线程模态弹窗）。"""
-        messagebox.showinfo(
-            "重要：开启「允许用户脚本」开关",
-            f"已用 {browser['name']} 打开 Tampermonkey 详情页。\n\n"
-            "请在该页面找到「允许用户脚本」开关并打开（拨到蓝色 / 开启）。\n\n"
-            "如果页面里没有这个开关（Chrome 较旧版本），说明已默认开启，直接点「确定」即可。\n\n"
-            "点本窗口「确定」后，将自动打开脚本安装页。"
-        )
-        self._log("已确认，正在打开脚本安装页...")
-        open_url(USERSCRIPT_URL, browser)
-        self.after(0, lambda: self._finish_script_prompt(browser))
-
-    def _finish_script_prompt(self, browser):
-        messagebox.showinfo(
-            "安装悬浮按钮脚本",
-            f"已打开用户脚本安装页。\n\n"
-            "现在 Tampermonkey 应该会弹出安装确认框，点「安装」即可。\n\n"
-            "如果页面没有弹出安装框、只显示文字（部分 Chrome 版本或 Tampermonkey 版本会这样），\n"
-            "请回到本工具页（http://127.0.0.1:8123/），在「商品链接」框上方点「复制脚本代码（手动安装）」，\n"
-            "然后打开 Tampermonkey 管理面板 → 「+ 添加新脚本」→ 把代码粘贴进去 → 保存。\n\n"
-            "效果完全一样。")
-        self._log("OK 已打开脚本页。若未弹安装框，请回工具页点「复制脚本代码（手动安装）」。")
-        self._set_running(False)
 
 
 def main():
