@@ -197,7 +197,7 @@ class Launcher(tk.Tk):
         add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
         add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
         group("管理")
-        add_btn("   打开 Tampermonkey 管理面板", lambda: self.do_action("dashboard"))
+        add_btn("   打开帮助页（脚本查看/使用说明）", lambda: self.do_action("dashboard"))
         add_btn("③   停止本地服务", lambda: self.do_action("stop"))
         add_btn("④   退出", lambda: self.do_action("exit"))
 
@@ -251,7 +251,7 @@ class Launcher(tk.Tk):
 
         if kind == "dashboard":
             self._set_running(True)
-            self._log("请选择浏览器，随后将打开 Tampermonkey 管理面板...")
+            self._log("请选择浏览器，随后将打开油猴脚本帮助页...")
             def w():
                 browser = ih.choose_browser()
                 if not browser:
@@ -259,9 +259,15 @@ class Launcher(tk.Tk):
                     self.after(0, lambda: self._set_running(False))
                     return
                 ih.save_browser(browser["name"])
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开 Tampermonkey 管理面板..."))
-                open_url(tm_dashboard_url(browser), browser)
-                self.after(0, lambda: self._log("OK 已打开 Tampermonkey 管理面板，已安装的脚本都在里面。"))
+                help_url = os.path.join(HERE, "tampermonkey-help.html")
+                # 如果浏览器能打开本地文件路径，就直接用 file:// 本地地址
+                file_url = "file://" + help_url.replace("\\", "/")
+                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开帮助页..."))
+                open_url(file_url, browser)
+                self.after(0, lambda: self._log(
+                    "OK 已打开帮助页。\n"
+                    "Chrome 禁止外部程序直接打开油猴管理面板（会出现 ERR_BLOCKED_BY_CLIENT），\n"
+                    "请按帮助页步骤：点击浏览器工具栏的油猴图标 → 管理面板查看脚本。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
