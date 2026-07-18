@@ -50,8 +50,21 @@ BROWSERS = [
     {
         "name": "360安全浏览器",
         "exes": [
+            # 新版 360 安全浏览器常见路径
+            "C:/Program Files (x86)/360/360se13/360se.exe",
+            "C:/Program Files/360/360se13/360se.exe",
+            "C:/Program Files (x86)/360/360se14/360se.exe",
+            "C:/Program Files/360/360se14/360se.exe",
+            # 旧版 360se6
             "C:/Program Files (x86)/360/360se6/360se.exe",
             "C:/Program Files/360/360se6/360se.exe",
+            # 企业/其他命名
+            "C:/Program Files (x86)/360/360SafeBrowser/360se.exe",
+            "C:/Program Files/360/360SafeBrowser/360se.exe",
+            "C:/Program Files (x86)/360/360se/360se.exe",
+            "C:/Program Files/360/360se/360se.exe",
+            # 64 位版本
+            "C:/Program Files/360/360se13/360se.exe",
         ],
         "user_data": "%LOCALAPPDATA%\\360\\360se6\\User Data",
         "note": "兼容性一般",
@@ -59,8 +72,12 @@ BROWSERS = [
     {
         "name": "360极速浏览器",
         "exes": [
+            "C:/Program Files (x86)/360ChromeX/Chrome/Application/360chrome.exe",
+            "C:/Program Files/360ChromeX/Chrome/Application/360chrome.exe",
             "C:/Program Files (x86)/360Chrome/Chrome/Application/360chrome.exe",
             "C:/Program Files/360Chrome/Chrome/Application/360chrome.exe",
+            "C:/Program Files (x86)/360ChromeX/Chrome/Application/chrome.exe",
+            "C:/Program Files/360ChromeX/Chrome/Application/chrome.exe",
         ],
         "user_data": "%LOCALAPPDATA%\\360Chrome\\Chrome\\User Data",
         "note": "兼容性一般",
