@@ -100,48 +100,16 @@
   .topbar h1{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
   .topbar .sub{color:var(--sub);font-size:13px;margin-top:2px}
   .topbar .meta{color:var(--sub);font-size:12px;margin-top:4px}
-  .bm-status{align-self:center;display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:6px 12px;border-radius:20px;background:#fff;border:1px solid var(--line);white-space:nowrap;flex-shrink:0}
-  .bm-status.ok{color:#2e7d32;background:#e8f5e9;border-color:#a5d6a7}
-  .bm-status.no{color:#c62828;background:#ffebee;border-color:#ef9a9a}
-  .bm-status button{border:none;background:transparent;cursor:pointer;font-size:12px;color:inherit;text-decoration:underline;padding:0}
-  .quickstart{margin-top:14px;padding:14px;border-radius:10px;background:#f7f8fa;border:1px solid var(--line)}
-  .quickstart h3{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-  .qs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
-  .qs-card{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--text);line-height:1.6}
-  .qs-card .qs-num{display:inline-block;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--line2);color:var(--sub);text-align:center;line-height:20px;font-size:12px;margin-right:8px;vertical-align:top}
-  .qs-card .qs-txt{display:inline-block;vertical-align:top;max-width:calc(100% - 34px)}
-  .qs-card .qs-txt b{display:block;font-weight:600;color:var(--text);margin-bottom:2px}
-  /* modal */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
-  .modal.open{display:flex}
-  .modal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:520px;max-height:90vh;overflow:auto}
-  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
-  .modal-head h3{font-size:16px;font-weight:600}
-  .modal-close{background:none;border:none;font-size:18px;color:var(--sub);cursor:pointer}
-  .modal-body{padding:18px}
-  .bm-way{margin-bottom:18px}
-  .bm-way:last-child{margin-bottom:0}
-  .bm-way-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;padding:8px 12px;background:#f7f8fa;border-radius:8px}
-  .bm-hint{font-size:12px;color:var(--sub);margin-bottom:10px}
-  .bm-drag-wrap{text-align:center;margin:12px 0;position:relative}
-  .bm-drag-tip{font-size:13px;color:var(--brand);font-weight:600;margin-bottom:8px;background:#fff5f0;border:1px dashed #ffd0bf;border-radius:8px;padding:8px 12px;display:inline-flex;align-items:center;gap:6px}
-  .bm-drag{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;cursor:move;border:2px dashed #fff7f3;box-shadow:0 4px 14px rgba(255,80,0,.25);max-width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-  .bm-drag::before{content:"🖱";font-size:18px}
-  .bm-drag::after{content:"↗";font-size:14px;opacity:.9}
-  .bm-drag:hover{box-shadow:0 6px 18px rgba(255,80,0,.35);transform:translateY(-1px)}
-  .bm-drag-note{font-size:12px;color:var(--sub);margin-top:8px;background:#f7f8fa;border-radius:8px;padding:6px 10px;display:inline-block}
-  .bm-detect{background:#f0f7ff;border:1px solid #b3d7ff;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:#155b9a}
-  .bm-detect b{font-weight:600}
-  .bm-detect .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:6px}
-  .bm-detect .tag.ok{background:#e8f5e9;color:#2e7d32}
-  .bm-detect .tag.no{background:#ffebee;color:#c62828}
-  .bm-browser-tip{background:#fff3e0;border:1px solid #ffd180;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12.5px;color:#a35e0a}
-  .bm-browser-tip b{color:#d84315}
-  .bm-steps{counter-reset:bms;margin:12px 0;padding-left:0;list-style:none;font-size:12.5px;color:var(--text)}
-  .bm-steps li{position:relative;padding:6px 0 6px 28px;margin:4px 0}
-  .bm-steps li::before{counter-increment:bms;content:counter(bms);position:absolute;left:0;top:5px;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
-  .bm-steps kbd{background:#f1f3f5;border:1px solid #d1d5db;border-radius:4px;padding:1px 5px;font-size:11px;font-family:monospace}
-  .bm-code-box{background:#fafbfc;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-family:Consolas,Monaco,monospace;font-size:11px;word-break:break-all;color:var(--sub);max-height:120px;overflow:auto}
+  /* ===== 商品快照（扩展/链接抓取自动填充） ===== */
+  .snapshot{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(20,30,50,.04)}
+  .snapshot img{width:88px;height:88px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex-shrink:0;background:#fafbfc}
+  .snap-info{flex:1;min-width:0}
+  .snap-title{font-size:15px;font-weight:600;line-height:1.4;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .snap-stats{display:flex;gap:10px;flex-wrap:wrap}
+  .snap-stat{flex:1;min-width:84px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .snap-stat .l{font-size:12px;color:var(--sub)}
+  .snap-stat .v{font-size:20px;font-weight:700;color:var(--brand);margin-top:2px;display:block;line-height:1.2}
+  @media(max-width:520px){.snapshot{flex-direction:column;align-items:flex-start}.snapshot img{width:72px;height:72px}}
   .panel{box-shadow:0 2px 10px rgba(20,30,50,.05);transition:box-shadow .2s}
   .panel:hover{box-shadow:0 4px 16px rgba(20,30,50,.08)}
   .panel h2 .ic{width:24px;height:24px;border-radius:7px;background:#fff2ec;color:#ff5000;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-right:2px}
@@ -167,20 +135,21 @@
           <h1>淘系推广参谋</h1>
           <div class="sub">基于万相台无界最新推广逻辑 · 输入商品与账户状态，生成可照搬的后台配置单</div>
           <div class="meta">作者：A0_0🇨🇳 涛声依旧 ｜ 版本 V26.0717</div>
+          <div id="extStatus" class="ext-status ext-missing">扩展状态：检测中…</div>
         </div>
-      </div>
-      <div id="bmStatus" class="bm-status no" style="display:none;">
-        <span id="bmStatusText">导入书签：未安装</span>
-        <button id="bmInstallBtn" type="button">安装</button>
       </div>
     </div>
 
-    <div class="quickstart">
-      <h3>📋 快速开始</h3>
-      <div class="qs-grid">
-        <div class="qs-card"><span class="qs-num">1</span><div class="qs-txt"><b>启动工具</b>双击「运行工具.bat」→ 点 ① 启动并打开工具页。</div></div>
-        <div class="qs-card"><span class="qs-num">2</span><div class="qs-txt"><b>装悬浮按钮（推荐·一次）</b>在本页点「安装悬浮按钮」，装好油猴脚本后，商品页右下角会出现「🛒 导入推广参谋」，点一下就自动导入。</div></div>
-        <div class="qs-card"><span class="qs-num">3</span><div class="qs-txt"><b>或粘贴链接</b>复制商品网址粘到下方「商品链接」框 → 点「解析链接」自动填好标题/价格/主图。</div></div>
+    <!-- 商品快照：由扩展/链接抓取自动填充 -->
+    <div class="snapshot" id="snapshot" style="display:none">
+      <img id="snapImg" src="" alt="商品主图" onerror="this.style.visibility='hidden'">
+      <div class="snap-info">
+        <div class="snap-title" id="snapTitle"></div>
+        <div class="snap-stats">
+          <div class="snap-stat"><span class="l">价格</span><span class="v" id="snapPrice">—</span></div>
+          <div class="snap-stat"><span class="l">月销量</span><span class="v" id="snapSales">—</span></div>
+          <div class="snap-stat"><span class="l">评价</span><span class="v" id="snapReviews">—</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -203,62 +172,6 @@
           <button type="button" class="btn2" id="parseBtn">解析链接</button>
         </div>
         <div class="hint" id="parseStatus"></div>
-        <div id="floatBtnCard" style="margin-top:12px; padding:14px; background:#eef6ff; border:1px solid #bcd9f5; border-radius:10px;">
-          <div style="font-weight:600; color:#185fa5; margin-bottom:6px; font-size:13px;">🛒 商品页悬浮按钮（推荐：书签，零安装）</div>
-          <div style="font-size:12.5px; color:var(--text); line-height:1.55; margin-bottom:10px;">
-            不用装油猴、不用装扩展。把下面橙色链接<b>拖到浏览器书签栏</b>，以后在淘宝/天猫商品页点一下书签，页面就出现「🛒 导入推广参谋」按钮。
-          </div>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
-            <a id="dragBookmark" href="#" draggable="true" style="display:inline-block; padding:10px 14px; background:linear-gradient(135deg,#ff5000,#ff7300); color:#fff; border-radius:20px; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 4px 12px rgba(255,80,0,.3); cursor:grab;">🛒 导入推广参谋（拖我到书签栏）</a>
-            <button type="button" class="btn2" id="copyBookmarkBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制书签代码</button>
-          </div>
-          <div class="hint" id="bmStatus" style="margin-bottom:8px;"></div>
-          <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
-            <li>用鼠标把上面橙色链接拖到浏览器<b>书签栏</b>（地址栏下面那一行）。看不到书签栏？按 <code>Ctrl+Shift+B</code> 显示。</li>
-            <li>打开任意淘宝/天猫商品页，点书签栏的「导入推广参谋」，页面左侧立刻出现橙色悬浮按钮。</li>
-            <li>点悬浮按钮，自动抓取标题/价格/主图并打开本工具页填好。</li>
-          </ol>
-          <details style="font-size:12.5px; color:var(--text);">
-            <summary style="cursor:pointer; color:#888; margin-bottom:8px;">其他方案（油猴脚本 / 控制台代码）</summary>
-            <div style="padding:8px 0;">
-              <ol class="steps" style="margin-bottom:10px; font-size:12.5px;">
-                <li>装浏览器扩展 <b>Tampermonkey（油猴）</b>，正版 Chrome ID <code>dhdgffkkebhmkfjojejmpbldmpobfkfo</code>、Edge ID <code>iikmkjmpaadaobahmlepeloendndfphd</code>。</li>
-                <li>先点「一键安装脚本」，油猴自动弹出安装页 → 点「安装」。</li>
-                <li>若没弹出，点「复制脚本代码（手动安装）」→ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</li>
-                <li>⚠️ Chrome 138+ 默认不运行用户脚本，脚本可能不生效。如失效请改用上面的书签方案。</li>
-              </ol>
-              <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" class="btn2" id="installUserscriptBtn">一键安装脚本</button>
-                <button type="button" class="btn2" id="copyUserscriptBtn" style="background:#fff; color:#185fa5; border:1px solid #185fa5;">复制脚本代码（手动安装）</button>
-                <button type="button" class="btn2" id="openDashboardBtn" style="background:#fff; color:#0f6e56; border:1px solid #0f6e56;">打开油猴管理面板</button>
-              </div>
-              <div class="hint" id="usStatus" style="margin-top:8px;"></div>
-              <div style="margin-top:12px; padding:10px 12px; background:#fff4ec; border:1px dashed #ffb38a; border-radius:8px;">
-                <div style="font-weight:600; color:#c45c00; font-size:12.5px; margin-bottom:6px;">💡 控制台代码（零安装，无需油猴）</div>
-                <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:8px;">
-                  点「复制控制台代码」→ 商品页按 F12 → Console → 粘贴 → 回车，立即可见悬浮按钮。
-                </div>
-                <button type="button" class="btn2" id="copyConsoleBtn" style="background:#fff; color:#c45c00; border:1px solid #c45c00;">复制控制台代码（零安装）</button>
-                <div class="hint" id="consoleStatus" style="margin-top:6px;"></div>
-              </div>
-            </div>
-          </details>
-        </div>
-        <div class="hint" style="color:var(--sub); font-size:12px; margin-top:10px;">没有油猴也没关系：直接粘贴商品链接点「解析链接」即可，<b>无需安装任何书签或插件</b>。若个别商品因淘宝登录态解析失败，可用下方「浏览器抓取」方案。</div>
-        <div id="browserFallback" style="display:none; margin-top:12px; padding:12px; background:#fff7f0; border:1px dashed #ffccaa; border-radius:8px;">
-          <div style="font-weight:600; color:#c45c00; margin-bottom:8px; font-size:13px;">🛠 链接解析失败，用当前浏览器抓（绕过登录态）</div>
-          <div style="font-size:12px; color:var(--text); line-height:1.6; margin-bottom:10px;">
-            1. 点「复制抓取代码」<br>
-            2. 打开商品页（保持登录态）<br>
-            3. 按 F12 → Console → 粘贴代码 → 回车<br>
-            4. 数据会自动传回本地工具，回到本页即可看到标题/价格/主图已填好
-          </div>
-          <div style="display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
-            <button type="button" class="btn2" id="copyScraperBtn">复制抓取代码</button>
-            <button type="button" class="btn2" id="openLinkBtn">打开商品页</button>
-          </div>
-          <textarea id="scraperCode" style="width:100%; height:80px; font-size:11px; font-family:Consolas,monospace; border:1px solid var(--line2); border-radius:6px; padding:8px; background:#fafbfc; color:var(--sub);" readonly></textarea>
-        </div>
       </div>
 
       <div class="field">
@@ -384,55 +297,28 @@
   </div>
 </div>
 
-<div id="bmModal" class="modal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>安装「导入推广参谋」书签</h3>
-      <button type="button" id="bmModalClose" class="modal-close" aria-label="关闭">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="bmDetect" class="bm-detect" style="display:none"></div>
-      <div class="bm-way">
-        <div class="bm-way-title">方式一：手动拖拽（推荐，不用关浏览器）</div>
-        <div class="bm-browser-tip" id="bmBrowserTip" style="display:none"></div>
-        <ol class="bm-steps">
-          <li>先按 <kbd>Ctrl+Shift+B</kbd>，在浏览器<strong>地址栏下方</strong>显示「书签栏」。</li>
-          <li>按住下面橙色按钮<strong>不要松</strong>，一直拖到<strong>书签栏空白处</strong>，再松开鼠标。</li>
-          <li>书签栏会出现「导入推广参谋」书签，以后在淘宝/天猫商品页点它即可。</li>
-        </ol>
-        <div class="bm-drag-wrap">
-          <div class="bm-drag-tip">👆 拖到浏览器「书签栏」</div>
-          <br>
-          <a id="bmDrag" class="bm-drag" href="#">导入推广参谋</a>
-          <div class="bm-drag-note">不是点击，是「按住左键」拖到浏览器顶部的书签栏</div>
-        </div>
-        <p class="bm-hint">拖拽失败？可复制下面代码，手动新建书签：</p>
-        <div class="bm-code-box"><code id="bmCode">正在加载书签代码…</code></div>
-        <div style="display:flex;gap:10px;margin-top:10px">
-          <button type="button" class="btn2" id="bmCopyBtn" style="flex:1">复制书签代码</button>
-          <button type="button" class="btn2" id="bmManualBtn" style="flex:1">手动新建书签步骤</button>
-          <button type="button" class="btn2" id="bmMarkBtn" style="flex:1">我已拖到书签栏，标记为已安装</button>
-        </div>
-      </div>
-      <div class="bm-way">
-        <div class="bm-way-title">方式二：自动安装（需要关闭浏览器）</div>
-        <p class="bm-hint">如果你不想拖拽，可以让工具自动关闭浏览器、写入书签，再重新打开。期间请保存好未关闭的标签页。</p>
-        <button class="btn" id="bmAutoInstallBtn" type="button" style="margin-top:4px;">关闭浏览器并自动安装</button>
-      </div>
-      <div class="bm-way" style="border-top:1px dashed var(--line);padding-top:14px">
-        <div class="bm-way-title">点书签没反应？先检测本地服务</div>
-        <p class="bm-hint">如果拖到书签栏后点击无反应，多半是因为本地服务没有启动。先点下面按钮测试：</p>
-        <div style="display:flex;gap:10px;margin-top:8px">
-          <button type="button" class="btn2" id="bmTestServerBtn" style="flex:1">测试本地服务能否打开</button>
-          <button type="button" class="btn2" id="bmTestPageBtn" style="flex:1">打开测试商品页</button>
-        </div>
-        <div id="bmTestResult" class="note" style="margin-top:10px;display:none"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
+/* ============ 扩展状态检测（普通扩展是否生效） ============ */
+(function () {
+  function refreshExtStatus() {
+    var box = document.getElementById('extStatus');
+    if (!box) return;
+    // content.js 在工具页会把此标记写到 window 上（与页面共享 window 对象）
+    var ok = !!window.__TAOBAO_PROMO_EXTENSION_INSTALLED__;
+    if (ok) {
+      box.className = 'ext-status ext-installed';
+      box.textContent = '✓ 普通扩展已生效：商品页会自动出现「🛒 导入推广参谋」按钮';
+    } else {
+      box.className = 'ext-status ext-missing';
+      box.innerHTML = '✗ 普通扩展未生效（商品页不会有按钮）。点启动器「安装普通扩展」，并确认扩展页开发者模式已开';
+    }
+  }
+  // 立即检测一次，并在加载完成后、1 秒后再检测（确保 content.js 已运行）
+  refreshExtStatus();
+  window.addEventListener('load', refreshExtStatus);
+  setTimeout(refreshExtStatus, 1000);
+})();
+
 /* ============ 类目参数库（基于万相台无界最新出价与冷启动逻辑整理） ============ */
 const CAT = {
   "女装":    {minBudget:80,  roi:[2,3],   kw:{core:["牛仔短裙女","包臀裙女","显瘦a字裙","夏季连衣裙女"],
@@ -684,117 +570,11 @@ function guessCat(title){
   return "";
 }
 document.getElementById("parseBtn").addEventListener("click",parseLink);
-function copyScraperCode(){
-  const area = document.getElementById("scraperCode");
-  if(!area || !area.value){ alert("抓取代码未生成，请先粘贴商品链接并点「解析链接」触发失败提示。"); return; }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(area.value).then(()=>alert("抓取代码已复制。请打开商品页 → F12 → Console → 粘贴 → 回车，再回到本工具页即可看到数据已填好。"));
-  } else {
-    area.select(); document.execCommand("copy"); alert("抓取代码已复制。请打开商品页 → F12 → Console → 粘贴 → 回车，再回到本工具页即可看到数据已填好。");
-  }
-}
-document.getElementById("copyScraperBtn").addEventListener("click", copyScraperCode);
-document.getElementById("openLinkBtn").addEventListener("click", ()=>{
-  const url = document.getElementById("link").value.trim();
-  if(url) window.open(url, "_blank"); else alert("请先粘贴商品链接");
-});
-/* 悬浮按钮（油猴脚本）安装引导 */
-document.getElementById("installUserscriptBtn").addEventListener("click", function(){
-  // 使用本地服务的 .user.js URL，避免 GitHub raw 的 CSP/重定向导致 Tampermonkey 报 Invalid script header
-  const url = "http://127.0.0.1:8123/taobao-promo.user.js";
-  window.open(url, "_blank");
-  const st=document.getElementById("usStatus");
-  st.style.color="var(--info)";
-  st.innerHTML="已在新标签打开脚本安装页。若油猴已安装，会自动弹出安装确认；<b>如果页面只显示文字没有安装按钮，请点上面的「复制脚本代码（手动安装）」按钮，复制后打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存。</b>";
-});
-document.getElementById("copyUserscriptBtn").addEventListener("click", function(){
-  fetch("/taobao-promo.user.js").then(r=>r.text()).then(txt=>{
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(()=>{
-        const st=document.getElementById("usStatus");
-        st.style.color="var(--ok)";
-        st.textContent="脚本已复制 ✓ 打开油猴管理面板 → 「+ 添加新脚本」→ 粘贴 → 保存，即可使用悬浮按钮。";
-      });
-    } else { alert("复制失败，请手动从工具文件夹 taobao-promo.user.js 复制。"); }
-  }).catch(e=>{
-    const st=document.getElementById("usStatus");
-    st.style.color="var(--bad)";
-    st.textContent="读取脚本失败，请确认本地服务已启动（双击运行工具.bat → ①）。";
-  });
-});
-/* 打开油猴管理面板（已安装脚本在这里查看） */
-document.getElementById("openDashboardBtn").addEventListener("click", function(){
-  // Chrome 安全策略限制外部网页打开 chrome-extension:// 内部页面，但用 window.open 仍会尝试打开；
-  // 若被拦截，提示用户手动点击浏览器工具栏的油猴图标
-  const win = window.open("chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html", "_blank");
-  const st=document.getElementById("usStatus");
-  st.style.color="var(--info)";
-  st.innerHTML="已尝试打开油猴管理面板。如果页面被浏览器拦截（ERR_BLOCKED_BY_CLIENT），请直接点击浏览器工具栏的油猴图标 → 「管理面板」查看。";
-});
-/* 复制控制台代码（零安装方案，绕过 Chrome 138+ 对用户脚本的限制） */
-document.getElementById("copyConsoleBtn").addEventListener("click", function(){
-  fetch("/taobao-promo.user.js").then(r=>r.text()).then(txt=>{
-    // 去掉 ==UserScript== 元数据块，控制台直接执行 IIFE 即可
-    const code = txt.replace(/\/\/\s*==UserScript==[\s\S]*?\/\/\s*==\/UserScript==/, "").trim();
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(code).then(()=>{
-        const st=document.getElementById("consoleStatus");
-        st.style.color="var(--ok)";
-        st.innerHTML="控制台代码已复制 ✓ 在商品页按 <b>F12</b> → 点 <b>Console</b> → 粘贴 → 回车，页面左侧会出现「🛒 导入推广参谋」按钮。";
-      });
-    } else { alert("复制失败，请刷新页面后再试。"); }
-  }).catch(e=>{
-    const st=document.getElementById("consoleStatus");
-    st.style.color="var(--bad)";
-    st.textContent="读取脚本失败，请确认本地服务已启动（双击运行工具.bat → ①）。";
-  });
-});
-/* 书签方案：从接口获取 bookmarklet 代码，设置拖拽链接 + 复制按钮 */
-(function(){
-  function setupBookmark(){
-    fetch("/api/bookmarklet-code").then(r=>r.json()).then(d=>{
-      if(!d || !d.code) return;
-      const a = document.getElementById("dragBookmark");
-      const copyBtn = document.getElementById("copyBookmarkBtn");
-      const st = document.getElementById("bmStatus");
-      if(a) a.href = d.code;
-      if(copyBtn){
-        copyBtn.addEventListener("click", function(){
-          if(navigator.clipboard && navigator.clipboard.writeText){
-            navigator.clipboard.writeText(d.code).then(()=>{
-              if(st){ st.style.color="var(--ok)"; st.textContent="书签代码已复制 ✓ 右键书签栏 → 添加网页 → 名称填「导入推广参谋」、网址粘贴此代码 → 保存。"; }
-            });
-          } else { alert("复制失败，请刷新页面后再试。"); }
-        });
-      }
-      if(a && st){ st.style.color="var(--info)"; st.textContent="↑ 用鼠标把上面橙色链接拖到书签栏即可（或点「复制书签代码」手动添加）。"; }
-    }).catch(e=>{
-      const st=document.getElementById("bmStatus");
-      if(st){ st.style.color="var(--bad)"; st.textContent="获取书签代码失败，请确认本地服务已启动（双击运行工具.bat → ①）。"; }
-    });
-  }
-  if(document.readyState!=="loading") setupBookmark();
-  else document.addEventListener("DOMContentLoaded", setupBookmark);
-})();
-/* 检测油猴脚本是否已安装（脚本在本地工具页注入了标记） */
-window.addEventListener('load', function(){
-  if (window.__TAOBAO_PROMO_USERSCRIPT_INSTALLED__) {
-    const card = document.getElementById('floatBtnCard');
-    if (card) {
-      const tag = document.createElement('div');
-      tag.style.cssText='display:inline-block;margin-left:8px;padding:2px 10px;border-radius:12px;font-size:12px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;font-weight:600;';
-      tag.textContent='✓ 脚本已安装';
-      const h = card.querySelector('div');
-      if (h) h.appendChild(tag);
-    }
-  }
-});
 function parseLink(){
   const url=document.getElementById("link").value.trim();
   const st=document.getElementById("parseStatus");
   if(!url){ st.textContent="请先粘贴商品链接"; st.style.color="var(--bad)"; return; }
   st.textContent="解析中…"; st.style.color="var(--sub)";
-  const fb = document.getElementById("browserFallback"); if(fb) fb.style.display="none";
   fetch("/api/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url})})
     .then(r=>r.json()).then(d=>{
       if(d.ok){
@@ -819,23 +599,15 @@ function parseLink(){
           st.style.color="var(--ok)";
         }
         st.textContent=msg;
-        const fb2 = document.getElementById("browserFallback"); if(fb2) fb2.style.display="none";
       } else {
         let msg = "自动解析失败：" + d.msg;
         if (d.msg && d.msg.includes("验证页")) {
-          msg += "；淘宝需要登录态，服务端抓取不到。更省事：装「悬浮按钮（油猴脚本）」后点一下即可导入；或手动填写。";
+          msg += "；淘宝需要登录态，服务端抓取不到，可手动填写，或装「悬浮按钮」扩展后点一下导入。";
         } else {
           msg += "（可手动填写）";
         }
         st.textContent = msg;
         st.style.color = "var(--warn)";
-        // 显示浏览器抓取兜底方案
-        const fallback = document.getElementById("browserFallback");
-        const area = document.getElementById("scraperCode");
-        if(fallback && area){
-          area.value = makeBmCode(8123).replace(/^javascript:/, '');
-          fallback.style.display = "block";
-        }
       }
     })
     .catch(e=>{
@@ -851,18 +623,33 @@ function fillFromData(d, sourceName){
   if(d.price) document.getElementById("price").value=d.price;
   const c=guessCat(d.title||"");
   if(c) document.getElementById("cat").value=c;
+  if(d.url) document.getElementById("link").value=d.url;
+  showSnapshot(d);
+  const st=document.getElementById("parseStatus");
+  if(st){
+    st.textContent="已从"+sourceName+"导入。可补全其他信息后生成配置单。";
+    st.style.color="var(--ok)";
+  }
+}
+
+/* 把抓取到的商品数据展示到顶部「商品快照」卡片 */
+function showSnapshot(d){
+  const box=document.getElementById("snapshot");
+  if(!box) return;
   if(d.pic){
     const prev=document.getElementById("imgPrev");
-    document.getElementById("imgPrevImg").src=d.pic;
-    document.getElementById("imgPrevName").textContent="（"+sourceName+"）";
+    const pi=document.getElementById("imgPrevImg");
+    pi.src=d.pic; pi.style.visibility="visible";
+    document.getElementById("imgPrevName").textContent="（抓取）";
     prev.style.display="flex";
+    const si=document.getElementById("snapImg");
+    si.src=d.pic; si.style.visibility="visible";
   }
-  if(d.url) document.getElementById("link").value=d.url;
-  const st=document.getElementById("parseStatus");
-  st.textContent="已从"+sourceName+"导入。可补全其他信息后生成配置单。";
-  st.style.color="var(--ok)";
-  const fallback=document.getElementById("browserFallback");
-  if(fallback) fallback.style.display="none";
+  if(d.title) document.getElementById("snapTitle").textContent=d.title;
+  document.getElementById("snapPrice").textContent = d.price ? ("¥"+d.price) : "—";
+  document.getElementById("snapSales").textContent = d.sales ? d.sales : "—";
+  document.getElementById("snapReviews").textContent = d.reviews ? d.reviews : "—";
+  box.style.display="flex";
 }
 
 /* 轮询浏览器抓取回来的数据 */
@@ -883,258 +670,9 @@ async function checkLastParse(){
 
 document.getElementById("genBtn").addEventListener("click",gen);
 
-/* 书签安装状态检测与安装 */
-let BM_CODE = "";
-function makeBmCode(port){
-  return "javascript:(function(){"+
-    "var title='',price='',pic='',url=location.href;"+
-    "try{title=document.querySelector('h1').innerText.trim();}catch(e){}"+
-    "if(!title)try{title=document.querySelector('meta[property=\\\"og:title\\\"]').content.trim();}catch(e){}"+
-    "if(!title)try{title=document.title||'';}catch(e){}"+
-    "try{price=document.querySelector('[class*=\\\"Price\\\"]').innerText.match(/[\\\\d.]+/)[0];}catch(e){}"+
-    "if(!price){var m=document.body.innerText.match(/[¥￥]\\\\s*([\\\\d.]+)/);if(m)price=m[1];}"+
-    "try{pic=document.querySelector('meta[property=\\\"og:image\\\"]').content.trim();}catch(e){}"+
-    "if(!pic){var imgs=document.querySelectorAll('img');for(var i=0;i<imgs.length;i++){if(imgs[i].src.indexOf('alicdn.com')>-1){pic=imgs[i].src;break;}}}"+
-    "var d={title:title,price:price,pic:pic,url:url};"+
-    "console.log('[推广参谋] 抓取结果:',d);"+
-    "try{"+
-      "var h=new XMLHttpRequest();"+
-      "h.open('GET','http://127.0.0.1:"+port+"/',false);"+
-      "h.send();"+
-      "if(h.status!==200){throw new Error('service not ready');}"+
-    "}catch(e){"+
-      "alert('本地服务未启动，请先双击「运行工具.bat」启动后再点书签。');"+
-      "return;"+
-    "}"+
-    "try{"+
-      "var x=new XMLHttpRequest();"+
-      "x.open('POST','http://127.0.0.1:"+port+"/api/browser-parse',false);"+
-      "x.setRequestHeader('Content-Type','application/json');"+
-      "x.send(JSON.stringify(d));"+
-      "var r=x.status===200?JSON.parse(x.responseText):null;"+
-      "if(r&&r.ok){window.open('http://127.0.0.1:"+port+"/','_blank');}else{throw new Error('post failed');}"+
-    "}catch(e){"+
-      "console.log('[推广参谋] POST失败，回退URL传参',e);"+
-      "window.open('http://127.0.0.1:"+port+"/?title='+encodeURIComponent(title)+'&price='+encodeURIComponent(price)+'&pic='+encodeURIComponent(pic)+'&url='+encodeURIComponent(url),'_blank');"+
-    "};"+
-  "})();";
-}
-function setBmCode(code){
-  BM_CODE = code || makeBmCode(8123);
-  const drag = document.getElementById("bmDrag");
-  if(drag){
-    drag.href = BM_CODE;
-    drag.textContent = "导入推广参谋";
-  }
-  const box = document.getElementById("bmCode");
-  if(box) box.textContent = BM_CODE;
-}
-
-async function updateBmStatus(){
-  const box = document.getElementById("bmStatus");
-  const txt = document.getElementById("bmStatusText");
-  const btn = document.getElementById("bmInstallBtn");
-  if(!box) return;
-  try{
-    const res = await fetch("/api/bookmark-status");
-    const d = await res.json();
-    box.style.display = "inline-flex";
-    // 弹窗内显示检测详情：优先显示当前浏览器状态，避免 360 等无关浏览器干扰
-    const detectBox = document.getElementById("bmDetect");
-    if(detectBox && Array.isArray(d.detected)){
-      const ua = navigator.userAgent.toLowerCase();
-      const isEdge = /edg\//.test(ua);
-      const isChrome = /chrome\//.test(ua) && !isEdge;
-      const is360 = /360se|360ee|360chrome|360se6|qihu 360/.test(ua) && !isChrome && !isEdge;
-      let currentName = isEdge ? "Microsoft Edge" : (isChrome ? "Google Chrome" : (is360 ? "360安全浏览器" : ""));
-      const current = currentName ? d.detected.find(x => x.name === currentName) : null;
-      const installedNames = d.detected.filter(x=>x.installed).map(x=>x.name);
-      if(installedNames.length > 0){
-        detectBox.innerHTML = `<b>已检测到书签：</b>${installedNames.join("、")} <span class="tag ok">已安装</span>`;
-        detectBox.style.display = "block";
-      } else if(current && current.profiles > 0){
-        detectBox.innerHTML = `<b>当前浏览器：</b>${current.name} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
-        detectBox.style.display = "block";
-      } else if(d.detected.some(x => x.profiles > 0)){
-        const names = d.detected.filter(x => x.profiles > 0).map(x => x.name);
-        detectBox.innerHTML = `<b>检测到浏览器数据：</b>${names.join("、")} <span class="tag no">书签未写入</span>，请按下方步骤拖拽安装。`;
-        detectBox.style.display = "block";
-      } else {
-        detectBox.innerHTML = `<b>未检测到 Chrome/Edge 浏览器数据。</b> 请确认已安装 Chrome 或 Edge 后再安装书签。`;
-        detectBox.style.display = "block";
-      }
-    }
-    if(d.ok && d.installed){
-      box.className = "bm-status ok";
-      txt.textContent = "导入书签：已安装";
-      btn.style.display = "none";
-    } else {
-      box.className = "bm-status no";
-      txt.textContent = "导入书签：未安装";
-      btn.style.display = "inline";
-    }
-  } catch(e){
-    box.style.display = "inline-flex";
-    box.className = "bm-status no";
-    txt.textContent = "导入书签：未检测";
-    btn.style.display = "inline";
-  }
-}
-
-async function fetchBmCode(){
-  setBmCode(); // 先给默认代码，避免异步等待期间按钮无效
-  try{
-    const res = await fetch("/api/bookmarklet-code");
-    const d = await res.json();
-    if(d.ok && d.code){ setBmCode(d.code); }
-  } catch(e){ /* 离线时保持默认代码 */ }
-}
-
-function openBmModal(){
-  const m = document.getElementById("bmModal");
-  if(m) m.classList.add("open");
-  // 根据当前浏览器UA给出提示（优先识别 Chrome / Edge，避免 360 插件污染 UA 导致误判）
-  const tip = document.getElementById("bmBrowserTip");
-  const ua = navigator.userAgent.toLowerCase();
-  const isEdge = /edg\//.test(ua);
-  const isChrome = /chrome\//.test(ua) && !isEdge;
-  const is360 = /360se|360ee|360chrome|360se6|qihu 360/.test(ua) && !isChrome && !isEdge;
-  if(isEdge){
-    tip.innerHTML = "<b>✓ 已使用 Microsoft Edge。</b> 请按下面步骤把橙色按钮拖到书签栏。";
-    tip.style.display = "block";
-  } else if(isChrome){
-    tip.innerHTML = "<b>✓ 已使用 Google Chrome。</b> 请按下面步骤把橙色按钮拖到书签栏。";
-    tip.style.display = "block";
-  } else if(is360){
-    tip.innerHTML = "<b>⚠ 检测到 360 浏览器。</b> 360 对本地工具和 javascript: 书签支持不稳定，<b>强烈建议换用 Google Chrome 或 Microsoft Edge</b> 打开本工具并安装书签。";
-    tip.style.display = "block";
-  } else {
-    tip.innerHTML = "<b>⚠ 未识别到 Chrome/Edge。</b> 请使用 Chrome 或 Edge 打开本工具，否则书签可能无法安装。";
-    tip.style.display = "block";
-  }
-}
-
-function showManualSteps(){
-  alert("手动新建书签步骤（推荐 Chrome/Edge）：\n\n1. 按 Ctrl+Shift+B 显示书签栏。\n2. 在书签栏空白处右键 → 选择「添加网页」。\n3. 名称填写：导入推广参谋\n4. 网址粘贴刚才复制的书签代码。\n5. 点「保存」即可。\n\n完成后回到本页面，点「我已安装，刷新状态」。");
-}
-
-function closeBmModal(){
-  const m = document.getElementById("bmModal");
-  if(m) m.classList.remove("open");
-}
-
-async function autoInstallBookmark(){
-  if(!confirm("方式二会自动关闭浏览器、写入书签后再重新打开。\n\n请确认已保存好未关闭的重要标签页，是否继续？")) return;
-  const txt = document.getElementById("bmStatusText");
-  const btn = document.getElementById("bmAutoInstallBtn");
-  txt.textContent = "导入书签：安装中…";
-  btn.textContent = "安装程序已启动…";
-  btn.disabled = true;
-  try{
-    const res = await fetch("/api/install-bookmark", {method:"POST"});
-    const d = await res.json();
-    if(d.ok){
-      alert(d.msg || "安装程序已启动，浏览器关闭后会自动重新打开。");
-    } else {
-      alert("启动安装失败：" + (d.msg || "未知错误"));
-    }
-  } catch(e){
-    alert("启动安装失败，请手动运行「运行工具.bat」→「② 安装导入书签」。\n" + e);
-  } finally {
-    btn.textContent = "关闭浏览器并自动安装";
-    btn.disabled = false;
-    updateBmStatus();
-  }
-}
-
-async function copyBmCode(){
-  if(!BM_CODE) return alert("书签代码尚未加载，请稍候再试。");
-  try{
-    await navigator.clipboard.writeText(BM_CODE);
-    alert("书签代码已复制，请新建书签并粘贴到网址栏。");
-  } catch(e){
-    // 降级
-    const ta = document.createElement("textarea");
-    ta.value = BM_CODE;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    alert("书签代码已复制，请新建书签并粘贴到网址栏。");
-  }
-}
-
-async function testBmServer(){
-  const box = document.getElementById("bmTestResult");
-  box.style.display = "block";
-  box.textContent = "正在检测本地服务…";
-  try{
-    const res = await fetch("/", {method:"HEAD"});
-    if(res.ok){
-      box.innerHTML = "✅ <b>本地服务正常。</b> 如果点击书签仍没反应，请打开淘宝/天猫商品页再点书签，或在商品页按 F12 → Console 看是否有「[推广参谋] 抓取结果」日志。";
-      box.style.color = "var(--ok)";
-    } else {
-      box.innerHTML = "⚠️ <b>本地服务返回异常：</b> " + res.status + "。请关闭本页，重新双击「运行工具.bat」→ 点 ① 启动。";
-      box.style.color = "var(--warn)";
-    }
-  } catch(e){
-    box.innerHTML = "❌ <b>无法连接到本地服务（127.0.0.1:8123）。</b><br>请按以下步骤检查：<br>1. 双击「运行工具.bat」→ 点 ① 启动并打开工具页；<br>2. 如果已经启动，请右键任务栏检查是否有 Python 进程被安全软件拦截；<br>3. 360/电脑管家可能会拦截本地端口，请允许 promo_server.py 访问网络。";
-    box.style.color = "#c62828";
-  }
-}
-
-function testBmPage(){
-  // 打开一个淘宝商品示例页，用于测试书签是否能正常跳转回工具
-  const testUrl = "https://item.taobao.com/item.htm?id=1234567890";
-  alert("将打开一个示例淘宝商品页（可能不存在真实商品）。\n\n打开后，请点击书签栏里的「导入推广参谋」，看是否能跳转回本工具。");
-  window.open(testUrl, "_blank");
-}
-
-document.getElementById("bmInstallBtn").addEventListener("click", ()=>{openBmModal();fetchBmCode();});
-document.getElementById("bmModalClose").addEventListener("click", closeBmModal);
-document.getElementById("bmAutoInstallBtn").addEventListener("click", autoInstallBookmark);
-document.getElementById("bmCopyBtn").addEventListener("click", copyBmCode);
-document.getElementById("bmManualBtn").addEventListener("click", showManualSteps);
-document.getElementById("bmTestServerBtn").addEventListener("click", testBmServer);
-document.getElementById("bmTestPageBtn").addEventListener("click", testBmPage);
-document.getElementById("bmMarkBtn").addEventListener("click", ()=>{
-  localStorage.setItem("jp_bm_marked", "1");
-  const box = document.getElementById("bmStatus");
-  const txt = document.getElementById("bmStatusText");
-  const btn = document.getElementById("bmInstallBtn");
-  box.className = "bm-status ok";
-  txt.textContent = "导入书签：已安装";
-  btn.style.display = "none";
-  alert("已标记为安装。现在可以打开淘宝/天猫商品页，点书签栏里的「导入推广参谋」使用了。");
-});
-
-// 防误点：书签按钮必须拖拽，不能点击
-document.getElementById("bmDrag").addEventListener("click", function(e){
-  e.preventDefault();
-  alert("这个按钮不是点击的，请「按住鼠标左键」把它拖到浏览器顶部的「书签栏」再松开。\n\n按 Ctrl+Shift+B 可显示书签栏。");
-});
-
-// 点击遮罩层关闭弹窗
-document.getElementById("bmModal").addEventListener("click", function(e){
-  if(e.target === this) closeBmModal();
-});
 
 /* 页面初始保持空白，由用户手动填写或链接解析回填；同时支持 URL 参数导入（来自浏览器书签） */
 window.addEventListener("load",()=>{
-  setBmCode();
-  updateBmStatus();
-  fetchBmCode();
-  setInterval(updateBmStatus, 3000); // 定时检测书签是否写入
-  // 如果用户之前手动标记过已安装，保持状态
-  if(localStorage.getItem("jp_bm_marked") === "1"){
-    const box = document.getElementById("bmStatus");
-    const txt = document.getElementById("bmStatusText");
-    const btn = document.getElementById("bmInstallBtn");
-    box.style.display = "inline-flex";
-    box.className = "bm-status ok";
-    txt.textContent = "导入书签：已安装";
-    btn.style.display = "none";
-  }
   // 浏览器检测：360或IE旧内核显示提示
   const ua=navigator.userAgent.toLowerCase();
   const badUA=/360se|360ee|qihu|theworld|lbbrowser|msie|trident/.test(ua);
@@ -1142,15 +680,18 @@ window.addEventListener("load",()=>{
     const tip=document.getElementById("browserTip");
     if(tip) tip.style.display="block";
   }
+  // 扩展打开本页时，URL 携带抓取到的商品数据（标题/价格/主图/销量/评价）
   const params=new URLSearchParams(location.search);
   const title=params.get("title");
   const price=params.get("price");
   const pic=params.get("pic");
+  const sales=params.get("sales");
+  const reviews=params.get("reviews");
   const url=params.get("url");
-  if(title || price || pic || url){
-    fillFromData({title, price, pic, url}, "浏览器抓取");
+  if(title || price || pic || sales || reviews || url){
+    fillFromData({title, price, pic, sales, reviews, url}, "商品页抓取");
   }
-  // 启动轮询：书签/控制台抓取的数据会 POST 到 /api/browser-parse，本页自动回填
+  // 轮询：扩展抓取的数据会 POST 到 /api/browser-parse，本页自动回填
   checkLastParse();
   setInterval(checkLastParse, 2000);
   document.addEventListener("visibilitychange", ()=>{
