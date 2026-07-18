@@ -58,6 +58,8 @@ BROWSERS = [
             # 旧版 360se6
             "C:/Program Files (x86)/360/360se6/360se.exe",
             "C:/Program Files/360/360se6/360se.exe",
+            # 用户实际安装路径：AppData\Roaming\360se6\Application
+            os.path.expandvars("%APPDATA%/360se6/Application/360se.exe"),
             # 企业/其他命名
             "C:/Program Files (x86)/360/360SafeBrowser/360se.exe",
             "C:/Program Files/360/360SafeBrowser/360se.exe",
@@ -66,7 +68,7 @@ BROWSERS = [
             # 64 位版本
             "C:/Program Files/360/360se13/360se.exe",
         ],
-        "user_data": "%LOCALAPPDATA%\\360\\360se6\\User Data",
+        "user_data": "%APPDATA%\\360se6\\Application",
         "note": "兼容性一般",
     },
     {
@@ -167,6 +169,10 @@ def scan_for_360(name):
             try:
                 for path in glob.glob(pattern, recursive=True):
                     if os.path.isfile(path):
+                        # 排除 installer 目录下的更新程序/安装程序
+                        parts = path.replace("\\", "/").lower().split("/")
+                        if "installer" in parts:
+                            continue
                         candidates.append(path)
             except Exception:
                 pass
@@ -175,6 +181,9 @@ def scan_for_360(name):
             try:
                 for path in glob.glob(pattern2, recursive=True):
                     if os.path.isfile(path):
+                        parts = path.replace("\\", "/").lower().split("/")
+                        if "installer" in parts:
+                            continue
                         candidates.append(path)
             except Exception:
                 pass
