@@ -196,7 +196,6 @@ class Launcher(tk.Tk):
         add_btn("①   启动并打开工具页", lambda: self.do_action("open"), primary=True)
         add_btn("②   安装悬浮按钮（一键引导）", lambda: self.do_action("guide"), primary=True)
         group("导入")
-        add_btn("   卸载盗版/旧版 Tampermonkey", lambda: self.do_action("uninstall_fake_tm"), primary=True)
         add_btn("   安装 Tampermonkey 扩展（正版）", lambda: self.do_action("tm"))
         add_btn("   安装悬浮按钮脚本", lambda: self.do_action("script"))
         add_btn("   安装导入书签（备选）", lambda: self.do_action("bookmark"))
@@ -343,32 +342,6 @@ class Launcher(tk.Tk):
                     "注意：正版 Tampermonkey Chrome 扩展 ID 是 dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp），\n"
                     "如果看到的是其他 ID，请卸载后从上面的链接重新安装。\n"
                     f"Edge 用户请访问：{TM_EDGE}"))
-                self.after(0, lambda: self._set_running(False))
-            threading.Thread(target=w, daemon=True).start()
-            return
-
-        if kind == "uninstall_fake_tm":
-            self._set_running(True)
-            self._log("请选择浏览器，随后打开扩展管理页...")
-            def w():
-                browser = ih.choose_browser()
-                if not browser:
-                    self.after(0, lambda: self._log("已取消，未选择浏览器。"))
-                    self.after(0, lambda: self._set_running(False))
-                    return
-                ih.save_browser(browser["name"])
-                self.after(0, lambda: self._log(f"正在用 {browser['name']} 打开扩展管理页..."))
-                if "Edge" in browser.get("name", ""):
-                    open_url("edge://extensions/", browser)
-                else:
-                    open_url("chrome://extensions/", browser)
-                self.after(0, lambda: self._log(
-                    "OK 已打开扩展管理页。\n"
-                    "请找到名称为「篡改猴」或「Tampermonkey」的扩展，查看其 ID：\n"
-                    "  • 正版 Chrome ID：dhdgffkkebhmkfjojejmpbldmpobfkfo（中间是 ejmp）\n"
-                    "  • 正版 Edge ID：iikmkjmpaadaobahmlepeloendndfphd\n"
-                    "如果你之前是从不明来源下载的，看到其他 ID 请卸载。\n"
-                    "卸载完成后，回到本工具点「安装 Tampermonkey 扩展（正版）」重新安装。"))
                 self.after(0, lambda: self._set_running(False))
             threading.Thread(target=w, daemon=True).start()
             return
