@@ -1,27 +1,30 @@
-// 在商品页提取 title / price / pic
+// 淘系推广参谋 · 扩展弹窗：在当前商品页提取 title / price / pic 并打开本地工具
 function extract() {
   function t() {
     var r = '';
     try { r = document.querySelector('h1').innerText.trim(); } catch (e) {}
     if (!r) try { r = document.querySelector('meta[property="og:title"]').content.trim(); } catch (e) {}
-    if (!r) try { r = g_config.title; } catch (e) {}
+    if (!r) r = document.title;
     return r;
   }
   function p() {
     var r = '';
-    try { r = g_config.defaultItemPrice; } catch (e) {}
-    if (!r) try { r = document.querySelector('[class*="Price"]').innerText.match(/[\d.]+/)[0]; } catch (e) {}
-    if (!r) { var m = document.body.innerText.match(/[¥￥]\s*([\d.]+)/); if (m) r = m[1]; }
+    var sels = ['.Price--realSales', '.Price--actualValue', '#J_PromoPrice .tm-price', '#J_PromoPriceNum', '#J_StrPrice .tb-rmb-num', '.tb-rmb-num', '[class*="Price"]'];
+    for (var i = 0; i < sels.length; i++) {
+      try { var m = document.querySelector(sels[i]).innerText.match(/[\d,]+\.?\d*/); if (m) { r = m[0].replace(/,/g, ''); break; } } catch (e) {}
+    }
+    if (!r) { var m = document.body.innerText.match(/[¥￥]\s*([\d,]+\.?\d*)/); if (m) r = m[1].replace(/,/g, ''); }
     return r;
   }
   function c() {
     var r = '';
     try { r = document.querySelector('meta[property="og:image"]').content.trim(); } catch (e) {}
-    if (!r) try { r = g_config.pic; } catch (e) {}
+    if (!r) try { r = document.querySelector('#J_ImgBooth').src.trim(); } catch (e) {}
+    if (!r) try { r = document.querySelector('#J_ImageWrap img').src.trim(); } catch (e) {}
     if (!r) {
       var imgs = document.querySelectorAll('img');
       for (var i = 0; i < imgs.length; i++) {
-        if (imgs[i].src.indexOf('alicdn.com') > -1) { r = imgs[i].src; break; }
+        if (imgs[i].src.indexOf('alicdn.com') > -1 || imgs[i].src.indexOf('taobaocdn') > -1) { r = imgs[i].src; break; }
       }
     }
     return r;
