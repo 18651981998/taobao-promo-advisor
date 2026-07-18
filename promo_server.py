@@ -512,7 +512,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 data["data"] = {}
             self._send(200, json.dumps(data, ensure_ascii=False))
             return
-        if path in ("/", "/index.html") or path.startswith("/?"):
+        # 把 URL 路径和查询参数分开，避免 /foo.html?a=1 被当成含 ? 的文件名
+        full_path = self.path
+        path = full_path
+        if "?" in full_path:
+            path = full_path[:full_path.find("?")]
+        if path in ("/", "/index.html"):
             path = "/taobao-promo-advisor.html"
         # 安全路径：只允许当前目录下的静态文件
         local_path = os.path.normpath(os.path.join(HERE, path.lstrip("/")))
