@@ -8,8 +8,8 @@
 // @match        https://*tmall.com/*
 // @match        http://127.0.0.1:8123/*
 // @connect      127.0.0.1
-// @updateURL    http://127.0.0.1:8123/taobao-promo.user.js
-// @downloadURL  http://127.0.0.1:8123/taobao-promo.user.js
+// @updateURL    https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
+// @downloadURL  https://raw.githubusercontent.com/18651981998/taobao-promo-advisor/main/taobao-promo.user.js
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // ==/UserScript==
